@@ -1,0 +1,52 @@
+PODS:
+  - FBSnapshotTestCase (2.1.4):
+    - FBSnapshotTestCase/SwiftSupport (= 2.1.4)
+  - FBSnapshotTestCase/Core (2.1.4)
+  - FBSnapshotTestCase/SwiftSupport (2.1.4):
+    - FBSnapshotTestCase/Core
+  - iOSSnapshotTestCase (2.2.0):
+    - iOSSnapshotTestCase/SwiftSupport (= 2.2.0)
+  - iOSSnapshotTestCase/Core (2.2.0)
+  - iOSSnapshotTestCase/SwiftSupport (2.2.0):
+    - iOSSnapshotTestCase/Core
+  - Nimble (7.1.2)
+  - Nimble-Snapshots (6.4.1):
+    - Nimble-Snapshots/Core (= 6.4.1)
+  - Nimble-Snapshots/Core (6.4.1):
+    - iOSSnapshotTestCase (~> 2.0)
+    - Nimble (~> 7.0)
+  - Quick (1.3.0)
+  - WebViewNode (0.1.0):
+    - WebViewNode/Web (= 0.1.0)
+  - WebViewNode/Web (0.1.0)
+
+DEPENDENCIES:
+  - FBSnapshotTestCase
+  - Nimble
+  - Nimble-Snapshots
+  - Quick
+  - WebViewNode (from `../`)
+
+SPEC REPOS:
+  https://github.com/cocoapods/specs.git:
+    - FBSnapshotTestCase
+    - iOSSnapshotTestCase
+    - Nimble
+    - Nimble-Snapshots
+    - Quick
+
+EXTERNAL SOURCES:
+  WebViewNode:
+    :path: "../"
+
+SPEC CHECKSUMS:
+  FBSnapshotTestCase: 094f9f314decbabe373b87cc339bea235a63e07a
+  iOSSnapshotTestCase: 415bd84f9dbba4ff45fede49d800bc7332fbedac
+  Nimble: 3835ba9f459daa6b347f8a8e110aaae8ca1920a8
+  Nimble-Snapshots: 438fb1a6fa3c655e246fc9ac375f6cd2964d759a
+  Quick: 03278013f71aa05fe9ecabc94fbcc6835f1ee76f
+  WebViewNode: 8d32b86d9ace33a58c28b9273095959e1eed87cf
+
+PODFILE CHECKSUM: 0af3afb61d1556709f1619ca35d11046da982d1f
+
+COCOAPODS: 1.5.3
