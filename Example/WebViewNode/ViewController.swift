@@ -7,12 +7,27 @@
 //
 
 import UIKit
+import WebViewNode
 
 class ViewController: UIViewController {
+    
+    private let _webView: DLWebView = {
+        let webView = DLWebView(isCookiesShared: true, isUserScalable: false)
+        webView.isProgressShown = true
+        return webView
+    }()
 
     override func viewDidLoad() {
         super.viewDidLoad()
-        // Do any additional setup after loading the view, typically from a nib.
+        
+        self.view.addSubview(_webView)
+        _webView.frame = self.view.bounds
+        _webView.pageTitleDidChange { [weak self] (title) in
+            guard let strongSelf = self else { return }
+            
+            strongSelf.title = title
+        }
+        _webView.load("https://github.com/")
     }
 
     override func didReceiveMemoryWarning() {
