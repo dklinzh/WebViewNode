@@ -14,12 +14,7 @@ open class DLWebView: WKWebView {
     public weak var webViewDelegate: DLWebViewDelegate?
     
     /// The loading progress view on the top of web view.
-    public lazy var progressView: UIProgressView = {
-        let progressView = UIProgressView(progressViewStyle: .default)
-        progressView.trackTintColor = UIColor(white: 1.0, alpha: 0.0)
-        progressView.autoresizingMask = [.flexibleWidth, .flexibleBottomMargin]
-        return progressView
-    }()
+    public lazy var progressView = WebLoadingProgressView(webView: self, progressAnimationStyle: .smooth)
     
     /// Determine whether or not the loading progress view should be shown. Defaults to false.
     public var isProgressShown: Bool = false {
@@ -30,10 +25,8 @@ open class DLWebView: WKWebView {
             
             if isProgressShown {
                 self.addSubview(progressView)
-                self.addObserver(self, forKeyPath: #keyPath(WKWebView.estimatedProgress), options: [], context: &_progressContext)
             } else {
                 progressView.removeFromSuperview()
-                self.removeObserver(self, forKeyPath: #keyPath(WKWebView.estimatedProgress))
             }
         }
     }
@@ -57,8 +50,6 @@ open class DLWebView: WKWebView {
     
     private var _isCookiesShared = false
     private var _pageTitleDidChangeBlock: ((_ title: String?) -> Void)?
-    
-    private var _progressContext = 0
     private var _pageTitleContext = 0
     
 //    private var _authenticated = false
@@ -106,10 +97,6 @@ open class DLWebView: WKWebView {
     }
     
     deinit {
-        if isProgressShown {
-            self.removeObserver(self, forKeyPath: #keyPath(WKWebView.estimatedProgress))
-        }
-        
         if _pageTitleDidChangeBlock != nil {
             self.removeObserver(self, forKeyPath: #keyPath(WKWebView.title))
         }
@@ -121,6 +108,7 @@ open class DLWebView: WKWebView {
         if isProgressShown {
             var frame = self.bounds
             frame.size.height = progressView.frame.size.height
+            frame.origin.y -= self.scrollView.bounds.origin.y
             progressView.frame = frame
         }
     }
@@ -205,20 +193,7 @@ open class DLWebView: WKWebView {
     }
     
     open override func observeValue(forKeyPath keyPath: String?, of object: Any?, change: [NSKeyValueChangeKey : Any]?, context: UnsafeMutableRawPointer?) {
-        if keyPath == #keyPath(WKWebView.estimatedProgress) && context == &_progressContext {
-            progressView.alpha = 1.0
-            let progress = Float(self.estimatedProgress)
-            let animated: Bool = progress > progressView.progress
-            progressView.setProgress(progress, animated: animated)
-            
-            if progress >= 1.0 {
-                UIView.animate(withDuration: 0.3, delay: 0.3, options: .curveEaseOut, animations: { 
-                    self.progressView.alpha = 0.0
-                }, completion: { (finished: Bool) in
-                    self.progressView.setProgress(0.0, animated: false)
-                })
-            }
-        } else if keyPath == #keyPath(WKWebView.title) && context == &_pageTitleContext {
+        if keyPath == #keyPath(WKWebView.title) && context == &_pageTitleContext {
             _pageTitleDidChangeBlock?(self.title)
         } else {
             super.observeValue(forKeyPath: keyPath, of: object, change: change, context: context)
@@ -257,13 +232,6 @@ extension DLWebView: WKNavigationDelegate {
     
     public func webView(_ webView: WKWebView, didStartProvisionalNavigation navigation: WKNavigation!) {
         webViewDelegate?.webView(webView as! DLWebView, didStartLoading: webView.url)
-        
-        let progress = Float(self.estimatedProgress) + 0.1
-        if progress >= 1.0 {
-            progressView.setProgress(0.95, animated: true)
-        } else {
-            progressView.setProgress(progress, animated: true)
-        }
     }
     
     public func webView(_ webView: WKWebView, didFinish navigation: WKNavigation!) {
