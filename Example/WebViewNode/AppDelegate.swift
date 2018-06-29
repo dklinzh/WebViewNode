@@ -1,8 +1,8 @@
 //
 //  AppDelegate.swift
-//  WebViewNode
+//  WebViewNode_Example
 //
-//  Created by dklinzh on 06/25/2018.
+//  Created by Daniel Lin on 06/25/2018.
 //  Copyright (c) 2018 dklinzh. All rights reserved.
 //
 
