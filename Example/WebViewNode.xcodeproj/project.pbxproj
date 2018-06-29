@@ -216,10 +216,12 @@
 				TargetAttributes = {
 					607FACCF1AFB9204008FA782 = {
 						CreatedOnToolsVersion = 6.3.1;
+						DevelopmentTeam = 7WFQS42M6B;
 						LastSwiftMigration = 0900;
 					};
 					607FACE41AFB9204008FA782 = {
 						CreatedOnToolsVersion = 6.3.1;
+						DevelopmentTeam = 7WFQS42M6B;
 						LastSwiftMigration = 0900;
 						TestTargetID = 607FACCF1AFB9204008FA782;
 					};
@@ -502,6 +504,7 @@
 			baseConfigurationReference = 343A13A9A4597524FE0B2D0C /* Pods-WebViewNode_Example.debug.xcconfig */;
 			buildSettings = {
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
+				DEVELOPMENT_TEAM = 7WFQS42M6B;
 				INFOPLIST_FILE = WebViewNode/Info.plist;
 				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/Frameworks";
 				MODULE_NAME = ExampleApp;
@@ -517,6 +520,7 @@
 			baseConfigurationReference = 2A6BCC25A76BF1D8F82C17E1 /* Pods-WebViewNode_Example.release.xcconfig */;
 			buildSettings = {
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
+				DEVELOPMENT_TEAM = 7WFQS42M6B;
 				INFOPLIST_FILE = WebViewNode/Info.plist;
 				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/Frameworks";
 				MODULE_NAME = ExampleApp;
@@ -531,6 +535,7 @@
 			isa = XCBuildConfiguration;
 			baseConfigurationReference = DCC7295F64C847B64961C472 /* Pods-WebViewNode_Tests.debug.xcconfig */;
 			buildSettings = {
+				DEVELOPMENT_TEAM = 7WFQS42M6B;
 				FRAMEWORK_SEARCH_PATHS = (
 					"$(SDKROOT)/Developer/Library/Frameworks",
 					"$(inherited)",
@@ -552,6 +557,7 @@
 			isa = XCBuildConfiguration;
 			baseConfigurationReference = 4DB0B1CBE64BD8CF29CFA785 /* Pods-WebViewNode_Tests.release.xcconfig */;
 			buildSettings = {
+				DEVELOPMENT_TEAM = 7WFQS42M6B;
 				FRAMEWORK_SEARCH_PATHS = (
 					"$(SDKROOT)/Developer/Library/Frameworks",
 					"$(inherited)",
