@@ -60,7 +60,8 @@ open class DLWebView: WKWebView {
     /// - Parameters:
     ///   - isCookiesShared: Determine whether or not the initialized web view should be shared with cookies from the HTTP cookie storage. Defaults to false.
     ///   - isUserScalable: Determine whether or not the frame of web view can be scaled by user. Defaults to false.
-    public convenience init(isCookiesShared: Bool = false, isUserScalable: Bool = false) {
+    ///   - customUserAgent: The custom user agent string of web view.
+    public convenience init(isCookiesShared: Bool = false, isUserScalable: Bool = false, customUserAgent: String? = nil) {
         let webViewConfig = WKWebViewConfiguration()
         
         if isCookiesShared, let script = WebJavaScriptCookies() {
@@ -79,8 +80,20 @@ open class DLWebView: WKWebView {
             webViewConfig.userContentController.addUserScript(scaleScript)
         }
         
+        if let customUserAgent = customUserAgent {
+            if #available(iOS 9.0, *) {} else {
+                UserDefaults.standard.register(defaults: ["UserAgent": customUserAgent])
+            }
+        }
+        
         self.init(frame: .zero, configuration: webViewConfig)
         _isCookiesShared = isCookiesShared
+        
+        if let customUserAgent = customUserAgent {
+            if #available(iOS 9.0, *) {
+                self.customUserAgent = customUserAgent
+            }
+        }
     }
     
     public override init(frame: CGRect, configuration: WKWebViewConfiguration) {
@@ -175,6 +188,15 @@ open class DLWebView: WKWebView {
         }
     }
     
+    /// The user agent of a web view.
+    ///
+    /// - Parameter block: A block with user agent string
+    public func userAgent(_ block: @escaping (_ result: String?) -> Void) {
+        self.evaluateJavaScript("navigator.userAgent") { (result, error) in
+            block(result as? String)
+        }
+    }
+    
     /// Add an observer to the page title of web view
     ///
     /// - Parameter block: Invoked when the page title has been changed.
@@ -225,6 +247,7 @@ open class DLWebView: WKWebView {
         
         UIApplication.shared.keyWindow?.rootViewController?.present(alertController, animated: true)
     }
+    
 }
 
 // MARK: - WKNavigationDelegate
