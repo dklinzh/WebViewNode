@@ -300,7 +300,12 @@ extension DLWebView: WKUIDelegate {
     
     public func webView(_ webView: WKWebView, createWebViewWith configuration: WKWebViewConfiguration, for navigationAction: WKNavigationAction, windowFeatures: WKWindowFeatures) -> WKWebView? {
         guard let isMainFrame = navigationAction.targetFrame?.isMainFrame, isMainFrame else {
-            self.load(navigationAction.request)
+            guard let openNewWindow = webViewDelegate?.webView(webView as! DLWebView, shouldCreateNewWebViewWith: configuration, for: navigationAction, windowFeatures: windowFeatures),
+                openNewWindow else {
+                    self.load(navigationAction.request)
+                    return nil
+            }
+            
             return nil
         }
         

@@ -36,7 +36,7 @@ public protocol DLWebViewDelegate: class {
     /// - Parameters:
     ///   - webView: The web view invoking the delegate method.
     ///   - navigationAction: Descriptive information about the action triggering the navigation request.
-    /// - Returns: The policy to pass back to the decision handler from the webView(_:decidePolicyFor:decisionHandler:) method.
+    /// - Returns: The policy to pass back to the decision handler from the webView(_:decidePolicyFor:decisionHandler:) method. Defaults to .allow
     func webView(_ webView: DLWebView, decidePolicyFor navigationAction: WKNavigationAction) -> WKNavigationActionPolicy
     
     /// Decides whether to allow or cancel a navigation after its response is known.
@@ -44,8 +44,18 @@ public protocol DLWebViewDelegate: class {
     /// - Parameters:
     ///   - webView: The web view invoking the delegate method.
     ///   - navigationResponse: Descriptive information about the navigation response.
-    /// - Returns: The policy to pass back to the decision handler from the webView(_:decidePolicyFor:decisionHandler:) method.
+    /// - Returns: The policy to pass back to the decision handler from the webView(_:decidePolicyFor:decisionHandler:) method. Defaults to .allow
     func webView(_ webView: DLWebView, decidePolicyFor navigationResponse: WKNavigationResponse) -> WKNavigationResponsePolicy
+    
+    /// Decides whether a new web view should be created as a subframe of the website.
+    ///
+    /// - Parameters:
+    ///   - webView: The web view invoking the delegate method.
+    ///   - configuration: The configuration to use when creating the new web view.
+    ///   - navigationAction: The navigation action causing the new web view to be created.
+    ///   - windowFeatures: Window features requested by the webpage.
+    /// - Returns: Indicates whether a new web view should be created. Defaults to false.
+    func webView(_ webView: DLWebView, shouldCreateNewWebViewWith configuration: WKWebViewConfiguration, for navigationAction: WKNavigationAction, windowFeatures: WKWindowFeatures) -> Bool
 }
 
 public extension DLWebViewDelegate {
@@ -54,4 +64,5 @@ public extension DLWebViewDelegate {
     func webView(_ webView: DLWebView, didFailToLoad url: URL?, error: Error?) {}
     func webView(_ webView: DLWebView, decidePolicyFor navigationAction: WKNavigationAction) -> WKNavigationActionPolicy { return .allow }
     func webView(_ webView: DLWebView, decidePolicyFor navigationResponse: WKNavigationResponse) -> WKNavigationResponsePolicy { return .allow }
+    func webView(_ webView: DLWebView, shouldCreateNewWebViewWith configuration: WKWebViewConfiguration, for navigationAction: WKNavigationAction, windowFeatures: WKWindowFeatures) -> Bool { return false }
 }
