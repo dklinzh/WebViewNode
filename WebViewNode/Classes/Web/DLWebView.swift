@@ -31,6 +31,16 @@ open class DLWebView: WKWebView {
         }
     }
     
+    /// The color shown for the portion of the web loading progress bar that is filled.
+    public var progressTintColor: UIColor? {
+        get {
+            return progressView.progressTintColor
+        }
+        set {
+            progressView.progressTintColor = newValue
+        }
+    }
+    
     /// A dictionary of the custom HTTP header fields for URL request.
     public var customHTTPHeaderFields: [String : String]?
     
