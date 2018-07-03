@@ -23,7 +23,7 @@ open class WebLoadingProgressView: UIProgressView {
     public var progressAnimationStyle: WebLoadingProgressAnimationStyle {
         didSet {
             if oldValue == .smooth, progressAnimationStyle == .default {
-                _progressTimer?.cancel()
+                cancelProgressTimer()
             }
         }
     }
@@ -32,7 +32,7 @@ open class WebLoadingProgressView: UIProgressView {
     private var _progressContext = 0
     private var _estimatedProgress: Float = 1.0
     
-    private lazy var _progressQueue = DispatchQueue(label: "com.dklinzh.framework.WebViewNode.WebLoadingProgressQueue", target: DispatchQueue.main)
+//    private lazy var _progressQueue = DispatchQueue(label: "com.dklinzh.framework.WebViewNode.WebLoadingProgressQueue", target: DispatchQueue.main)
     private var _progressTimer: DispatchSourceTimer?
     
     /// A web loading progress view initialization.
@@ -54,7 +54,7 @@ open class WebLoadingProgressView: UIProgressView {
     }
     
     deinit {
-        _progressTimer?.cancel()
+        cancelProgressTimer()
     }
     
     open override func willMove(toSuperview newSuperview: UIView?) {
@@ -87,7 +87,7 @@ open class WebLoadingProgressView: UIProgressView {
             let progress = Float(_progress)
             if progressAnimationStyle == .smooth {
                 if _estimatedProgress >= progress {
-                    self.setProgress(progress, animated: _estimatedProgress >= 1.0)
+                    self.setProgress(progress, animated: self.progress == 0)
                     startSmoothProgressTimer()
                 } else if progress > self.progress {
                     self.setProgress(progress, animated: true)
@@ -113,17 +113,18 @@ open class WebLoadingProgressView: UIProgressView {
     
     private func startSmoothProgressTimer() {
         if progressAnimationStyle == .smooth {
-            _progressTimer?.cancel()
+            cancelProgressTimer()
             
-            let progressTimer = DispatchSource.makeTimerSource(queue: _progressQueue)
-            progressTimer.schedule(deadline: .now(), repeating: 0.05)
+            let progressTimer = DispatchSource.makeTimerSource(queue: .main)
+            let interval: Double = 0.05
+            progressTimer.schedule(deadline: .now() + interval, repeating: interval)
             progressTimer.setEventHandler(handler: { [weak self] in
                 guard let strongSelf = self else { return }
                 
                 let progress = strongSelf.progress + 0.005
                 let maxProgress: Float = 0.95
                 if progress >= maxProgress {
-                    progressTimer.cancel()
+                    strongSelf.cancelProgressTimer()
                     strongSelf.setProgress(maxProgress, animated: false)
                 } else {
                     strongSelf.setProgress(progress, animated: false)
@@ -136,7 +137,13 @@ open class WebLoadingProgressView: UIProgressView {
     
     private func stopSmoothProgressTimer() {
         if progressAnimationStyle == .smooth {
-            _progressTimer?.cancel()
+            cancelProgressTimer()
+        }
+    }
+    
+    private func cancelProgressTimer() {
+        if let progressTimer = _progressTimer {
+            progressTimer.cancel()
             _progressTimer = nil
         }
     }
