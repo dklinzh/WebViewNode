@@ -8,6 +8,17 @@
 
 import WebKit
 
+/// The style of viewport fit with web content.
+///
+/// - `default`: The default value
+/// - contain: The viewport should fully contain the web content.
+/// - cover: The web content should fully cover the viewport.
+public enum WebContentFitStyle: String {
+    case `default` = "auto"
+    case contain = "contain"
+    case cover = "cover"
+}
+
 open class DLWebView: WKWebView {
     
     /// The delegate of DLWebView.
@@ -70,8 +81,9 @@ open class DLWebView: WKWebView {
     /// - Parameters:
     ///   - isCookiesShared: Determine whether or not the initialized web view should be shared with cookies from the HTTP cookie storage. Defaults to false.
     ///   - isUserScalable: Determine whether or not the frame of web view can be scaled by user. Defaults to false.
+    ///   - contentFitStyle: The style of viewport fit with web content. Default value is `default`.
     ///   - customUserAgent: The custom user agent string of web view.
-    public convenience init(isCookiesShared: Bool = false, isUserScalable: Bool = false, customUserAgent: String? = nil) {
+    public convenience init(isCookiesShared: Bool = false, isUserScalable: Bool = false, contentFitStyle: WebContentFitStyle = .default, customUserAgent: String? = nil) {
         let webViewConfig = WKWebViewConfiguration()
         
         if isCookiesShared, let script = WebJavaScriptCookies() {
@@ -79,16 +91,14 @@ open class DLWebView: WKWebView {
             webViewConfig.userContentController.addUserScript(cookieScript)
         }
         
-        if !isUserScalable {
-            let script = """
-                var script = document.createElement('meta');
-                script.name = 'viewport';
-                script.content=\"width=device-width, initial-scale=1.0, maximum-scale=1.0, minimum-scale=1.0, user-scalable=no\";
-                document.getElementsByTagName('head')[0].appendChild(script);
-            """
-            let scaleScript = WKUserScript(source: script, injectionTime: .atDocumentEnd, forMainFrameOnly: false)
-            webViewConfig.userContentController.addUserScript(scaleScript)
-        }
+        let script = """
+        var script = document.createElement('meta');
+        script.name = 'viewport';
+        script.content=\"width=device-width, initial-scale=1.0, user-scalable=\(isUserScalable ? "yes" : "no"), viewport-fit=\(contentFitStyle.rawValue)\";
+        document.getElementsByTagName('head')[0].appendChild(script);
+        """
+        let scaleScript = WKUserScript(source: script, injectionTime: .atDocumentEnd, forMainFrameOnly: false)
+        webViewConfig.userContentController.addUserScript(scaleScript)
         
         if let customUserAgent = customUserAgent {
             if #available(iOS 9.0, *) {} else {
