@@ -116,12 +116,12 @@ open class WebLoadingProgressView: UIProgressView {
             cancelProgressTimer()
             
             let progressTimer = DispatchSource.makeTimerSource(queue: .main)
-            let interval: Double = 0.05
+            let interval: Double = 0.02
             progressTimer.schedule(deadline: .now() + interval, repeating: interval)
             progressTimer.setEventHandler(handler: { [weak self] in
                 guard let strongSelf = self else { return }
                 
-                let progress = strongSelf.progress + 0.005
+                let progress = strongSelf.progress + 0.002
                 let maxProgress: Float = 0.95
                 if progress >= maxProgress {
                     strongSelf.cancelProgressTimer()
