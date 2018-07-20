@@ -78,7 +78,7 @@ open class DLWebView: WKWebView {
     }
     private var _shouldPreviewElementBy3DTouch = false
     
-    private var _validSchemes = Set<String>(["http", "https", "tel", "file"])
+    private var _customValidSchemes: Set<String>?
     
     private var _isCookiesShared = false
     private var _pageTitleDidChangeBlock: ((_ title: String?) -> Void)?
@@ -170,8 +170,11 @@ open class DLWebView: WKWebView {
     ///
     /// - Parameter schemes: An array of URL scheme.
     public func addCustomValidSchemes(_ schemes: [String]) {
+        if _customValidSchemes == nil {
+            _customValidSchemes = Set<String>()
+        }
         schemes.forEach { (scheme) in
-            self._validSchemes.insert(scheme.lowercased())
+            self._customValidSchemes!.insert(scheme.lowercased())
         }
     }
     
@@ -267,25 +270,45 @@ open class DLWebView: WKWebView {
             return false
         }
         
-        return !_validSchemes.contains(scheme)
+        let validSchemes = ["http", "https", "file"]
+        if validSchemes.contains(scheme) {
+            return false
+        }
+        
+        if let customValidSchemes = _customValidSchemes,
+            customValidSchemes.contains(scheme) {
+            return false
+        }
+        
+        return true
     }
     
     // FIXME: Strings Localization
     private func launchExternalApp(url: URL) {
-        let alertController = UIAlertController(title: "Leave current app?", message: "This web page is trying to open an outside app. Are you sure you want to open it?", preferredStyle: .alert)
-        let cancelAction = UIAlertAction(title: "Cancel", style: .cancel, handler: nil)
-        alertController.addAction(cancelAction)
-        
-        let openAction = UIAlertAction(title: "Open App", style: .default) { (action) in
+        let systemSchemes = ["tel", "sms", "mailto"]
+        if let scheme = url.scheme,
+            systemSchemes.contains(scheme) {
             if #available(iOS 10.0, *) {
                 UIApplication.shared.open(url)
             } else {
                 UIApplication.shared.openURL(url)
             }
+        } else {
+            let alertController = UIAlertController(title: "Leave current app?", message: "This web page is trying to open an outside app. Are you sure you want to open it?", preferredStyle: .alert)
+            let cancelAction = UIAlertAction(title: "Cancel", style: .cancel, handler: nil)
+            alertController.addAction(cancelAction)
+            
+            let openAction = UIAlertAction(title: "Open App", style: .default) { (action) in
+                if #available(iOS 10.0, *) {
+                    UIApplication.shared.open(url)
+                } else {
+                    UIApplication.shared.openURL(url)
+                }
+            }
+            alertController.addAction(openAction)
+            
+            UIApplication.shared.keyWindow?.rootViewController?.present(alertController, animated: true)
         }
-        alertController.addAction(openAction)
-        
-        UIApplication.shared.keyWindow?.rootViewController?.present(alertController, animated: true)
     }
     
 }

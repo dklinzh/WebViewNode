@@ -15,6 +15,7 @@ class ExampleWebViewController: UIViewController {
         let webView = DLWebView(isCookiesShared: true, userScalable: .disable, contentFitStyle: .default)
         webView.isProgressShown = true
         webView.progressTintColor = .green
+        webView.addCustomValidSchemes(["node"])
         return webView
     }()
 
