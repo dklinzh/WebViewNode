@@ -12,7 +12,7 @@ import WebViewNode
 class ExampleWebViewController: UIViewController {
     
     private let _webView: DLWebView = {
-        let webView = DLWebView(isCookiesShared: true, isUserScalable: false, contentFitStyle: .default)
+        let webView = DLWebView(isCookiesShared: true, userScalable: .disable, contentFitStyle: .default)
         webView.isProgressShown = true
         webView.progressTintColor = .green
         return webView

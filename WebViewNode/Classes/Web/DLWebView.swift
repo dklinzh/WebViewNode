@@ -10,13 +10,24 @@ import WebKit
 
 /// The style of viewport fit with web content.
 ///
-/// - `default`: The default value
+/// - `default`: The default value by itself.
 /// - contain: The viewport should fully contain the web content.
 /// - cover: The web content should fully cover the viewport.
 public enum WebContentFitStyle: String {
-    case `default` = "auto"
+    case `default`
     case contain = "contain"
     case cover = "cover"
+}
+
+/// Determine whether or not the frame of web view can be scaled by user.
+///
+/// - `default`: The default value by itself.
+/// - disable: Disable the web view scaling.
+/// - enable: Enable the web view scaling.
+public enum WebUserScalable: String {
+    case `default`
+    case disable = "no"
+    case enable = "yes"
 }
 
 open class DLWebView: WKWebView {
@@ -80,10 +91,10 @@ open class DLWebView: WKWebView {
     ///
     /// - Parameters:
     ///   - isCookiesShared: Determine whether or not the initialized web view should be shared with cookies from the HTTP cookie storage. Defaults to false.
-    ///   - isUserScalable: Determine whether or not the frame of web view can be scaled by user. Defaults to false.
+    ///   - isUserScalable: Determine whether or not the frame of web view can be scaled by user. Defaults value is `default`.
     ///   - contentFitStyle: The style of viewport fit with web content. Default value is `default`.
-    ///   - customUserAgent: The custom user agent string of web view.
-    public convenience init(isCookiesShared: Bool = false, isUserScalable: Bool = false, contentFitStyle: WebContentFitStyle = .default, customUserAgent: String? = nil) {
+    ///   - customUserAgent: The custom user agent string of web view. Defaults to nil.
+    public convenience init(isCookiesShared: Bool = false, userScalable: WebUserScalable = .default, contentFitStyle: WebContentFitStyle = .default, customUserAgent: String? = nil) {
         let webViewConfig = WKWebViewConfiguration()
         
         if isCookiesShared, let script = WebJavaScriptCookies() {
@@ -91,14 +102,23 @@ open class DLWebView: WKWebView {
             webViewConfig.userContentController.addUserScript(cookieScript)
         }
         
-        let script = """
-        var script = document.createElement('meta');
-        script.name = 'viewport';
-        script.content=\"width=device-width, initial-scale=1.0, user-scalable=\(isUserScalable ? "yes" : "no"), viewport-fit=\(contentFitStyle.rawValue)\";
-        document.getElementsByTagName('head')[0].appendChild(script);
-        """
-        let scaleScript = WKUserScript(source: script, injectionTime: .atDocumentEnd, forMainFrameOnly: false)
-        webViewConfig.userContentController.addUserScript(scaleScript)
+        var viewportContents = [String]()
+        if userScalable != .default {
+            viewportContents.append("user-scalable=\(userScalable.rawValue)")
+        }
+        if contentFitStyle != .default {
+            viewportContents.append("viewport-fit=\(contentFitStyle.rawValue)")
+        }
+        if !viewportContents.isEmpty {
+            let script = """
+            var script = document.createElement('meta');
+            script.name = 'viewport';
+            script.content= 'width=device-width, initial-scale=1.0, \(viewportContents.joined(separator: ", "))';
+            document.getElementsByTagName('head')[0].appendChild(script);
+            """
+            let scaleScript = WKUserScript(source: script, injectionTime: .atDocumentEnd, forMainFrameOnly: false)
+            webViewConfig.userContentController.addUserScript(scaleScript)
+        }
         
         if let customUserAgent = customUserAgent {
             if #available(iOS 9.0, *) {} else {
