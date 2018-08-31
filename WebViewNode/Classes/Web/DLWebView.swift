@@ -30,6 +30,7 @@ public enum WebUserScalable: String {
     case enable = "yes"
 }
 
+/// Subclass of WKWebView
 open class DLWebView: WKWebView {
     
     /// The delegate of DLWebView.
@@ -78,9 +79,16 @@ open class DLWebView: WKWebView {
     }
     private var _shouldPreviewElementBy3DTouch = false
     
+    /// A floating-point value that determines the rate of deceleration after the user lifts their finger on the scroll view of web view. You can use the UIScrollViewDecelerationRateNormal or UIScrollViewDecelerationRateFast constants as reference points for reasonable deceleration rates. Defaults to UIScrollViewDecelerationRateNormal.
+    public var scrollDecelerationRate = UIScrollViewDecelerationRateNormal {
+        didSet {
+            self.scrollView.decelerationRate = scrollDecelerationRate
+        }
+    }
+    
     private var _customValidSchemes: Set<String>?
     
-    private var _isCookiesShared = false
+    private var _cookiesShared = false
     private var _pageTitleDidChangeBlock: ((_ title: String?) -> Void)?
     private var _pageTitleContext = 0
     
@@ -90,16 +98,15 @@ open class DLWebView: WKWebView {
     /// A web view initialization.
     ///
     /// - Parameters:
-    ///   - isCookiesShared: Determine whether or not the initialized web view should be shared with cookies from the HTTP cookie storage. Defaults to false.
-    ///   - isUserScalable: Determine whether or not the frame of web view can be scaled by user. Defaults value is `default`.
+    ///   - configuration: A collection of properties used to initialize a web view.
+    ///   - cookiesShared: Determine whether or not the initialized web view should be shared with cookies from the HTTP cookie storage. Defaults to false.
+    ///   - userScalable: Determine whether or not the frame of web view can be scaled by user. Defaults value is `default`.
     ///   - contentFitStyle: The style of viewport fit with web content. Default value is `default`.
     ///   - customUserAgent: The custom user agent string of web view. Defaults to nil.
-    public convenience init(isCookiesShared: Bool = false, userScalable: WebUserScalable = .default, contentFitStyle: WebContentFitStyle = .default, customUserAgent: String? = nil) {
-        let webViewConfig = WKWebViewConfiguration()
-        
-        if isCookiesShared, let script = WebJavaScriptCookies() {
+    public convenience init(configuration: WKWebViewConfiguration = WKWebViewConfiguration(), cookiesShared: Bool = false, userScalable: WebUserScalable = .default, contentFitStyle: WebContentFitStyle = .default, customUserAgent: String? = nil) {
+        if cookiesShared, let script = WebKit.formatJavaScriptCookies() {
             let cookieScript = WKUserScript(source: script, injectionTime: .atDocumentStart, forMainFrameOnly: false)
-            webViewConfig.userContentController.addUserScript(cookieScript)
+            configuration.userContentController.addUserScript(cookieScript)
         }
         
         var viewportContents = [String]()
@@ -117,7 +124,7 @@ open class DLWebView: WKWebView {
             document.getElementsByTagName('head')[0].appendChild(script);
             """
             let scaleScript = WKUserScript(source: script, injectionTime: .atDocumentEnd, forMainFrameOnly: false)
-            webViewConfig.userContentController.addUserScript(scaleScript)
+            configuration.userContentController.addUserScript(scaleScript)
         }
         
         if let customUserAgent = customUserAgent {
@@ -126,8 +133,8 @@ open class DLWebView: WKWebView {
             }
         }
         
-        self.init(frame: .zero, configuration: webViewConfig)
-        _isCookiesShared = isCookiesShared
+        self.init(frame: .zero, configuration: configuration)
+        _cookiesShared = cookiesShared
         
         if let customUserAgent = customUserAgent {
             if #available(iOS 9.0, *) {
@@ -150,8 +157,14 @@ open class DLWebView: WKWebView {
     }
     
     deinit {
+        self.navigationDelegate = nil
+        self.uiDelegate = nil
+        
         if _pageTitleDidChangeBlock != nil {
             self.removeObserver(self, forKeyPath: #keyPath(WKWebView.title))
+        }
+        if isProgressShown {
+            self.removeObserver(progressView, forKeyPath: #keyPath(WKWebView.estimatedProgress))
         }
     }
 
@@ -199,7 +212,7 @@ open class DLWebView: WKWebView {
     @discardableResult
     open override func load(_ request: URLRequest) -> WKNavigation? {
         var mutableRequest = request
-        if _isCookiesShared, let cookies = HTTPCookieStorage.shared.cookies {
+        if _cookiesShared, let cookies = HTTPCookieStorage.shared.cookies {
             if let allHTTPHeaderFields = mutableRequest.allHTTPHeaderFields {
                 if allHTTPHeaderFields.index(forKey: "Cookie") == nil {
                     HTTPCookie.requestHeaderFields(with: cookies).forEach { mutableRequest.allHTTPHeaderFields![$0] = $1 }
