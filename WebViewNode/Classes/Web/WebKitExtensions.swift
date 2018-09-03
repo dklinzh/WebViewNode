@@ -78,7 +78,42 @@ public struct WebKit {
         }
     }
     
-    public static func registerSchemesForURLProtocol(_ schemes: [String]) {
+    /// Register the specified schemes for the custom URL protocol. Not Recommended.
+    ///
+    /// - Parameter schemes: An array of custom schemes to be registered.
+    public static func registerURLProtocol(schemes: [String]) {
+        if schemes.count == 0 {
+            return
+        }
         
+        if let cls = NSClassFromString("W"+"K"+"BrowsingContext"+"Controller") {
+            let sel = NSSelectorFromString("register"+"Scheme"+"For"+"CustomProtocol"+":")
+            if cls.responds(to: sel) {
+                let obj = cls as AnyObject
+                schemes.forEach { (scheme) in
+                    _ = obj.perform(sel, with: scheme)
+                }
+            }
+        }
     }
+    
+    /// Unregister the specified schemes for the custom URL protocol. Not Recommended.
+    ///
+    /// - Parameter schemes: An array of custom schemes to be unregistered.
+    public static func unregisterURLProtocol(schemes: [String]) {
+        if schemes.count == 0 {
+            return
+        }
+        
+        if let cls = NSClassFromString("W"+"K"+"BrowsingContext"+"Controller") {
+            let sel = NSSelectorFromString("unregister"+"Scheme"+"For"+"CustomProtocol"+":")
+            if cls.responds(to: sel) {
+                let obj = cls as AnyObject
+                schemes.forEach { (scheme) in
+                    _ = obj.perform(sel, with: scheme)
+                }
+            }
+        }
+    }
+    
 }
