@@ -62,19 +62,60 @@ public struct WebKit {
         return result
     }
     
-    /// Removes all types of website data records from WKWebsiteDataStore.
-    public static func removeWebsiteDataRecords() {
+    /// Removes all types of website data records.
+    public static func removeAllWebsiteDataRecords() {
         if #available(iOS 9.0, *) {
             let dataStore = WKWebsiteDataStore.default()
-            dataStore.fetchDataRecords(ofTypes: WKWebsiteDataStore.allWebsiteDataTypes()) { (records) in
-                dataStore.removeData(ofTypes: WKWebsiteDataStore.allWebsiteDataTypes(), for: records, completionHandler: {
+            let dataTypes = WKWebsiteDataStore.allWebsiteDataTypes()
+            dataStore.fetchDataRecords(ofTypes: dataTypes) { (records) in
+                dataStore.removeData(ofTypes: dataTypes, for: records, completionHandler: {
                     
                 })
             }
         } else {
-            let libraryPath = NSSearchPathForDirectoriesInDomains(.libraryDirectory, .userDomainMask, true)[0]
-            let cookiesFolderPath = libraryPath + "/Cookies"
-            try? FileManager.default.removeItem(atPath: cookiesFolderPath)
+            removeWebsiteDataFiles()
+        }
+    }
+
+    /// Removes the specified types of website data records.
+    public static func removeWebsiteDataRecords(types: [WebsiteDataType] = [.fetchCache, .serviceWorkerRegistrations,
+                                                                            .diskCache, .memoryCache, .offlineWebApplicationCache, .sessionStorage,
+                                                                            .cookies, .localStorage, .webSQLDatabases, .indexedDBDatabases]) {
+        if types.count == 0 {
+            return
+        }
+        
+        if #available(iOS 9.0, *) {
+            let date = Date(timeIntervalSince1970: 0)
+            let typeValues = types.map { (type) -> String in
+                return type.rawValue
+            }
+            WKWebsiteDataStore.default().removeData(ofTypes: Set<String>(typeValues), modifiedSince: date) {
+                
+            }
+        } else {
+            removeWebsiteDataFiles(types: types)
+        }
+    }
+    
+    private static func removeWebsiteDataFiles(types: [WebsiteDataType] = [.cookies, .localStorage, .webSQLDatabases, .indexedDBDatabases]) {
+        let fileManager = FileManager.default
+        let libraryPath = NSSearchPathForDirectoriesInDomains(.libraryDirectory, .userDomainMask, true)[0]
+        if types.contains(.cookies) {
+            try? fileManager.removeItem(atPath: libraryPath + "/Cookies")
+        }
+        
+        if let bundleID = Bundle.main.object(forInfoDictionaryKey: kCFBundleIdentifierKey as String) as? String {
+            let storageFilePath = libraryPath + "WebKit/\(bundleID)/WebsiteData"
+            if types.contains(.localStorage) {
+                try? fileManager.removeItem(atPath: storageFilePath + "/LocalStorage")
+            }
+            if types.contains(.webSQLDatabases) {
+                try? fileManager.removeItem(atPath: storageFilePath + "/WebSQL")
+            }
+            if types.contains(.indexedDBDatabases) {
+                try? fileManager.removeItem(atPath: storageFilePath + "/IndexedDB")
+            }
         }
     }
     
@@ -117,3 +158,36 @@ public struct WebKit {
     }
     
 }
+
+/// The types of website data
+///
+/// - fetchCache: On-disk Fetch caches. @available(iOS 11.3, *)
+/// - serviceWorkerRegistrations: Service worker registrations. @available(iOS 11.3, *)
+/// - diskCache: On-disk caches. @available(iOS 9.0, *)
+/// - memoryCache: In-memory caches. @available(iOS 9.0, *)
+/// - offlineWebApplicationCache: HTML offline web application caches. @available(iOS 9.0, *)
+/// - sessionStorage: HTML session storage. @available(iOS 9.0, *)
+/// - cookies: Cookies. @available(iOS 8.0, *)
+/// - localStorage: HTML local storage. @available(iOS 8.0, *)
+/// - webSQLDatabases: WebSQL databases. @available(iOS 8.0, *)
+/// - indexedDBDatabases: IndexedDB databases. @available(iOS 8.0, *)
+public enum WebsiteDataType: String {
+    // @available(iOS 11.3, *)
+    case fetchCache = "WKWebsiteDataTypeFetchCache"
+    case serviceWorkerRegistrations = "WKWebsiteDataTypeServiceWorkerRegistrations"
+    
+    // @available(iOS 9.0, *)
+    case diskCache = "WKWebsiteDataTypeDiskCache"
+    case memoryCache = "WKWebsiteDataTypeMemoryCache"
+    case offlineWebApplicationCache = "WKWebsiteDataTypeOfflineWebApplicationCache"
+    case sessionStorage = "WKWebsiteDataTypeSessionStorage"
+    
+    // @available(iOS 8.0, *)
+    case cookies = "WKWebsiteDataTypeCookies"
+    case localStorage = "WKWebsiteDataTypeLocalStorage"
+    case webSQLDatabases = "WKWebsiteDataTypeWebSQLDatabases"
+    case indexedDBDatabases = "WKWebsiteDataTypeIndexedDBDatabases"
+    
+}
+
+
