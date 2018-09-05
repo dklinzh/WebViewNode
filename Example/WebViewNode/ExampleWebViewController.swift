@@ -8,6 +8,7 @@
 
 import UIKit
 import WebViewNode
+import WebKit
 
 class ExampleWebViewController: UIViewController {
     
@@ -23,7 +24,11 @@ class ExampleWebViewController: UIViewController {
         }
         if #available(iOS 10.0, *) {
             webView.shouldPreviewElementBy3DTouch = true
-        } 
+        }
+        webView.shouldDisplayJavaScriptPanel = false
+        if #available(iOS 9.0, *) {
+            webView.shouldCloseByDOMWindow = true
+        }
         return webView
     }()
 
@@ -37,7 +42,11 @@ class ExampleWebViewController: UIViewController {
             
             strongSelf.title = title
         }
+        _webView.webDelegate = self
         _webView.load("https://github.com/")
+        
+        //
+        self.navigationItem.rightBarButtonItem = UIBarButtonItem(barButtonSystemItem: .action, target: self, action: #selector(moreAction))
     }
 
     override func didReceiveMemoryWarning() {
@@ -45,5 +54,12 @@ class ExampleWebViewController: UIViewController {
         // Dispose of any resources that can be recreated.
     }
 
+    @objc
+    private func moreAction() {
+        
+    }
 }
 
+extension ExampleWebViewController: DLWebViewDelegate {
+    
+}

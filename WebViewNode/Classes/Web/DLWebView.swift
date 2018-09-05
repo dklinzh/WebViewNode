@@ -34,7 +34,7 @@ public enum WebUserScalable: String {
 open class DLWebView: WKWebView {
     
     /// The delegate of DLWebView.
-    public weak var webViewDelegate: DLWebViewDelegate?
+    public weak var webDelegate: DLWebViewDelegate?
     
     /// The loading progress view on the top of web view.
     public lazy var progressView = WebLoadingProgressView(webView: self, progressAnimationStyle: .smooth)
@@ -78,6 +78,21 @@ open class DLWebView: WKWebView {
         }
     }
     private var _shouldPreviewElementBy3DTouch = false
+    
+    /// Determine whether or not the app window should display an alert, confirm or text input view from JavaScript functions. Defaults to true.
+    public var shouldDisplayJavaScriptPanel = true
+    
+    /// Determine whether or not the web view controller should be closed by DOM window.close(). Defaults to false.
+    @available(iOS 9.0, *)
+    public var shouldCloseByDOMWindow: Bool {
+        get {
+            return _shouldCloseByDOMWindow
+        }
+        set {
+            _shouldCloseByDOMWindow = newValue
+        }
+    }
+    private var _shouldCloseByDOMWindow = false
     
     /// A floating-point value that determines the rate of deceleration after the user lifts their finger on the scroll view of web view. You can use the UIScrollViewDecelerationRateNormal or UIScrollViewDecelerationRateFast constants as reference points for reasonable deceleration rates. Defaults to UIScrollViewDecelerationRateNormal.
     public var scrollDecelerationRate = UIScrollViewDecelerationRateNormal {
@@ -159,6 +174,7 @@ open class DLWebView: WKWebView {
     deinit {
         self.navigationDelegate = nil
         self.uiDelegate = nil
+        webDelegate = nil
         
         if _pageTitleDidChangeBlock != nil {
             self.removeObserver(self, forKeyPath: #keyPath(WKWebView.title))
@@ -296,7 +312,7 @@ open class DLWebView: WKWebView {
         return true
     }
     
-    // FIXME: Strings Localization
+    // TODO: Strings Localization
     private func launchExternalApp(url: URL) {
         let systemSchemes = ["tel", "sms", "mailto"]
         if let scheme = url.scheme,
@@ -330,19 +346,27 @@ open class DLWebView: WKWebView {
 extension DLWebView: WKNavigationDelegate {
     
     public func webView(_ webView: WKWebView, didStartProvisionalNavigation navigation: WKNavigation!) {
-        webViewDelegate?.webView(webView as! DLWebView, didStartLoading: webView.url)
+        webDelegate?.webView(webView as! DLWebView, didStartLoading: webView.url)
+    }
+    
+    public func webView(_ webView: WKWebView, didCommit navigation: WKNavigation!) {
+        webDelegate?.webView(webView as! DLWebView, didCommitLoading: webView.url)
     }
     
     public func webView(_ webView: WKWebView, didFinish navigation: WKNavigation!) {
-        webViewDelegate?.webView(webView as! DLWebView, didFinishLoading: webView.url)
+        webDelegate?.webView(webView as! DLWebView, didFinishLoading: webView.url)
     }
     
     public func webView(_ webView: WKWebView, didFailProvisionalNavigation navigation: WKNavigation!, withError error: Error) {
-        webViewDelegate?.webView(webView as! DLWebView, didFailToLoad: webView.url, error: error)
+        webDelegate?.webView(webView as! DLWebView, didFailLoading: webView.url, error: error)
     }
     
     public func webView(_ webView: WKWebView, didFail navigation: WKNavigation!, withError error: Error) {
-        webViewDelegate?.webView(webView as! DLWebView, didFailToLoad: webView.url, error: error)
+        webDelegate?.webView(webView as! DLWebView, didFailLoading: webView.url, error: error)
+    }
+    
+    public func webView(_ webView: WKWebView, didReceiveServerRedirectForProvisionalNavigation navigation: WKNavigation!) {
+        webDelegate?.webView(webView as! DLWebView, didRedirectForLoading: webView.url)
     }
     
     public func webView(_ webView: WKWebView, decidePolicyFor navigationAction: WKNavigationAction, decisionHandler: @escaping (WKNavigationActionPolicy) -> Void) {
@@ -379,11 +403,11 @@ extension DLWebView: WKNavigationDelegate {
 //            }
 //        }
         
-        decisionHandler(webViewDelegate?.webView(webView as! DLWebView, decidePolicyFor: navigationAction) ?? .allow)
+        decisionHandler(webDelegate?.webView(webView as! DLWebView, decidePolicyFor: navigationAction) ?? .allow)
     }
     
     public func webView(_ webView: WKWebView, decidePolicyFor navigationResponse: WKNavigationResponse, decisionHandler: @escaping (WKNavigationResponsePolicy) -> Void) {
-        decisionHandler(webViewDelegate?.webView(webView as! DLWebView, decidePolicyFor: navigationResponse) ?? .allow)
+        decisionHandler(webDelegate?.webView(webView as! DLWebView, decidePolicyFor: navigationResponse) ?? .allow)
     }
     
     @available(iOS 9.0, *)
@@ -399,7 +423,7 @@ extension DLWebView: WKUIDelegate {
     
     public func webView(_ webView: WKWebView, createWebViewWith configuration: WKWebViewConfiguration, for navigationAction: WKNavigationAction, windowFeatures: WKWindowFeatures) -> WKWebView? {
         guard let isMainFrame = navigationAction.targetFrame?.isMainFrame, isMainFrame else {
-            guard let openNewWindow = webViewDelegate?.webView(webView as! DLWebView, shouldCreateNewWebViewWith: configuration, for: navigationAction, windowFeatures: windowFeatures),
+            guard let openNewWindow = webDelegate?.webView(webView as! DLWebView, shouldCreateNewWebViewWith: configuration, for: navigationAction, windowFeatures: windowFeatures),
                 openNewWindow else {
                     self.load(navigationAction.request)
                     return nil
@@ -414,6 +438,60 @@ extension DLWebView: WKUIDelegate {
     @available(iOS 10.0, *)
     public func webView(_ webView: WKWebView, shouldPreviewElement elementInfo: WKPreviewElementInfo) -> Bool {
         return _shouldPreviewElementBy3DTouch
+    }
+    
+    @available(iOS 9.0, *)
+    public func webViewDidClose(_ webView: WKWebView) {
+        if !_shouldCloseByDOMWindow || !_isAvailable {
+            return
+        }
+        
+        if let closestViewController = self.dl_closestViewController {
+            webDelegate?.webViewDidClose(webView as! DLWebView, webViewController: closestViewController)
+        }
+    }
+    
+    public func webView(_ webView: WKWebView, runJavaScriptAlertPanelWithMessage message: String, initiatedByFrame frame: WKFrameInfo, completionHandler: @escaping () -> Void) {
+        if !shouldDisplayJavaScriptPanel || !_isAvailable || (frame.request.url?.host != self.url?.host) {
+            completionHandler()
+            return
+        }
+        
+        if let closestViewController = self.dl_closestViewController {
+            webDelegate?.webView(webView as! DLWebView, webViewController: closestViewController, showAlertPanelWithMessage: message, completionHandler: completionHandler)
+        } else {
+            completionHandler()
+        }
+    }
+    
+    public func webView(_ webView: WKWebView, runJavaScriptConfirmPanelWithMessage message: String, initiatedByFrame frame: WKFrameInfo, completionHandler: @escaping (Bool) -> Void) {
+        if !shouldDisplayJavaScriptPanel || !_isAvailable || (frame.request.url?.host != self.url?.host) {
+            completionHandler(false)
+            return
+        }
+        
+        if let closestViewController = self.dl_closestViewController {
+            webDelegate?.webView(webView as! DLWebView, webViewController: closestViewController, showConfirmPanelWithMessage: message, completionHandler: completionHandler)
+        } else {
+            completionHandler(false)
+        }
+    }
+    
+    public func webView(_ webView: WKWebView, runJavaScriptTextInputPanelWithPrompt prompt: String, defaultText: String?, initiatedByFrame frame: WKFrameInfo, completionHandler: @escaping (String?) -> Void) {
+        if !shouldDisplayJavaScriptPanel || !_isAvailable || (frame.request.url?.host != self.url?.host) {
+            completionHandler(nil)
+            return
+        }
+        
+        if let closestViewController = self.dl_closestViewController {
+            webDelegate?.webView(webView as! DLWebView, webViewController: closestViewController, showTextInputPanelWithPrompt: prompt, defaultText: defaultText, completionHandler: completionHandler)
+        } else {
+            completionHandler(nil)
+        }
+    }
+    
+    private var _isAvailable: Bool {
+        return self.superview != nil && self.window != nil
     }
 }
 
