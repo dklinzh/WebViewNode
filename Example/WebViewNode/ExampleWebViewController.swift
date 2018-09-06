@@ -42,6 +42,9 @@ class ExampleWebViewController: UIViewController {
             
             strongSelf.title = title
         }
+        _webView.webContentHeightDidChange({ (height) in
+            print("Web content height: \(height)")
+        }, sizeFlexible: false)
         _webView.webDelegate = self
         _webView.load("https://github.com/")
         
@@ -52,6 +55,10 @@ class ExampleWebViewController: UIViewController {
     override func didReceiveMemoryWarning() {
         super.didReceiveMemoryWarning()
         // Dispose of any resources that can be recreated.
+    }
+    
+    deinit {
+        print("\(#function): \(self)")
     }
 
     @objc

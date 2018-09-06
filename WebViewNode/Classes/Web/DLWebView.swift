@@ -104,8 +104,14 @@ open class DLWebView: WKWebView {
     private var _customValidSchemes: Set<String>?
     
     private var _cookiesShared = false
+    
     private var _pageTitleDidChangeBlock: ((_ title: String?) -> Void)?
     private var _pageTitleContext = 0
+    
+    private var _webContentHeightDidChangeBlock: ((_ height: CGFloat) -> Void)?
+    private var _webContentHeightContext = 0
+    private var _webContentHeightHeight: CGFloat = 0
+    private var _webContentSizeFlexible = false
     
 //    private var _authenticated = false
 //    private var _failedRequest: URLRequest?
@@ -178,6 +184,9 @@ open class DLWebView: WKWebView {
         
         if _pageTitleDidChangeBlock != nil {
             self.removeObserver(self, forKeyPath: #keyPath(WKWebView.title))
+        }
+        if _webContentHeightDidChangeBlock != nil {
+            self.scrollView.removeObserver(self, forKeyPath: #keyPath(UIScrollView.contentSize))
         }
         if isProgressShown {
             self.removeObserver(progressView, forKeyPath: #keyPath(WKWebView.estimatedProgress))
@@ -269,7 +278,7 @@ open class DLWebView: WKWebView {
         }
     }
     
-    /// Add an observer to the page title of web view
+    /// Add an observer for the page title of web view
     ///
     /// - Parameter block: Invoked when the page title has been changed.
     public func pageTitleDidChange(_ block: ((_ title: String?) -> Void)?) {
@@ -286,9 +295,49 @@ open class DLWebView: WKWebView {
         }
     }
     
+    /// Add an observer for the height of web content.
+    ///
+    /// - Parameters:
+    ///   - block: Invoked when the height of web content has been changed.
+    ///   - sizeFlexible: Determine whether or not the size of web view should be flexible to fit its content size. Defaults to false.
+    public func webContentHeightDidChange(_ block: ((_ height: CGFloat) -> Void)? = { (height) in }, sizeFlexible: Bool = false) {
+        _webContentSizeFlexible = sizeFlexible
+        
+        if (_webContentHeightDidChangeBlock == nil && block == nil) || (_webContentHeightDidChangeBlock != nil && block != nil) {
+            _webContentHeightDidChangeBlock = block
+            return
+        }
+        
+        _webContentHeightDidChangeBlock = block
+        if block != nil {
+            self.scrollView.addObserver(self, forKeyPath: #keyPath(UIScrollView.contentSize), options: [], context: &_webContentHeightContext)
+        } else {
+            self.scrollView.removeObserver(self, forKeyPath: #keyPath(UIScrollView.contentSize))
+        }
+    }
+    
     open override func observeValue(forKeyPath keyPath: String?, of object: Any?, change: [NSKeyValueChangeKey : Any]?, context: UnsafeMutableRawPointer?) {
         if keyPath == #keyPath(WKWebView.title) && context == &_pageTitleContext {
             _pageTitleDidChangeBlock?(self.title)
+        } else if keyPath == #keyPath(UIScrollView.contentSize) && context == &_webContentHeightContext {
+            self.evaluateJavaScript("document.body.offsetHeight") { [weak self] (result, error) in // != self.scrollView.contentSize.height
+                guard let strongSelf = self else { return }
+
+                if let height = result as? CGFloat,
+                    height != strongSelf._webContentHeightHeight {
+                    strongSelf._webContentHeightHeight = height
+                    
+                    if strongSelf._webContentSizeFlexible {
+                        strongSelf.frame.size.height = height
+                    }
+                    
+                    strongSelf._webContentHeightDidChangeBlock?(height)
+                }
+                // FIXME: Is it necessary to make scrollView.contentSize equal frame.size?
+                //                if strongSelf.scrollView.contentSize != strongSelf.frame.size {
+                //                    strongSelf.scrollView.contentSize = strongSelf.frame.size
+                //                }
+            }
         } else {
             super.observeValue(forKeyPath: keyPath, of: object, change: change, context: context)
         }
@@ -337,6 +386,17 @@ open class DLWebView: WKWebView {
             alertController.addAction(openAction)
             
             UIApplication.shared.keyWindow?.rootViewController?.present(alertController, animated: true)
+        }
+    }
+    
+    open override func evaluateJavaScript(_ javaScriptString: String, completionHandler: ((Any?, Error?) -> Void)? = nil) {
+        if #available(iOS 9.0, *) {
+            super.evaluateJavaScript(javaScriptString, completionHandler: completionHandler)
+        } else {
+            super.evaluateJavaScript(javaScriptString) { [weak self] (result, error) in
+                guard let _ = self else { return } // Retain the weak referenc of self to keep completionHandler on iOS 8.
+                completionHandler?(result, error)
+            }
         }
     }
     
