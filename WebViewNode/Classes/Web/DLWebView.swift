@@ -113,6 +113,9 @@ open class DLWebView: WKWebView {
     private var _webContentHeightHeight: CGFloat = 0
     private var _webContentSizeFlexible = false
     
+    private var _copyURL: URL?
+    private var _urlContext = 0
+    
 //    private var _authenticated = false
 //    private var _failedRequest: URLRequest?
     
@@ -171,6 +174,8 @@ open class DLWebView: WKWebView {
         self.uiDelegate = self
         self.isMultipleTouchEnabled = true
         self.scrollView.alwaysBounceVertical = true
+        
+        self.addObserver(self, forKeyPath: #keyPath(WKWebView.url), options: [], context: &_urlContext)
     }
     
     required public init?(coder: NSCoder) {
@@ -182,6 +187,7 @@ open class DLWebView: WKWebView {
         self.uiDelegate = nil
         webDelegate = nil
         
+        self.removeObserver(self, forKeyPath: #keyPath(WKWebView.url))
         if _pageTitleDidChangeBlock != nil {
             self.removeObserver(self, forKeyPath: #keyPath(WKWebView.title))
         }
@@ -338,8 +344,23 @@ open class DLWebView: WKWebView {
                 //                    strongSelf.scrollView.contentSize = strongSelf.frame.size
                 //                }
             }
+        } else if keyPath == #keyPath(WKWebView.url) && context == &_urlContext {
+            guard let url = self.url else {
+                restoreWebLoading()
+                return
+            }
+            
+            _copyURL = url
         } else {
             super.observeValue(forKeyPath: keyPath, of: object, change: change, context: context)
+        }
+    }
+    
+    private func restoreWebLoading() {
+        if self.url != nil {
+            self.reload()
+        } else if let url = _copyURL {
+            self.load(url)
         }
     }
     
@@ -472,7 +493,7 @@ extension DLWebView: WKNavigationDelegate {
     
     @available(iOS 9.0, *)
     public func webViewWebContentProcessDidTerminate(_ webView: WKWebView) {
-        webView.reload() // WebContent Process Crash & self.titile will be nil when it crash, then reload the webview
+        restoreWebLoading() // WebContent Process Crash & self.titile will be nil when it crash, then reload the webview
     }
     
 // TODO: HTTPS request with self-signed certificate
