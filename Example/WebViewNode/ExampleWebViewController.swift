@@ -29,11 +29,14 @@ class ExampleWebViewController: UIViewController {
         if #available(iOS 9.0, *) {
             webView.shouldCloseByDOMWindow = true
         }
+        
         return webView
     }()
 
     override func viewDidLoad() {
         super.viewDidLoad()
+        
+        _webView.bindJSBridge()
         
         self.view.addSubview(_webView)
         _webView.frame = self.view.bounds

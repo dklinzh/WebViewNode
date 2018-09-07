@@ -22,12 +22,19 @@ TODO: Add long description of the pod here.
   s.requires_arc = true
   s.swift_version = '4.1'
 
-  s.default_subspecs = 'Web'
+  s.default_subspecs = 'Web', 'JSBridge'
   
   s.subspec 'Web' do |web|
     web.ios.deployment_target = '8.0'
     web.frameworks = 'WebKit', 'UIKit', 'Foundation'
     web.source_files = 'WebViewNode/Classes/Web/*'
+  end
+
+  s.subspec 'JSBridge' do |js|
+    js.ios.deployment_target = '8.0'
+    js.dependency 'WebViewJavascriptBridge', '~> 6.0'
+    js.dependency 'WebViewNode/Web'
+    js.source_files = 'WebViewNode/Classes/JSBridge/*'
   end
 
 end
