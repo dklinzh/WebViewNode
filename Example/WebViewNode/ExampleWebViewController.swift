@@ -50,6 +50,7 @@ class ExampleWebViewController: UIViewController {
         }, sizeFlexible: false)
         _webView.webDelegate = self
         _webView.load("https://github.com/")
+//        _webView.load("https://www.google.com/")
         
         //
         self.navigationItem.rightBarButtonItem = UIBarButtonItem(barButtonSystemItem: .action, target: self, action: #selector(moreAction))
@@ -66,6 +67,7 @@ class ExampleWebViewController: UIViewController {
 
     @objc
     private func moreAction() {
+//        _webView.evaluateJavaScript("window.scrollTo(0, 10000)")
         
     }
 }

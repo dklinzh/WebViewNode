@@ -116,6 +116,8 @@ open class DLWebView: WKWebView {
     private var _copyURL: URL?
     private var _urlContext = 0
     
+    private var _provisionalNavigationFailed = false
+    
 //    private var _authenticated = false
 //    private var _failedRequest: URLRequest?
     
@@ -225,19 +227,23 @@ open class DLWebView: WKWebView {
     /// Navigates to a requested URL.
     ///
     /// - Parameter urlString: A string of the URL to navigate to.
-    public func load(_ urlString: String) {
+    /// - Returns: A new navigation for the given request.
+    @discardableResult
+    public func load(_ urlString: String) -> WKNavigation? {
         guard let url = URL(string: urlString) else {
-            return
+            return nil
         }
         
-        load(url)
+        return load(url)
     }
     
     /// Navigates to a requested URL.
     ///
     /// - Parameter url: The URL to navigate to.
-    public func load(_ url: URL) {
-        self.load(URLRequest(url: url))
+    /// - Returns: A new navigation for the given request.
+    @discardableResult
+    public func load(_ url: URL) -> WKNavigation? {
+        return self.load(URLRequest(url: url))
     }
     
     @discardableResult
@@ -346,21 +352,15 @@ open class DLWebView: WKWebView {
             }
         } else if keyPath == #keyPath(WKWebView.url) && context == &_urlContext {
             guard let url = self.url else {
-                restoreWebLoading()
+                if !_provisionalNavigationFailed {
+                    self.reload()
+                }
                 return
             }
             
             _copyURL = url
         } else {
             super.observeValue(forKeyPath: keyPath, of: object, change: change, context: context)
-        }
-    }
-    
-    private func restoreWebLoading() {
-        if self.url != nil {
-            self.reload()
-        } else if let url = _copyURL {
-            self.load(url)
         }
     }
     
@@ -421,6 +421,28 @@ open class DLWebView: WKWebView {
         }
     }
     
+    @discardableResult
+    open override func reload() -> WKNavigation? {
+        if self.url != nil {
+            return super.reload()
+        } else if let url = _copyURL {
+            return self.load(url)
+        } else {
+            return nil
+        }
+    }
+    
+    @discardableResult
+    open override func reloadFromOrigin() -> WKNavigation? {
+        if self.url != nil {
+            return super.reloadFromOrigin()
+        } else if let url = _copyURL {
+            return self.load(url)
+        } else {
+            return nil
+        }
+    }
+    
 }
 
 // MARK: - WKNavigationDelegate
@@ -435,10 +457,12 @@ extension DLWebView: WKNavigationDelegate {
     }
     
     public func webView(_ webView: WKWebView, didFinish navigation: WKNavigation!) {
+        _provisionalNavigationFailed = false
         webDelegate?.webView(webView as! DLWebView, didFinishLoading: webView.url)
     }
     
     public func webView(_ webView: WKWebView, didFailProvisionalNavigation navigation: WKNavigation!, withError error: Error) {
+        _provisionalNavigationFailed = true
         webDelegate?.webView(webView as! DLWebView, didFailLoading: webView.url, error: error)
     }
     
@@ -493,7 +517,7 @@ extension DLWebView: WKNavigationDelegate {
     
     @available(iOS 9.0, *)
     public func webViewWebContentProcessDidTerminate(_ webView: WKWebView) {
-        restoreWebLoading() // WebContent Process Crash & self.titile will be nil when it crash, then reload the webview
+        self.reload() // WebContent Process Crash & self.titile will be nil when it crash, then reload the webview
     }
     
 // TODO: HTTPS request with self-signed certificate
