@@ -117,6 +117,7 @@ open class DLWebView: WKWebView {
     private var _urlContext = 0
     
     private var _provisionalNavigationFailed = false
+    private var _scrollOffset: CGFloat = -1
     
 //    private var _authenticated = false
 //    private var _failedRequest: URLRequest?
@@ -443,6 +444,20 @@ open class DLWebView: WKWebView {
         }
     }
     
+    public func scrollTo(offset: CGFloat) {
+        if self.isLoading {
+            _scrollOffset = offset
+        } else {
+            _scrollTo(offset: offset)
+        }
+    }
+    
+    private func _scrollTo(offset: CGFloat) {
+        if offset >= 0 {
+            _scrollOffset = -1
+            self.evaluateJavaScript("window.scrollTo(0, \(offset))")
+        }
+    }
 }
 
 // MARK: - WKNavigationDelegate
@@ -452,11 +467,16 @@ extension DLWebView: WKNavigationDelegate {
         webDelegate?.webView(webView as! DLWebView, didStartLoading: webView.url)
     }
     
+    // FIXME: Not be called if the web view bind with a javascript bridge.
     public func webView(_ webView: WKWebView, didCommit navigation: WKNavigation!) {
+//        _scrollTo(offset: _scrollOffset)
+        
         webDelegate?.webView(webView as! DLWebView, didCommitLoading: webView.url)
     }
     
     public func webView(_ webView: WKWebView, didFinish navigation: WKNavigation!) {
+        _scrollTo(offset: _scrollOffset)
+        
         _provisionalNavigationFailed = false
         webDelegate?.webView(webView as! DLWebView, didFinishLoading: webView.url)
     }

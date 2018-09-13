@@ -67,7 +67,7 @@ class ExampleWebViewController: UIViewController {
 
     @objc
     private func moreAction() {
-//        _webView.evaluateJavaScript("window.scrollTo(0, 10000)")
+        _webView.scrollTo(offset: 1000)
         
     }
 }
