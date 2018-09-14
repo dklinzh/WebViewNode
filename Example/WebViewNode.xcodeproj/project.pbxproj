@@ -7,6 +7,7 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
+		496D281C214A158E00A34723 /* CustomWebViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 496D281B214A158E00A34723 /* CustomWebViewController.swift */; };
 		49ACE22020E6259700C7E755 /* ExampleTableViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 49ACE21F20E6259700C7E755 /* ExampleTableViewController.swift */; };
 		607FACD61AFB9204008FA782 /* AppDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = 607FACD51AFB9204008FA782 /* AppDelegate.swift */; };
 		607FACD81AFB9204008FA782 /* ExampleWebViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 607FACD71AFB9204008FA782 /* ExampleWebViewController.swift */; };
@@ -32,6 +33,7 @@
 		2A6BCC25A76BF1D8F82C17E1 /* Pods-WebViewNode_Example.release.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-WebViewNode_Example.release.xcconfig"; path = "Pods/Target Support Files/Pods-WebViewNode_Example/Pods-WebViewNode_Example.release.xcconfig"; sourceTree = "<group>"; };
 		343A13A9A4597524FE0B2D0C /* Pods-WebViewNode_Example.debug.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-WebViewNode_Example.debug.xcconfig"; path = "Pods/Target Support Files/Pods-WebViewNode_Example/Pods-WebViewNode_Example.debug.xcconfig"; sourceTree = "<group>"; };
 		41F838381D3AC7F392A86771 /* README.md */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = net.daringfireball.markdown; name = README.md; path = ../README.md; sourceTree = "<group>"; };
+		496D281B214A158E00A34723 /* CustomWebViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CustomWebViewController.swift; sourceTree = "<group>"; };
 		49ACE21F20E6259700C7E755 /* ExampleTableViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ExampleTableViewController.swift; sourceTree = "<group>"; };
 		4DB0B1CBE64BD8CF29CFA785 /* Pods-WebViewNode_Tests.release.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-WebViewNode_Tests.release.xcconfig"; path = "Pods/Target Support Files/Pods-WebViewNode_Tests/Pods-WebViewNode_Tests.release.xcconfig"; sourceTree = "<group>"; };
 		607FACD01AFB9204008FA782 /* WebViewNode_Example.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = WebViewNode_Example.app; sourceTree = BUILT_PRODUCTS_DIR; };
@@ -98,6 +100,7 @@
 				607FACD51AFB9204008FA782 /* AppDelegate.swift */,
 				49ACE21F20E6259700C7E755 /* ExampleTableViewController.swift */,
 				607FACD71AFB9204008FA782 /* ExampleWebViewController.swift */,
+				496D281B214A158E00A34723 /* CustomWebViewController.swift */,
 				607FACD91AFB9204008FA782 /* Main.storyboard */,
 				607FACDC1AFB9204008FA782 /* Images.xcassets */,
 				607FACDE1AFB9204008FA782 /* LaunchScreen.xib */,
@@ -356,6 +359,7 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				496D281C214A158E00A34723 /* CustomWebViewController.swift in Sources */,
 				49ACE22020E6259700C7E755 /* ExampleTableViewController.swift in Sources */,
 				607FACD81AFB9204008FA782 /* ExampleWebViewController.swift in Sources */,
 				607FACD61AFB9204008FA782 /* AppDelegate.swift in Sources */,

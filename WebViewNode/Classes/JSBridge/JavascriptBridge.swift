@@ -143,3 +143,12 @@ extension DLWebView: JavascriptBridge {
         self.bindJSBridge(webView: self, delegate: self)
     }
 }
+
+extension DLWebViewController: JavascriptBridge {
+    
+    /// Bind a javascript bridge to the web view of view controller.
+    public func bindJSBridge() {
+        let webView = self.webView
+        webView.bindJSBridge(webView: webView, delegate: webView)
+    }
+}
