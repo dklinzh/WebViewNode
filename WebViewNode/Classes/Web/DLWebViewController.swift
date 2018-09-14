@@ -89,6 +89,9 @@ open class DLWebViewController: UIViewController {
     
     open override func loadView() {
         self.view = webView
+        #if WebViewNode_JSBridge
+        self.bindJSBridge()
+        #endif
     }
 
     open override func viewDidLoad() {

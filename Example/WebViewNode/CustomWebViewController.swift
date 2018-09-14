@@ -31,6 +31,10 @@ class CustomWebViewController: DLWebViewController {
     private func refreshAction() {
         self.reload()
     }
+    
+    override func registerJSHandlers(bridge: DLWebViewJavaScriptBridge) {
+        // Regisger JS handlers with bridge
+    }
 }
 
 extension CustomWebViewController: DLWebViewDelegate {

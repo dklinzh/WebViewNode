@@ -35,6 +35,9 @@ TODO: Add long description of the pod here.
     js.dependency 'WebViewJavascriptBridge', '~> 6.0'
     js.dependency 'WebViewNode/Web'
     js.source_files = 'WebViewNode/Classes/JSBridge/*'
+    js.pod_target_xcconfig = {
+      'OTHER_SWIFT_FLAGS' => '-D WebViewNode_JSBridge'
+    }
   end
 
 end
