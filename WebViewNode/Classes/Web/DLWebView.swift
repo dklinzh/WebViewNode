@@ -70,8 +70,8 @@ open class DLWebView: WKWebView {
     /// A dictionary of the custom HTTP header fields for URL request.
     public var customHTTPHeaderFields: [String : String]?
     
-    @available(iOS 9.0, *)
     /// Determine whether or not the given element of web link should show a preview by 3D Touch. Defaults to false.
+    @available(iOS 9.0, *)
     public var shouldPreviewElementBy3DTouch: Bool {
         get {
             return _shouldPreviewElementBy3DTouch && self.allowsLinkPreview
@@ -84,7 +84,7 @@ open class DLWebView: WKWebView {
     private var _shouldPreviewElementBy3DTouch = false
     
     /// Determine whether or not the app window should display an alert, confirm or text input view from JavaScript functions. Defaults to true.
-    public var shouldDisplayJavaScriptPanel = true
+    public var shouldDisplayAlertPanelByJavaScript = true
     
     /// Determine whether or not the web view controller should be closed by DOM window.close(). Defaults to false.
     @available(iOS 9.0, *)
@@ -217,18 +217,6 @@ open class DLWebView: WKWebView {
         }
     }
     
-    /// Add custom valid URL schemes for the web view navigation.
-    ///
-    /// - Parameter schemes: An array of URL scheme.
-    public func addCustomValidSchemes(_ schemes: [String]) {
-        if _customValidSchemes == nil {
-            _customValidSchemes = Set<String>()
-        }
-        schemes.forEach { (scheme) in
-            self._customValidSchemes!.insert(scheme.lowercased())
-        }
-    }
-    
     /// Navigates to a requested URL.
     ///
     /// - Parameter urlString: A string of the URL to navigate to.
@@ -290,6 +278,51 @@ open class DLWebView: WKWebView {
         return nil
     }
     
+    @discardableResult
+    open override func reload() -> WKNavigation? {
+        if self.url != nil {
+            return super.reload()
+        } else if let url = _copyURL {
+            return self.load(url)
+        } else {
+            return nil
+        }
+    }
+    
+    @discardableResult
+    open override func reloadFromOrigin() -> WKNavigation? {
+        if self.url != nil {
+            return super.reloadFromOrigin()
+        } else if let url = _copyURL {
+            return self.load(url)
+        } else {
+            return nil
+        }
+    }
+    
+    open override func evaluateJavaScript(_ javaScriptString: String, completionHandler: ((Any?, Error?) -> Void)? = nil) {
+        if #available(iOS 9.0, *) {
+            super.evaluateJavaScript(javaScriptString, completionHandler: completionHandler)
+        } else {
+            super.evaluateJavaScript(javaScriptString) { [weak self] (result, error) in
+                guard let _ = self else { return } // Retain the weak referenc of self to keep completionHandler on iOS 8.
+                completionHandler?(result, error)
+            }
+        }
+    }
+    
+    /// Add custom valid URL schemes for the web view navigation.
+    ///
+    /// - Parameter schemes: An array of URL scheme.
+    public func addCustomValidSchemes(_ schemes: [String]) {
+        if _customValidSchemes == nil {
+            _customValidSchemes = Set<String>()
+        }
+        schemes.forEach { (scheme) in
+            self._customValidSchemes!.insert(scheme.lowercased())
+        }
+    }
+    
     /// The user agent of a web view.
     ///
     /// - Parameter block: A block with user agent string
@@ -338,9 +371,9 @@ open class DLWebView: WKWebView {
     }
     
     open override func observeValue(forKeyPath keyPath: String?, of object: Any?, change: [NSKeyValueChangeKey : Any]?, context: UnsafeMutableRawPointer?) {
-        if keyPath == #keyPath(WKWebView.title) && context == &_pageTitleContext {
+        if keyPath == #keyPath(WKWebView.title) && context == &_pageTitleContext { // Page title did change.
             _pageTitleDidChangeBlock?(self.title)
-        } else if keyPath == #keyPath(UIScrollView.contentSize) && context == &_webContentHeightContext {
+        } else if keyPath == #keyPath(UIScrollView.contentSize) && context == &_webContentHeightContext { // Height of content view did change.
             self.evaluateJavaScript("document.body.offsetHeight") { [weak self] (result, error) in // != self.scrollView.contentSize.height
                 guard let strongSelf = self else { return }
 
@@ -359,7 +392,7 @@ open class DLWebView: WKWebView {
                 //                    strongSelf.scrollView.contentSize = strongSelf.frame.size
                 //                }
             }
-        } else if keyPath == #keyPath(WKWebView.url) && context == &_urlContext {
+        } else if keyPath == #keyPath(WKWebView.url) && context == &_urlContext { // URL of web view did change.
             guard let url = self.url else {
                 if !_provisionalNavigationFailed {
                     self.reload()
@@ -370,6 +403,24 @@ open class DLWebView: WKWebView {
             _copyURL = url
         } else {
             super.observeValue(forKeyPath: keyPath, of: object, change: change, context: context)
+        }
+    }
+    
+    /// Make web view scroll to the given offset of Y position.
+    ///
+    /// - Parameter offset: The offset of Y position.
+    public func scrollTo(offset: CGFloat) {
+        if self.isLoading {
+            _scrollOffset = offset
+        } else {
+            _scrollTo(offset: offset)
+        }
+    }
+    
+    private func _scrollTo(offset: CGFloat) {
+        if offset >= 0 {
+            _scrollOffset = -1
+            self.evaluateJavaScript("window.scrollTo(0, \(offset))")
         }
     }
     
@@ -419,53 +470,6 @@ open class DLWebView: WKWebView {
         }
     }
     
-    open override func evaluateJavaScript(_ javaScriptString: String, completionHandler: ((Any?, Error?) -> Void)? = nil) {
-        if #available(iOS 9.0, *) {
-            super.evaluateJavaScript(javaScriptString, completionHandler: completionHandler)
-        } else {
-            super.evaluateJavaScript(javaScriptString) { [weak self] (result, error) in
-                guard let _ = self else { return } // Retain the weak referenc of self to keep completionHandler on iOS 8.
-                completionHandler?(result, error)
-            }
-        }
-    }
-    
-    @discardableResult
-    open override func reload() -> WKNavigation? {
-        if self.url != nil {
-            return super.reload()
-        } else if let url = _copyURL {
-            return self.load(url)
-        } else {
-            return nil
-        }
-    }
-    
-    @discardableResult
-    open override func reloadFromOrigin() -> WKNavigation? {
-        if self.url != nil {
-            return super.reloadFromOrigin()
-        } else if let url = _copyURL {
-            return self.load(url)
-        } else {
-            return nil
-        }
-    }
-    
-    public func scrollTo(offset: CGFloat) {
-        if self.isLoading {
-            _scrollOffset = offset
-        } else {
-            _scrollTo(offset: offset)
-        }
-    }
-    
-    private func _scrollTo(offset: CGFloat) {
-        if offset >= 0 {
-            _scrollOffset = -1
-            self.evaluateJavaScript("window.scrollTo(0, \(offset))")
-        }
-    }
 }
 
 // MARK: - WKNavigationDelegate
@@ -585,7 +589,7 @@ extension DLWebView: WKUIDelegate {
     }
     
     public func webView(_ webView: WKWebView, runJavaScriptAlertPanelWithMessage message: String, initiatedByFrame frame: WKFrameInfo, completionHandler: @escaping () -> Void) {
-        if !shouldDisplayJavaScriptPanel || !_isAvailable || (frame.request.url?.host != self.url?.host) {
+        if !shouldDisplayAlertPanelByJavaScript || !_isAvailable || (frame.request.url?.host != self.url?.host) {
             completionHandler()
             return
         }
@@ -598,7 +602,7 @@ extension DLWebView: WKUIDelegate {
     }
     
     public func webView(_ webView: WKWebView, runJavaScriptConfirmPanelWithMessage message: String, initiatedByFrame frame: WKFrameInfo, completionHandler: @escaping (Bool) -> Void) {
-        if !shouldDisplayJavaScriptPanel || !_isAvailable || (frame.request.url?.host != self.url?.host) {
+        if !shouldDisplayAlertPanelByJavaScript || !_isAvailable || (frame.request.url?.host != self.url?.host) {
             completionHandler(false)
             return
         }
@@ -611,7 +615,7 @@ extension DLWebView: WKUIDelegate {
     }
     
     public func webView(_ webView: WKWebView, runJavaScriptTextInputPanelWithPrompt prompt: String, defaultText: String?, initiatedByFrame frame: WKFrameInfo, completionHandler: @escaping (String?) -> Void) {
-        if !shouldDisplayJavaScriptPanel || !_isAvailable || (frame.request.url?.host != self.url?.host) {
+        if !shouldDisplayAlertPanelByJavaScript || !_isAvailable || (frame.request.url?.host != self.url?.host) {
             completionHandler(nil)
             return
         }

@@ -22,7 +22,7 @@ class ExampleWebViewController: UIViewController {
         if #available(iOS 10.0, *) {
             webView.shouldPreviewElementBy3DTouch = false
         }
-        webView.shouldDisplayJavaScriptPanel = false
+        webView.shouldDisplayAlertPanelByJavaScript = false
         if #available(iOS 9.0, *) {
             webView.shouldCloseByDOMWindow = true
         }
