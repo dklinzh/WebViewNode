@@ -30,6 +30,9 @@ public enum WebUserScalable: String {
     case enable = "yes"
 }
 
+/// A WKWebViewConfiguration object is a collection of properties with which to initialize a web view.
+public typealias DLWebViewConfiguration = WKWebViewConfiguration
+
 /// Subclass of WKWebView
 open class DLWebView: WKWebView {
     
@@ -37,19 +40,19 @@ open class DLWebView: WKWebView {
     public weak var webDelegate: DLWebViewDelegate?
     
     /// The loading progress view on the top of web view.
-    public lazy var progressView = WebLoadingProgressView(webView: self, progressAnimationStyle: .smooth)
+    public lazy var progressBar = WebLoadingProgressBar(webView: self, progressAnimationStyle: .smooth)
     
     /// Determine whether or not the loading progress view should be shown. Defaults to false.
-    public var isProgressShown: Bool = false {
+    public var progressBarShown: Bool = false {
         didSet {
-            if oldValue == isProgressShown {
+            if oldValue == progressBarShown {
                 return
             }
             
-            if isProgressShown {
-                self.addSubview(progressView)
+            if progressBarShown {
+                self.addSubview(progressBar)
             } else {
-                progressView.removeFromSuperview()
+                progressBar.removeFromSuperview()
             }
         }
     }
@@ -57,23 +60,24 @@ open class DLWebView: WKWebView {
     /// The color shown for the portion of the web loading progress bar that is filled.
     public var progressTintColor: UIColor? {
         get {
-            return progressView.progressTintColor
+            return progressBar.progressTintColor
         }
         set {
-            progressView.progressTintColor = newValue
+            progressBar.progressTintColor = newValue
         }
     }
     
     /// A dictionary of the custom HTTP header fields for URL request.
     public var customHTTPHeaderFields: [String : String]?
     
-    @available(iOS 10.0, *)
-    /// Determine whether or not the given element should show a preview by 3D touch. Defaults to false.
+    @available(iOS 9.0, *)
+    /// Determine whether or not the given element of web link should show a preview by 3D Touch. Defaults to false.
     public var shouldPreviewElementBy3DTouch: Bool {
         get {
-            return _shouldPreviewElementBy3DTouch
+            return _shouldPreviewElementBy3DTouch && self.allowsLinkPreview
         }
         set {
+            self.allowsLinkPreview = newValue
             _shouldPreviewElementBy3DTouch = newValue
         }
     }
@@ -130,7 +134,7 @@ open class DLWebView: WKWebView {
     ///   - userScalable: Determine whether or not the frame of web view can be scaled by user. Defaults value is `default`.
     ///   - contentFitStyle: The style of viewport fit with web content. Default value is `default`.
     ///   - customUserAgent: The custom user agent string of web view. Defaults to nil.
-    public convenience init(configuration: WKWebViewConfiguration = WKWebViewConfiguration(), cookiesShared: Bool = false, userScalable: WebUserScalable = .default, contentFitStyle: WebContentFitStyle = .default, customUserAgent: String? = nil) {
+    public convenience init(configuration: DLWebViewConfiguration = DLWebViewConfiguration(), cookiesShared: Bool = false, userScalable: WebUserScalable = .default, contentFitStyle: WebContentFitStyle = .default, customUserAgent: String? = nil) {
         if cookiesShared, let script = WebKit.formatJavaScriptCookies() {
             let cookieScript = WKUserScript(source: script, injectionTime: .atDocumentStart, forMainFrameOnly: false)
             configuration.userContentController.addUserScript(cookieScript)
@@ -197,19 +201,19 @@ open class DLWebView: WKWebView {
         if _webContentHeightDidChangeBlock != nil {
             self.scrollView.removeObserver(self, forKeyPath: #keyPath(UIScrollView.contentSize))
         }
-        if isProgressShown {
-            self.removeObserver(progressView, forKeyPath: #keyPath(WKWebView.estimatedProgress))
+        if progressBarShown {
+            self.removeObserver(progressBar, forKeyPath: #keyPath(WKWebView.estimatedProgress))
         }
     }
 
     open override func layoutSubviews() {
         super.layoutSubviews()
         
-        if isProgressShown {
+        if progressBarShown {
             var frame = self.bounds
-            frame.size.height = progressView.frame.size.height
+            frame.size.height = progressBar.frame.size.height
             frame.origin.y -= self.scrollView.bounds.origin.y
-            progressView.frame = frame
+            progressBar.frame = frame
         }
     }
     
@@ -275,11 +279,15 @@ open class DLWebView: WKWebView {
     /// - Parameters:
     ///   - fileName: The name of HTML file.
     ///   - bundle: The specified bundle contains the HTML file. Defaults to main bundle.
-    public func loadHTML(fileName: String, bundle: Bundle = Bundle.main) {
+    /// - Returns: A new navigation for the given request.
+    @discardableResult
+    public func loadHTML(fileName: String, bundle: Bundle = Bundle.main) -> WKNavigation? {
         if let filePath = bundle.path(forResource: fileName, ofType: "html") {
             let html = try! String(contentsOfFile: filePath, encoding: String.Encoding.utf8)
-            self.loadHTMLString(html, baseURL: bundle.resourceURL)
+            return self.loadHTMLString(html, baseURL: bundle.resourceURL)
         }
+        
+        return nil
     }
     
     /// The user agent of a web view.

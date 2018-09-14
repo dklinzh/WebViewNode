@@ -14,16 +14,13 @@ class ExampleWebViewController: UIViewController {
     
     private let _webView: DLWebView = {
         let webView = DLWebView(cookiesShared: true, userScalable: .disable, contentFitStyle: .default)
-        webView.isProgressShown = true
+        webView.progressBarShown = true
         webView.progressTintColor = .green
         webView.addCustomValidSchemes(["node"])
 //        webView.scrollDecelerationRate = UIScrollViewDecelerationRateNormal
 //        webView.allowsBackForwardNavigationGestures = true
-        if #available(iOS 9.0, *) {
-            webView.allowsLinkPreview = true
-        }
         if #available(iOS 10.0, *) {
-            webView.shouldPreviewElementBy3DTouch = true
+            webView.shouldPreviewElementBy3DTouch = false
         }
         webView.shouldDisplayJavaScriptPanel = false
         if #available(iOS 9.0, *) {
