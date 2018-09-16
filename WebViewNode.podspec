@@ -8,10 +8,12 @@
 
 Pod::Spec.new do |s|
   s.name             = 'WebViewNode'
-  s.version          = '0.1.0'
-  s.summary          = 'A short description of WebViewNode.'
+  s.version          = '0.2.0'
+  s.summary          = 'A simple and useful WebView framework for iOS development on Swift.'
   s.description      = <<-DESC
-TODO: Add long description of the pod here.
+    A simple and useful WebView framework for iOS development on Swift. 
+    It is based on the subclass of WKWebView that bound with a JavaScript bridge. 
+    And display supports for Texture(AsyncDisplayKit) with the custom web node.
                        DESC
 
   s.homepage         = 'https://github.com/dklinzh/WebViewNode'
@@ -38,6 +40,13 @@ TODO: Add long description of the pod here.
     js.pod_target_xcconfig = {
       'OTHER_SWIFT_FLAGS' => '-D WebViewNode_JSBridge'
     }
+  end
+
+  s.subspec 'Node' do |node|
+    node.ios.deployment_target = '9.0'
+    node.dependency 'Texture', '~> 2.7'
+    node.dependency 'WebViewNode/Web'
+    node.source_files = 'WebViewNode/Classes/Node/*'
   end
 
 end
