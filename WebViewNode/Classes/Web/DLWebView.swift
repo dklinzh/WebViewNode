@@ -37,7 +37,7 @@ public typealias DLWebViewConfiguration = WKWebViewConfiguration
 open class DLWebView: WKWebView {
     
     /// The delegate of DLWebView.
-    public weak var webDelegate: DLWebViewDelegate?
+    public weak var delegate: DLWebViewDelegate?
     
     /// The loading progress view on the top of web view.
     public lazy var progressBar = WebLoadingProgressBar(webView: self, progressAnimationStyle: .smooth)
@@ -192,7 +192,7 @@ open class DLWebView: WKWebView {
     deinit {
         self.navigationDelegate = nil
         self.uiDelegate = nil
-        webDelegate = nil
+        delegate = nil
         
         self.removeObserver(self, forKeyPath: #keyPath(WKWebView.url))
         if _pageTitleDidChangeBlock != nil {
@@ -476,34 +476,34 @@ open class DLWebView: WKWebView {
 extension DLWebView: WKNavigationDelegate {
     
     public func webView(_ webView: WKWebView, didStartProvisionalNavigation navigation: WKNavigation!) {
-        webDelegate?.webView(webView as! DLWebView, didStartLoading: webView.url)
+        delegate?.webView(webView as! DLWebView, didStartLoading: webView.url)
     }
     
     // FIXME: Not be called if the web view bind with a javascript bridge.
     public func webView(_ webView: WKWebView, didCommit navigation: WKNavigation!) {
 //        _scrollTo(offset: _scrollOffset)
         
-        webDelegate?.webView(webView as! DLWebView, didCommitLoading: webView.url)
+        delegate?.webView(webView as! DLWebView, didCommitLoading: webView.url)
     }
     
     public func webView(_ webView: WKWebView, didFinish navigation: WKNavigation!) {
         _scrollTo(offset: _scrollOffset)
         
         _provisionalNavigationFailed = false
-        webDelegate?.webView(webView as! DLWebView, didFinishLoading: webView.url)
+        delegate?.webView(webView as! DLWebView, didFinishLoading: webView.url)
     }
     
     public func webView(_ webView: WKWebView, didFailProvisionalNavigation navigation: WKNavigation!, withError error: Error) {
         _provisionalNavigationFailed = true
-        webDelegate?.webView(webView as! DLWebView, didFailLoading: webView.url, error: error)
+        delegate?.webView(webView as! DLWebView, didFailLoading: webView.url, error: error)
     }
     
     public func webView(_ webView: WKWebView, didFail navigation: WKNavigation!, withError error: Error) {
-        webDelegate?.webView(webView as! DLWebView, didFailLoading: webView.url, error: error)
+        delegate?.webView(webView as! DLWebView, didFailLoading: webView.url, error: error)
     }
     
     public func webView(_ webView: WKWebView, didReceiveServerRedirectForProvisionalNavigation navigation: WKNavigation!) {
-        webDelegate?.webView(webView as! DLWebView, didRedirectForLoading: webView.url)
+        delegate?.webView(webView as! DLWebView, didRedirectForLoading: webView.url)
     }
     
     public func webView(_ webView: WKWebView, decidePolicyFor navigationAction: WKNavigationAction, decisionHandler: @escaping (WKNavigationActionPolicy) -> Void) {
@@ -540,11 +540,11 @@ extension DLWebView: WKNavigationDelegate {
 //            }
 //        }
         
-        decisionHandler(webDelegate?.webView(webView as! DLWebView, decidePolicyFor: navigationAction) ?? .allow)
+        decisionHandler(delegate?.webView(webView as! DLWebView, decidePolicyFor: navigationAction) ?? .allow)
     }
     
     public func webView(_ webView: WKWebView, decidePolicyFor navigationResponse: WKNavigationResponse, decisionHandler: @escaping (WKNavigationResponsePolicy) -> Void) {
-        decisionHandler(webDelegate?.webView(webView as! DLWebView, decidePolicyFor: navigationResponse) ?? .allow)
+        decisionHandler(delegate?.webView(webView as! DLWebView, decidePolicyFor: navigationResponse) ?? .allow)
     }
     
     @available(iOS 9.0, *)
@@ -560,7 +560,7 @@ extension DLWebView: WKUIDelegate {
     
     public func webView(_ webView: WKWebView, createWebViewWith configuration: WKWebViewConfiguration, for navigationAction: WKNavigationAction, windowFeatures: WKWindowFeatures) -> WKWebView? {
         guard let isMainFrame = navigationAction.targetFrame?.isMainFrame, isMainFrame else {
-            guard let openNewWindow = webDelegate?.webView(webView as! DLWebView, shouldCreateNewWebViewWith: configuration, for: navigationAction, windowFeatures: windowFeatures),
+            guard let openNewWindow = delegate?.webView(webView as! DLWebView, shouldCreateNewWebViewWith: configuration, for: navigationAction, windowFeatures: windowFeatures),
                 openNewWindow else {
                     self.load(navigationAction.request)
                     return nil
@@ -584,7 +584,7 @@ extension DLWebView: WKUIDelegate {
         }
         
         if let closestViewController = self.dl_closestViewController {
-            webDelegate?.webViewDidClose(webView as! DLWebView, webViewController: closestViewController)
+            delegate?.webViewDidClose(webView as! DLWebView, webViewController: closestViewController)
         }
     }
     
@@ -595,7 +595,7 @@ extension DLWebView: WKUIDelegate {
         }
         
         if let closestViewController = self.dl_closestViewController {
-            webDelegate?.webView(webView as! DLWebView, webViewController: closestViewController, showAlertPanelWithMessage: message, completionHandler: completionHandler)
+            delegate?.webView(webView as! DLWebView, webViewController: closestViewController, showAlertPanelWithMessage: message, completionHandler: completionHandler)
         } else {
             completionHandler()
         }
@@ -608,7 +608,7 @@ extension DLWebView: WKUIDelegate {
         }
         
         if let closestViewController = self.dl_closestViewController {
-            webDelegate?.webView(webView as! DLWebView, webViewController: closestViewController, showConfirmPanelWithMessage: message, completionHandler: completionHandler)
+            delegate?.webView(webView as! DLWebView, webViewController: closestViewController, showConfirmPanelWithMessage: message, completionHandler: completionHandler)
         } else {
             completionHandler(false)
         }
@@ -621,7 +621,7 @@ extension DLWebView: WKUIDelegate {
         }
         
         if let closestViewController = self.dl_closestViewController {
-            webDelegate?.webView(webView as! DLWebView, webViewController: closestViewController, showTextInputPanelWithPrompt: prompt, defaultText: defaultText, completionHandler: completionHandler)
+            delegate?.webView(webView as! DLWebView, webViewController: closestViewController, showTextInputPanelWithPrompt: prompt, defaultText: defaultText, completionHandler: completionHandler)
         } else {
             completionHandler(nil)
         }

@@ -17,7 +17,7 @@ open class DLWebViewController: UIViewController {
     /// The delegate of DLWebView.
     public weak var delegate: DLWebViewDelegate? {
         didSet {
-            webView.webDelegate = delegate
+            webView.delegate = delegate
         }
     }
     

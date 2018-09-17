@@ -45,7 +45,7 @@ class ExampleWebViewController: UIViewController {
         _webView.webContentHeightDidChange({ (height) in
             print("Web content height: \(height)")
         }, sizeFlexible: false)
-        _webView.webDelegate = self
+        _webView.delegate = self
         _webView.load("https://github.com/")
 //        _webView.load("https://www.google.com/")
         
