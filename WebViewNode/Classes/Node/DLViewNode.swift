@@ -8,7 +8,7 @@
 
 import AsyncDisplayKit
 
-class DLViewNode<ViewType: UIView>: ASDisplayNode {
+open class DLViewNode<ViewType: UIView>: ASDisplayNode {
     
     private var _viewAssociations: [(ViewType) -> Void]?
 
