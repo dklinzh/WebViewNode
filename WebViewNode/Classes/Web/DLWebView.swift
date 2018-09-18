@@ -39,92 +39,7 @@ open class DLWebView: WKWebView {
     /// The delegate of DLWebView.
     public weak var delegate: DLWebViewDelegate?
     
-    /// The loading progress view on the top of web view.
-    public lazy var progressBar = WebLoadingProgressBar(webView: self, progressAnimationStyle: .smooth)
-    
-    /// Determine whether or not the loading progress view should be shown. Defaults to false.
-    public var progressBarShown: Bool = false {
-        didSet {
-            if oldValue == progressBarShown {
-                return
-            }
-            
-            if progressBarShown {
-                self.addSubview(progressBar)
-            } else {
-                progressBar.removeFromSuperview()
-            }
-        }
-    }
-    
-    /// The color shown for the portion of the web loading progress bar that is filled.
-    public var progressTintColor: UIColor? {
-        get {
-            return progressBar.progressTintColor
-        }
-        set {
-            progressBar.progressTintColor = newValue
-        }
-    }
-    
-    /// A dictionary of the custom HTTP header fields for URL request.
-    public var customHTTPHeaderFields: [String : String]?
-    
-    /// Determine whether or not the given element of web link should show a preview by 3D Touch. Defaults to false.
-    @available(iOS 9.0, *)
-    public var shouldPreviewElementBy3DTouch: Bool {
-        get {
-            return _shouldPreviewElementBy3DTouch && self.allowsLinkPreview
-        }
-        set {
-            self.allowsLinkPreview = newValue
-            _shouldPreviewElementBy3DTouch = newValue
-        }
-    }
-    private var _shouldPreviewElementBy3DTouch = false
-    
-    /// Determine whether or not the app window should display an alert, confirm or text input view from JavaScript functions. Defaults to true.
-    public var shouldDisplayAlertPanelByJavaScript = true
-    
-    /// Determine whether or not the web view controller should be closed by DOM window.close(). Defaults to false.
-    @available(iOS 9.0, *)
-    public var shouldCloseByDOMWindow: Bool {
-        get {
-            return _shouldCloseByDOMWindow
-        }
-        set {
-            _shouldCloseByDOMWindow = newValue
-        }
-    }
-    private var _shouldCloseByDOMWindow = false
-    
-    /// A floating-point value that determines the rate of deceleration after the user lifts their finger on the scroll view of web view. You can use the UIScrollViewDecelerationRateNormal or UIScrollViewDecelerationRateFast constants as reference points for reasonable deceleration rates. Defaults to UIScrollViewDecelerationRateNormal.
-    public var scrollDecelerationRate = UIScrollViewDecelerationRateNormal {
-        didSet {
-            self.scrollView.decelerationRate = scrollDecelerationRate
-        }
-    }
-    
-    private var _customValidSchemes: Set<String>?
-    
     private var _cookiesShared = false
-    
-    private var _pageTitleDidChangeBlock: ((_ title: String?) -> Void)?
-    private var _pageTitleContext = 0
-    
-    private var _webContentHeightDidChangeBlock: ((_ height: CGFloat) -> Void)?
-    private var _webContentHeightContext = 0
-    private var _webContentHeightHeight: CGFloat = 0
-    private var _webContentSizeFlexible = false
-    
-    private var _copyURL: URL?
-    private var _urlContext = 0
-    
-    private var _provisionalNavigationFailed = false
-    private var _scrollOffset: CGFloat = -1
-    
-//    private var _authenticated = false
-//    private var _failedRequest: URLRequest?
     
     /// A web view initialization.
     ///
@@ -205,7 +120,112 @@ open class DLWebView: WKWebView {
             self.removeObserver(progressBar, forKeyPath: #keyPath(WKWebView.estimatedProgress))
         }
     }
-
+    
+// MARK: - UI Appearance
+    
+    /// The loading progress view on the top of web view.
+    public lazy var progressBar = WebLoadingProgressBar(webView: self, progressAnimationStyle: .smooth)
+    
+    /// Determine whether or not the loading progress view should be shown. Defaults to false.
+    public var progressBarShown: Bool = false {
+        didSet {
+            if oldValue == progressBarShown {
+                return
+            }
+            
+            if progressBarShown {
+                self.addSubview(progressBar)
+            } else {
+                progressBar.removeFromSuperview()
+            }
+        }
+    }
+    
+    /// The color shown for the portion of the web loading progress bar that is filled.
+    public var progressTintColor: UIColor? {
+        get {
+            return progressBar.progressTintColor
+        }
+        set {
+            progressBar.progressTintColor = newValue
+        }
+    }
+    
+    /// Add an observer for the page title of web view
+    ///
+    /// - Parameter block: Invoked when the page title has been changed.
+    public func pageTitleDidChange(_ block: ((_ title: String?) -> Void)?) {
+        if (_pageTitleDidChangeBlock == nil && block == nil) || (_pageTitleDidChangeBlock != nil && block != nil) {
+            _pageTitleDidChangeBlock = block
+            return
+        }
+        
+        _pageTitleDidChangeBlock = block
+        if block != nil {
+            self.addObserver(self, forKeyPath: #keyPath(WKWebView.title), options: [], context: &_pageTitleContext)
+        } else {
+            self.removeObserver(self, forKeyPath: #keyPath(WKWebView.title))
+        }
+    }
+    private var _pageTitleDidChangeBlock: ((_ title: String?) -> Void)?
+    private var _pageTitleContext = 0
+    
+    /// Add an observer for the height of web content.
+    ///
+    /// - Parameters:
+    ///   - block: Invoked when the height of web content has been changed.
+    ///   - sizeFlexible: Determine whether or not the size of web view should be flexible to fit its content size. Defaults to false.
+    public func webContentHeightDidChange(_ block: ((_ height: CGFloat) -> Void)? = { (height) in }, sizeFlexible: Bool = false) {
+        _webContentSizeFlexible = sizeFlexible
+        
+        if (_webContentHeightDidChangeBlock == nil && block == nil) || (_webContentHeightDidChangeBlock != nil && block != nil) {
+            _webContentHeightDidChangeBlock = block
+            return
+        }
+        
+        _webContentHeightDidChangeBlock = block
+        if block != nil {
+            self.scrollView.addObserver(self, forKeyPath: #keyPath(UIScrollView.contentSize), options: [], context: &_webContentHeightContext)
+        } else {
+            self.scrollView.removeObserver(self, forKeyPath: #keyPath(UIScrollView.contentSize))
+        }
+    }
+    private var _webContentHeightDidChangeBlock: ((_ height: CGFloat) -> Void)?
+    private var _webContentHeightContext = 0
+    private var _webContentHeightHeight: CGFloat = 0
+    private var _webContentSizeFlexible = false
+    
+    /// Make web view scroll to the given offset of Y position.
+    ///
+    /// - Parameter offset: The offset of Y position.
+    public func scrollTo(offset: CGFloat) {
+        if self.isLoading {
+            _scrollOffset = offset
+        } else {
+            _scrollTo(offset: offset)
+        }
+    }
+    
+    /// A floating-point value that determines the rate of deceleration after the user lifts their finger on the scroll view of web view. You can use the UIScrollViewDecelerationRateNormal or UIScrollViewDecelerationRateFast constants as reference points for reasonable deceleration rates. Defaults to UIScrollViewDecelerationRateNormal.
+    public var scrollDecelerationRate = UIScrollViewDecelerationRateNormal {
+        didSet {
+            self.scrollView.decelerationRate = scrollDecelerationRate
+        }
+    }
+    
+    /// Determine whether or not the given element of web link should show a preview by 3D Touch. Defaults to false.
+    @available(iOS 9.0, *)
+    public var shouldPreviewElementBy3DTouch: Bool {
+        get {
+            return _shouldPreviewElementBy3DTouch && self.allowsLinkPreview
+        }
+        set {
+            self.allowsLinkPreview = newValue
+            _shouldPreviewElementBy3DTouch = newValue
+        }
+    }
+    private var _shouldPreviewElementBy3DTouch = false
+    
     open override func layoutSubviews() {
         super.layoutSubviews()
         
@@ -216,6 +236,8 @@ open class DLWebView: WKWebView {
             progressBar.frame = frame
         }
     }
+  
+// MARK: - Web Loading
     
     /// Navigates to a requested URL.
     ///
@@ -300,6 +322,8 @@ open class DLWebView: WKWebView {
         }
     }
     
+// MARK: - JavaScript
+    
     open override func evaluateJavaScript(_ javaScriptString: String, completionHandler: ((Any?, Error?) -> Void)? = nil) {
         if #available(iOS 9.0, *) {
             super.evaluateJavaScript(javaScriptString, completionHandler: completionHandler)
@@ -310,6 +334,29 @@ open class DLWebView: WKWebView {
             }
         }
     }
+    
+    /// Determine whether or not the app window should display an alert, confirm or text input view from JavaScript functions. Defaults to true.
+    public var shouldDisplayAlertPanelByJavaScript = true
+    
+    /// Determine whether or not the web view controller should be closed by DOM window.close(). Defaults to false.
+    @available(iOS 9.0, *)
+    public var shouldCloseByDOMWindow: Bool {
+        get {
+            return _shouldCloseByDOMWindow
+        }
+        set {
+            _shouldCloseByDOMWindow = newValue
+        }
+    }
+    private var _shouldCloseByDOMWindow = false
+    
+    //    private var _authenticated = false
+    //    private var _failedRequest: URLRequest?
+    
+// MARK: - URL Request
+    
+    /// A dictionary of the custom HTTP header fields for URL request.
+    public var customHTTPHeaderFields: [String : String]?
     
     /// Add custom valid URL schemes for the web view navigation.
     ///
@@ -322,6 +369,7 @@ open class DLWebView: WKWebView {
             self._customValidSchemes!.insert(scheme.lowercased())
         }
     }
+    private var _customValidSchemes: Set<String>?
     
     /// The user agent of a web view.
     ///
@@ -332,43 +380,11 @@ open class DLWebView: WKWebView {
         }
     }
     
-    /// Add an observer for the page title of web view
-    ///
-    /// - Parameter block: Invoked when the page title has been changed.
-    public func pageTitleDidChange(_ block: ((_ title: String?) -> Void)?) {
-        if (_pageTitleDidChangeBlock == nil && block == nil) || (_pageTitleDidChangeBlock != nil && block != nil) {
-            _pageTitleDidChangeBlock = block
-            return
-        }
-        
-        _pageTitleDidChangeBlock = block
-        if block != nil {
-            self.addObserver(self, forKeyPath: #keyPath(WKWebView.title), options: [], context: &_pageTitleContext)
-        } else {
-            self.removeObserver(self, forKeyPath: #keyPath(WKWebView.title))
-        }
-    }
+// MARK: - Private
     
-    /// Add an observer for the height of web content.
-    ///
-    /// - Parameters:
-    ///   - block: Invoked when the height of web content has been changed.
-    ///   - sizeFlexible: Determine whether or not the size of web view should be flexible to fit its content size. Defaults to false.
-    public func webContentHeightDidChange(_ block: ((_ height: CGFloat) -> Void)? = { (height) in }, sizeFlexible: Bool = false) {
-        _webContentSizeFlexible = sizeFlexible
-        
-        if (_webContentHeightDidChangeBlock == nil && block == nil) || (_webContentHeightDidChangeBlock != nil && block != nil) {
-            _webContentHeightDidChangeBlock = block
-            return
-        }
-        
-        _webContentHeightDidChangeBlock = block
-        if block != nil {
-            self.scrollView.addObserver(self, forKeyPath: #keyPath(UIScrollView.contentSize), options: [], context: &_webContentHeightContext)
-        } else {
-            self.scrollView.removeObserver(self, forKeyPath: #keyPath(UIScrollView.contentSize))
-        }
-    }
+    private var _copyURL: URL?
+    private var _urlContext = 0
+    private var _provisionalNavigationFailed = false
     
     open override func observeValue(forKeyPath keyPath: String?, of object: Any?, change: [NSKeyValueChangeKey : Any]?, context: UnsafeMutableRawPointer?) {
         if keyPath == #keyPath(WKWebView.title) && context == &_pageTitleContext { // Page title did change.
@@ -376,7 +392,7 @@ open class DLWebView: WKWebView {
         } else if keyPath == #keyPath(UIScrollView.contentSize) && context == &_webContentHeightContext { // Height of content view did change.
             self.evaluateJavaScript("document.body.offsetHeight") { [weak self] (result, error) in // != self.scrollView.contentSize.height
                 guard let strongSelf = self else { return }
-
+                
                 if let height = result as? CGFloat,
                     height != strongSelf._webContentHeightHeight {
                     strongSelf._webContentHeightHeight = height
@@ -406,17 +422,7 @@ open class DLWebView: WKWebView {
         }
     }
     
-    /// Make web view scroll to the given offset of Y position.
-    ///
-    /// - Parameter offset: The offset of Y position.
-    public func scrollTo(offset: CGFloat) {
-        if self.isLoading {
-            _scrollOffset = offset
-        } else {
-            _scrollTo(offset: offset)
-        }
-    }
-    
+    private var _scrollOffset: CGFloat = -1
     private func _scrollTo(offset: CGFloat) {
         if offset >= 0 {
             _scrollOffset = -1

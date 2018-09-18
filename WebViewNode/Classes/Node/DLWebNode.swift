@@ -21,6 +21,25 @@ open class DLWebNode: DLViewNode<DLWebView> {
         }
     }
     
+    /// A web node initialization.
+    ///
+    /// - Parameters:
+    ///   - configuration: A collection of properties used to initialize a web node.
+    ///   - cookiesShared: Determine whether or not the initialized web node should be shared with cookies from the HTTP cookie storage. Defaults to false.
+    ///   - userScalable: Determine whether or not the frame of web node can be scaled by user. Defaults value is `default`.
+    ///   - contentFitStyle: The style of viewport fit with web content. Default value is `default`.
+    ///   - customUserAgent: The custom user agent string of web node. Defaults to nil.
+    public init(configuration: DLWebViewConfiguration = DLWebViewConfiguration(), cookiesShared: Bool = false, userScalable: WebUserScalable = .default, contentFitStyle: WebContentFitStyle = .default, customUserAgent: String? = nil) {
+        super.init()
+        
+        self.setViewBlock { () -> UIView in
+            let webView = DLWebView(configuration: configuration, cookiesShared: cookiesShared, userScalable: userScalable, contentFitStyle: contentFitStyle, customUserAgent: customUserAgent)
+            return webView
+        }
+    }
+    
+// MARK: - UI Appearance
+    
     /// Determine whether or not the loading progress view should be shown. Defaults to false.
     public var progressBarShown: Bool {
         get {
@@ -45,14 +64,43 @@ open class DLWebNode: DLViewNode<DLWebView> {
         }
     }
     
-    /// A dictionary of the custom HTTP header fields for URL request.
-    public var customHTTPHeaderFields: [String : String]? {
+    /// Add an observer for the page title of web node
+    ///
+    /// - Parameter block: Invoked when the page title has been changed.
+    public func pageTitleDidChange(_ block: ((_ title: String?) -> Void)?) {
+        self.appendViewAssociation { (view) in
+            view.pageTitleDidChange(block)
+        }
+    }
+    
+    /// Add an observer for the height of web content.
+    ///
+    /// - Parameters:
+    ///   - block: Invoked when the height of web content has been changed.
+    ///   - sizeFlexible: Determine whether or not the size of web node should be flexible to fit its content size. Defaults to false.
+    public func webContentHeightDidChange(_ block: ((_ height: CGFloat) -> Void)? = { (height) in }, sizeFlexible: Bool = false) {
+        self.appendViewAssociation { (view) in
+            view.webContentHeightDidChange(block, sizeFlexible: sizeFlexible)
+        }
+    }
+    
+    /// Make web node scroll to the given offset of Y position.
+    ///
+    /// - Parameter offset: The offset of Y position.
+    public func scrollTo(offset: CGFloat) {
+        self.appendViewAssociation { (view) in
+            view.scrollTo(offset: offset)
+        }
+    }
+    
+    /// A floating-point value that determines the rate of deceleration after the user lifts their finger on the scroll view of web node. You can use the UIScrollViewDecelerationRateNormal or UIScrollViewDecelerationRateFast constants as reference points for reasonable deceleration rates. Defaults to UIScrollViewDecelerationRateNormal.
+    public var scrollDecelerationRate: CGFloat {
         get {
-            return self.nodeView.customHTTPHeaderFields
+            return self.nodeView.scrollDecelerationRate
         }
         set {
             self.appendViewAssociation { (view) in
-                view.customHTTPHeaderFields = newValue
+                view.scrollDecelerationRate = newValue
             }
         }
     }
@@ -70,59 +118,7 @@ open class DLWebNode: DLViewNode<DLWebView> {
         }
     }
     
-    /// Determine whether or not the app window should display an alert, confirm or text input view from JavaScript functions. Defaults to true.
-    public var shouldDisplayAlertPanelByJavaScript: Bool {
-        get {
-            return self.nodeView.shouldDisplayAlertPanelByJavaScript
-        }
-        set {
-            self.appendViewAssociation { (view) in
-                view.shouldDisplayAlertPanelByJavaScript = newValue
-            }
-        }
-    }
-    
-    /// Determine whether or not the web node controller should be closed by DOM window.close(). Defaults to false.
-    @available(iOS 9.0, *)
-    public var shouldCloseByDOMWindow: Bool {
-        get {
-            return self.nodeView.shouldCloseByDOMWindow
-        }
-        set {
-            self.appendViewAssociation { (view) in
-                view.shouldCloseByDOMWindow = newValue
-            }
-        }
-    }
-    
-    /// A floating-point value that determines the rate of deceleration after the user lifts their finger on the scroll view of web node. You can use the UIScrollViewDecelerationRateNormal or UIScrollViewDecelerationRateFast constants as reference points for reasonable deceleration rates. Defaults to UIScrollViewDecelerationRateNormal.
-    public var scrollDecelerationRate: CGFloat {
-        get {
-            return self.nodeView.scrollDecelerationRate
-        }
-        set {
-            self.appendViewAssociation { (view) in
-                view.scrollDecelerationRate = newValue
-            }
-        }
-    }
-    
-    /// A web node initialization.
-    ///
-    /// - Parameters:
-    ///   - configuration: A collection of properties used to initialize a web view.
-    ///   - cookiesShared: Determine whether or not the initialized web view should be shared with cookies from the HTTP cookie storage. Defaults to false.
-    ///   - userScalable: Determine whether or not the frame of web view can be scaled by user. Defaults value is `default`.
-    ///   - contentFitStyle: The style of viewport fit with web content. Default value is `default`.
-    ///   - customUserAgent: The custom user agent string of web view. Defaults to nil.
-    public init(configuration: DLWebViewConfiguration = DLWebViewConfiguration(), cookiesShared: Bool = false, userScalable: WebUserScalable = .default, contentFitStyle: WebContentFitStyle = .default, customUserAgent: String? = nil) {
-        super.init()
-        
-        self.setViewBlock { () -> UIView in
-            let webView = DLWebView(configuration: configuration, cookiesShared: cookiesShared, userScalable: userScalable, contentFitStyle: contentFitStyle, customUserAgent: customUserAgent)
-            return webView
-        }
-    }
+// MARK: - Web Loading
     
     /// A Boolean value indicating whether the web is currently loading content.
     public var isLoading: Bool {
@@ -146,7 +142,6 @@ open class DLWebNode: DLViewNode<DLWebView> {
             view.load(url)
         }
     }
-    
     
     /// Navigates to a requested URL.
     ///
@@ -189,6 +184,8 @@ open class DLWebNode: DLViewNode<DLWebView> {
         }
     }
     
+// MARK: - JavaScript
+    
     /// Evaluates a JavaScript string.
     ///
     /// - Parameters:
@@ -200,7 +197,46 @@ open class DLWebNode: DLViewNode<DLWebView> {
         }
     }
     
-    /// Add custom valid URL schemes for the web view navigation.
+    /// Determine whether or not the app window should display an alert, confirm or text input view from JavaScript functions. Defaults to true.
+    public var shouldDisplayAlertPanelByJavaScript: Bool {
+        get {
+            return self.nodeView.shouldDisplayAlertPanelByJavaScript
+        }
+        set {
+            self.appendViewAssociation { (view) in
+                view.shouldDisplayAlertPanelByJavaScript = newValue
+            }
+        }
+    }
+    
+    /// Determine whether or not the web node controller should be closed by DOM window.close(). Defaults to false.
+    @available(iOS 9.0, *)
+    public var shouldCloseByDOMWindow: Bool {
+        get {
+            return self.nodeView.shouldCloseByDOMWindow
+        }
+        set {
+            self.appendViewAssociation { (view) in
+                view.shouldCloseByDOMWindow = newValue
+            }
+        }
+    }
+    
+// MARK: - URL Request
+    
+    /// A dictionary of the custom HTTP header fields for URL request.
+    public var customHTTPHeaderFields: [String : String]? {
+        get {
+            return self.nodeView.customHTTPHeaderFields
+        }
+        set {
+            self.appendViewAssociation { (view) in
+                view.customHTTPHeaderFields = newValue
+            }
+        }
+    }
+    
+    /// Add custom valid URL schemes for the web node navigation.
     ///
     /// - Parameter schemes: An array of URL scheme.
     public func addCustomValidSchemes(_ schemes: [String]) {
@@ -209,7 +245,7 @@ open class DLWebNode: DLViewNode<DLWebView> {
         }
     }
     
-    /// The user agent of a web view.
+    /// The user agent of a web node.
     ///
     /// - Parameter block: A block with user agent string
     public func userAgent(_ block: @escaping (_ result: String?) -> Void) {
@@ -218,23 +254,5 @@ open class DLWebNode: DLViewNode<DLWebView> {
         }
     }
     
-    /// Add an observer for the page title of web view
-    ///
-    /// - Parameter block: Invoked when the page title has been changed.
-    public func pageTitleDidChange(_ block: ((_ title: String?) -> Void)?) {
-        self.appendViewAssociation { (view) in
-            view.pageTitleDidChange(block)
-        }
-    }
     
-    /// Add an observer for the height of web content.
-    ///
-    /// - Parameters:
-    ///   - block: Invoked when the height of web content has been changed.
-    ///   - sizeFlexible: Determine whether or not the size of web view should be flexible to fit its content size. Defaults to false.
-    public func webContentHeightDidChange(_ block: ((_ height: CGFloat) -> Void)? = { (height) in }, sizeFlexible: Bool = false) {
-        self.appendViewAssociation { (view) in
-            view.webContentHeightDidChange(block, sizeFlexible: sizeFlexible)
-        }
-    }
 }
