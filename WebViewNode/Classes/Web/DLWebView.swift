@@ -205,6 +205,13 @@ open class DLWebView: WKWebView {
             _scrollTo(offset: offset)
         }
     }
+    private var _scrollOffset: CGFloat = -1
+    private func _scrollTo(offset: CGFloat) {
+        if offset >= 0 {
+            _scrollOffset = -1
+            self.evaluateJavaScript("window.scrollTo(0, \(offset))")
+        }
+    }
     
     /// A floating-point value that determines the rate of deceleration after the user lifts their finger on the scroll view of web view. You can use the UIScrollViewDecelerationRateNormal or UIScrollViewDecelerationRateFast constants as reference points for reasonable deceleration rates. Defaults to UIScrollViewDecelerationRateNormal.
     public var scrollDecelerationRate = UIScrollViewDecelerationRateNormal {
@@ -380,7 +387,7 @@ open class DLWebView: WKWebView {
         }
     }
     
-// MARK: - Private
+// MARK: - Observe
     
     private var _copyURL: URL?
     private var _urlContext = 0
@@ -422,13 +429,7 @@ open class DLWebView: WKWebView {
         }
     }
     
-    private var _scrollOffset: CGFloat = -1
-    private func _scrollTo(offset: CGFloat) {
-        if offset >= 0 {
-            _scrollOffset = -1
-            self.evaluateJavaScript("window.scrollTo(0, \(offset))")
-        }
-    }
+// MARK: - Private
     
     private func externalAppRequiredToOpen(url: URL) -> Bool {
         guard let scheme = url.scheme else {
