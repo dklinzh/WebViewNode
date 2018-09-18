@@ -93,8 +93,8 @@ open class DLWebNode: DLViewNode<DLWebView> {
         }
     }
     
-    /// A floating-point value that determines the rate of deceleration after the user lifts their finger on the scroll view of web node. You can use the UIScrollViewDecelerationRateNormal or UIScrollViewDecelerationRateFast constants as reference points for reasonable deceleration rates. Defaults to UIScrollViewDecelerationRateNormal.
-    public var scrollDecelerationRate: CGFloat {
+    /// A floating-point value that determines the rate of deceleration after the user lifts their finger. Use the normal and fast constants as reference points for reasonable deceleration rates. Defaults to normal.
+    public var scrollDecelerationRate: UIScrollView.DecelerationRate {
         get {
             return self.nodeView.scrollDecelerationRate
         }

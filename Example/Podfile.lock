@@ -1,20 +1,5 @@
 PODS:
-  - FBSnapshotTestCase (2.1.4):
-    - FBSnapshotTestCase/SwiftSupport (= 2.1.4)
-  - FBSnapshotTestCase/Core (2.1.4)
-  - FBSnapshotTestCase/SwiftSupport (2.1.4):
-    - FBSnapshotTestCase/Core
-  - iOSSnapshotTestCase (2.2.0):
-    - iOSSnapshotTestCase/SwiftSupport (= 2.2.0)
-  - iOSSnapshotTestCase/Core (2.2.0)
-  - iOSSnapshotTestCase/SwiftSupport (2.2.0):
-    - iOSSnapshotTestCase/Core
   - Nimble (7.3.0)
-  - Nimble-Snapshots (6.4.1):
-    - Nimble-Snapshots/Core (= 6.4.1)
-  - Nimble-Snapshots/Core (6.4.1):
-    - iOSSnapshotTestCase (~> 2.0)
-    - Nimble (~> 7.0)
   - PINCache (3.0.1-beta.6):
     - PINCache/Arc-exception-safe (= 3.0.1-beta.6)
     - PINCache/Core (= 3.0.1-beta.6)
@@ -48,9 +33,7 @@ PODS:
   - WebViewNode/Web (0.2.0)
 
 DEPENDENCIES:
-  - FBSnapshotTestCase
   - Nimble
-  - Nimble-Snapshots
   - Quick
   - WebViewNode/JSBridge (from `../`)
   - WebViewNode/Node (from `../`)
@@ -58,10 +41,7 @@ DEPENDENCIES:
 
 SPEC REPOS:
   https://github.com/cocoapods/specs.git:
-    - FBSnapshotTestCase
-    - iOSSnapshotTestCase
     - Nimble
-    - Nimble-Snapshots
     - PINCache
     - PINOperation
     - PINRemoteImage
@@ -74,18 +54,15 @@ EXTERNAL SOURCES:
     :path: "../"
 
 SPEC CHECKSUMS:
-  FBSnapshotTestCase: 094f9f314decbabe373b87cc339bea235a63e07a
-  iOSSnapshotTestCase: 415bd84f9dbba4ff45fede49d800bc7332fbedac
   Nimble: c8d6a1f463701921c46de965c673e13cafa09196
-  Nimble-Snapshots: 438fb1a6fa3c655e246fc9ac375f6cd2964d759a
   PINCache: d195fdba255283f7e9900a55e3cced377f431f9b
   PINOperation: a6219e6fc9db9c269eb7a7b871ac193bcf400aac
   PINRemoteImage: d6d51c5d2adda55f1ce30c96e850b6c4ebd2856a
   Quick: d17304d58d0d169dd0bd1c6e5c28e3318de32a1a
   Texture: 9d7e38965cf22ccd7cd9c249dd78b3f14e70ab6c
   WebViewJavascriptBridge: 7f5bc4d3581e672e8f32bd0f812d54bc69bb8e29
-  WebViewNode: 8980a9a9ea49b767d1fb5d622f1f62d499c09317
+  WebViewNode: 7f9ef34cfdcc8a4e4541dac6eb33a377ed313c65
 
-PODFILE CHECKSUM: 8cd3b09f0bd89e182fd1a77bbdbd182fd50b8add
+PODFILE CHECKSUM: 7c4ac15fdd29548f9bfbbb242f7014083b5ea66d
 
 COCOAPODS: 1.5.3

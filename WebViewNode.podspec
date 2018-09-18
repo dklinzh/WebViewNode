@@ -22,7 +22,7 @@ Pod::Spec.new do |s|
   s.source           = { :git => 'https://github.com/dklinzh/WebViewNode.git', :tag => s.version.to_s }
 
   s.requires_arc = true
-  s.swift_version = '4.1'
+  s.swift_version = '4.2'
 
   s.default_subspecs = 'Web', 'JSBridge'
   

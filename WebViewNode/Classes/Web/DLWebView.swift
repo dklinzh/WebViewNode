@@ -213,8 +213,8 @@ open class DLWebView: WKWebView {
         }
     }
     
-    /// A floating-point value that determines the rate of deceleration after the user lifts their finger on the scroll view of web view. You can use the UIScrollViewDecelerationRateNormal or UIScrollViewDecelerationRateFast constants as reference points for reasonable deceleration rates. Defaults to UIScrollViewDecelerationRateNormal.
-    public var scrollDecelerationRate = UIScrollViewDecelerationRateNormal {
+    /// A floating-point value that determines the rate of deceleration after the user lifts their finger. Use the normal and fast constants as reference points for reasonable deceleration rates. Defaults to normal.
+    public var scrollDecelerationRate = UIScrollView.DecelerationRate.normal {
         didSet {
             self.scrollView.decelerationRate = scrollDecelerationRate
         }

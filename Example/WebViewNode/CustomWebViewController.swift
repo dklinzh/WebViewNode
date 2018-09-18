@@ -26,6 +26,10 @@ class CustomWebViewController: DLWebViewController {
         super.didReceiveMemoryWarning()
         // Dispose of any resources that can be recreated.
     }
+    
+    deinit {
+        print("\(#function): \(self)")
+    }
 
     @objc
     private func refreshAction() {
