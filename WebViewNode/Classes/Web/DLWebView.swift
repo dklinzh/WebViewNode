@@ -357,8 +357,18 @@ open class DLWebView: WKWebView {
     }
     private var _shouldCloseByDOMWindow = false
     
-    //    private var _authenticated = false
-    //    private var _failedRequest: URLRequest?
+    /// Get the selected string from web page.
+    ///
+    /// - Parameter block: A block to invoke when pick up the selected string from html.
+    public func getSelectedString(_ block: @escaping (String?) -> Void) {
+        self.evaluateJavaScript("window.getSelection().toString();") { (result, error) in
+            if let string = result as? String, !string.isEmpty {
+                block(string)
+            } else {
+                block(nil)
+            }
+        }
+    }
     
 // MARK: - URL Request
     
@@ -430,6 +440,9 @@ open class DLWebView: WKWebView {
     }
     
 // MARK: - Private
+    
+    //    private var _authenticated = false
+    //    private var _failedRequest: URLRequest?
     
     private func externalAppRequiredToOpen(url: URL) -> Bool {
         guard let scheme = url.scheme else {

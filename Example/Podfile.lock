@@ -1,4 +1,9 @@
 PODS:
+  - FBSnapshotTestCase (2.1.4):
+    - FBSnapshotTestCase/SwiftSupport (= 2.1.4)
+  - FBSnapshotTestCase/Core (2.1.4)
+  - FBSnapshotTestCase/SwiftSupport (2.1.4):
+    - FBSnapshotTestCase/Core
   - Nimble (7.3.0)
   - PINCache (3.0.1-beta.6):
     - PINCache/Arc-exception-safe (= 3.0.1-beta.6)
@@ -33,6 +38,7 @@ PODS:
   - WebViewNode/Web (0.2.0)
 
 DEPENDENCIES:
+  - FBSnapshotTestCase
   - Nimble
   - Quick
   - WebViewNode/JSBridge (from `../`)
@@ -41,6 +47,7 @@ DEPENDENCIES:
 
 SPEC REPOS:
   https://github.com/cocoapods/specs.git:
+    - FBSnapshotTestCase
     - Nimble
     - PINCache
     - PINOperation
@@ -54,6 +61,7 @@ EXTERNAL SOURCES:
     :path: "../"
 
 SPEC CHECKSUMS:
+  FBSnapshotTestCase: 094f9f314decbabe373b87cc339bea235a63e07a
   Nimble: c8d6a1f463701921c46de965c673e13cafa09196
   PINCache: d195fdba255283f7e9900a55e3cced377f431f9b
   PINOperation: a6219e6fc9db9c269eb7a7b871ac193bcf400aac
@@ -63,6 +71,6 @@ SPEC CHECKSUMS:
   WebViewJavascriptBridge: 7f5bc4d3581e672e8f32bd0f812d54bc69bb8e29
   WebViewNode: 7f9ef34cfdcc8a4e4541dac6eb33a377ed313c65
 
-PODFILE CHECKSUM: 7c4ac15fdd29548f9bfbbb242f7014083b5ea66d
+PODFILE CHECKSUM: 656205acab0cf56d442465660905dbc58e085fa2
 
 COCOAPODS: 1.5.3

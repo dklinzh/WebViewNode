@@ -64,8 +64,11 @@ class ExampleWebViewController: UIViewController {
 
     @objc
     private func moreAction() {
-        _webView.scrollTo(offset: 1000)
+//        _webView.scrollTo(offset: 1000)
         
+//        _webView.getSelectedString { (string) in
+//            print("selected: \(string)")
+//        }
     }
 }
 

@@ -10,10 +10,9 @@ target 'WebViewNode_Example' do
   target 'WebViewNode_Tests' do
     inherit! :search_paths
 
-    #FIXME: Supports for Swift 4.2
     pod 'Quick'
     pod 'Nimble'
-#    pod 'FBSnapshotTestCase'
-#    pod 'Nimble-Snapshots'
+    pod 'FBSnapshotTestCase'
+#    pod 'Nimble-Snapshots' #FIXME: Supports for Swift 4.2
   end
 end
