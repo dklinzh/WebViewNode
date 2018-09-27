@@ -74,9 +74,30 @@ open class DLWebViewController: UIViewController {
     
     private var _url: String?
     
-    public init(url: String? = nil, configuration: DLWebViewConfiguration = DLWebViewConfiguration(), cookiesShared: Bool = false, userScalable: WebUserScalable = .default, contentFitStyle: WebContentFitStyle = .default, customUserAgent: String? = nil) {
+    /// A web view controller initialization.
+    ///
+    /// - Parameters:
+    ///   - url: The initial URL of web view to load.
+    ///   - configuration: A collection of properties used to initialize a web view.
+    ///   - cookiesShared: Determine whether or not the initialized web view should be shared with cookies from the HTTP cookie storage. Defaults to false.
+    ///   - userSelected: Determine whether or not the content of web page can be selected by user. Defaults to true.
+    ///   - userScalable: Determine whether or not the frame of web view can be scaled by user. Defaults value is `default`.
+    ///   - contentFitStyle: The style of viewport fit with web content. Default value is `default`.
+    ///   - customUserAgent: The custom user agent string of web view. Defaults to nil.
+    public init(url: String? = nil,
+                configuration: DLWebViewConfiguration = DLWebViewConfiguration(),
+                cookiesShared: Bool = false,
+                userSelected: Bool = true,
+                userScalable: WebUserScalable = .default,
+                contentFitStyle: WebContentFitStyle = .default,
+                customUserAgent: String? = nil) {
         _url = url
-        webView = DLWebView(configuration: configuration, cookiesShared: cookiesShared, userScalable: userScalable, contentFitStyle: contentFitStyle, customUserAgent: customUserAgent)
+        webView = DLWebView(configuration: configuration,
+                            cookiesShared: cookiesShared,
+                            userSelected: userSelected,
+                            userScalable: userScalable,
+                            contentFitStyle: contentFitStyle,
+                            customUserAgent: customUserAgent)
         webView.progressBarShown = progressBarShown
         webView.shouldDisplayAlertPanelByJavaScript = shouldDisplayAlertPanel
         

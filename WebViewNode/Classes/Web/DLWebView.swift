@@ -46,13 +46,28 @@ open class DLWebView: WKWebView {
     /// - Parameters:
     ///   - configuration: A collection of properties used to initialize a web view.
     ///   - cookiesShared: Determine whether or not the initialized web view should be shared with cookies from the HTTP cookie storage. Defaults to false.
+    ///   - userSelected: Determine whether or not the content of web page can be selected by user. Defaults to true.
     ///   - userScalable: Determine whether or not the frame of web view can be scaled by user. Defaults value is `default`.
     ///   - contentFitStyle: The style of viewport fit with web content. Default value is `default`.
     ///   - customUserAgent: The custom user agent string of web view. Defaults to nil.
-    public convenience init(configuration: DLWebViewConfiguration = DLWebViewConfiguration(), cookiesShared: Bool = false, userScalable: WebUserScalable = .default, contentFitStyle: WebContentFitStyle = .default, customUserAgent: String? = nil) {
+    public convenience init(configuration: DLWebViewConfiguration = DLWebViewConfiguration(),
+                            cookiesShared: Bool = false,
+                            userSelected: Bool = true,
+                            userScalable: WebUserScalable = .default,
+                            contentFitStyle: WebContentFitStyle = .default,
+                            customUserAgent: String? = nil) {
         if cookiesShared, let script = WebKit.formatJavaScriptCookies() {
             let cookieScript = WKUserScript(source: script, injectionTime: .atDocumentStart, forMainFrameOnly: false)
             configuration.userContentController.addUserScript(cookieScript)
+        }
+        
+        if !userSelected {
+            let script = """
+            document.documentElement.style.webkitTouchCallout='none';
+            document.documentElement.style.webkitUserSelect='none';
+            """
+            let selectedScript = WKUserScript(source: script, injectionTime: .atDocumentEnd, forMainFrameOnly: false)
+            configuration.userContentController.addUserScript(selectedScript)
         }
         
         var viewportContents = [String]()

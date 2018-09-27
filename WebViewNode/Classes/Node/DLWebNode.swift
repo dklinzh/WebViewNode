@@ -26,14 +26,25 @@ open class DLWebNode: DLViewNode<DLWebView> {
     /// - Parameters:
     ///   - configuration: A collection of properties used to initialize a web node.
     ///   - cookiesShared: Determine whether or not the initialized web node should be shared with cookies from the HTTP cookie storage. Defaults to false.
+    ///   - userSelected: Determine whether or not the content of web page can be selected by user. Defaults to true.
     ///   - userScalable: Determine whether or not the frame of web node can be scaled by user. Defaults value is `default`.
     ///   - contentFitStyle: The style of viewport fit with web content. Default value is `default`.
     ///   - customUserAgent: The custom user agent string of web node. Defaults to nil.
-    public init(configuration: DLWebViewConfiguration = DLWebViewConfiguration(), cookiesShared: Bool = false, userScalable: WebUserScalable = .default, contentFitStyle: WebContentFitStyle = .default, customUserAgent: String? = nil) {
+    public init(configuration: DLWebViewConfiguration = DLWebViewConfiguration(),
+                cookiesShared: Bool = false,
+                userSelected: Bool = true,
+                userScalable: WebUserScalable = .default,
+                contentFitStyle: WebContentFitStyle = .default,
+                customUserAgent: String? = nil) {
         super.init()
         
         self.setViewBlock { () -> UIView in
-            let webView = DLWebView(configuration: configuration, cookiesShared: cookiesShared, userScalable: userScalable, contentFitStyle: contentFitStyle, customUserAgent: customUserAgent)
+            let webView = DLWebView(configuration: configuration,
+                                    cookiesShared: cookiesShared,
+                                    userSelected: userSelected,
+                                    userScalable: userScalable,
+                                    contentFitStyle: contentFitStyle,
+                                    customUserAgent: customUserAgent)
             return webView
         }
     }
