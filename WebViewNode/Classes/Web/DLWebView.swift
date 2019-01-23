@@ -303,6 +303,7 @@ open class DLWebView: WKWebView {
             }
         }
         
+        mutableRequest.cachePolicy = .returnCacheDataElseLoad
         return super.load(mutableRequest)
     }
     

@@ -46,8 +46,9 @@ class ExampleWebViewController: UIViewController {
             print("Web content height: \(height)")
         }, sizeFlexible: false)
         _webView.delegate = self
-        _webView.load("https://github.com/")
+//        _webView.load("https://github.com/")
 //        _webView.load("https://www.google.com/")
+        _webView.load("https://www.baidu.com/")
         
         //
         self.navigationItem.rightBarButtonItem = UIBarButtonItem(barButtonSystemItem: .action, target: self, action: #selector(moreAction))
@@ -69,6 +70,8 @@ class ExampleWebViewController: UIViewController {
 //        _webView.getSelectedString { (string) in
 //            print("selected: \(string)")
 //        }
+        
+        WebKit.removeAllWebsiteDataRecords()
     }
 }
 

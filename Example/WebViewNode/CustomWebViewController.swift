@@ -16,7 +16,8 @@ class CustomWebViewController: DLWebViewController {
         self.pageTitleNavigationShown = true
         self.progressTintColor = .green
         self.delegate = self
-        self.load("https://github.com/")
+//        self.load("https://github.com/")
+        self.load("https://www.baidu.com/")
         
         //
         self.navigationItem.rightBarButtonItem = UIBarButtonItem(barButtonSystemItem: .refresh, target: self, action: #selector(refreshAction))
