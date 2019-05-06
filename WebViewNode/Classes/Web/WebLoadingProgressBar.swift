@@ -24,7 +24,7 @@ open class WebLoadingProgressBar: UIProgressView {
     public var progressAnimationStyle: WebLoadingProgressAnimationStyle {
         didSet {
             if oldValue == .smooth, progressAnimationStyle == .default {
-                cancelProgressTimer()
+                _cancelProgressTimer()
             }
         }
     }
@@ -55,24 +55,24 @@ open class WebLoadingProgressBar: UIProgressView {
     }
     
     deinit {
-        cancelProgressTimer()
+        _cancelProgressTimer()
     }
     
     open override func willMove(toSuperview newSuperview: UIView?) {
         super.willMove(toSuperview: newSuperview)
         
         if newSuperview == nil {
-            removeProgressObserver()
+            _removeProgressObserver()
         } else {
-            addProgressObserver()
+            _addProgressObserver()
         }
     }
     
-    private func addProgressObserver() {
+    private func _addProgressObserver() {
         _webView?.addObserver(self, forKeyPath: #keyPath(WKWebView.estimatedProgress), options: [], context: &_progressContext)
     }
     
-    private func removeProgressObserver() {
+    private func _removeProgressObserver() {
         _webView?.removeObserver(self, forKeyPath: #keyPath(WKWebView.estimatedProgress))
     }
     
@@ -89,7 +89,7 @@ open class WebLoadingProgressBar: UIProgressView {
             if progressAnimationStyle == .smooth {
                 if _estimatedProgress >= progress {
                     self.setProgress(progress, animated: self.progress == 0)
-                    startSmoothProgressTimer()
+                    _startSmoothProgressTimer()
                 } else if progress > self.progress {
                     self.setProgress(progress, animated: true)
                 }
@@ -100,7 +100,7 @@ open class WebLoadingProgressBar: UIProgressView {
             }
             
             if progress >= 1.0 {
-                stopSmoothProgressTimer()
+                _stopSmoothProgressTimer()
                 UIView.animate(withDuration: 0.3, delay: 0.3, options: .curveEaseOut, animations: {
                     self.alpha = 0.0
                 }, completion: { (finished: Bool) in
@@ -112,9 +112,9 @@ open class WebLoadingProgressBar: UIProgressView {
         }
     }
     
-    private func startSmoothProgressTimer() {
+    private func _startSmoothProgressTimer() {
         if progressAnimationStyle == .smooth {
-            cancelProgressTimer()
+            _cancelProgressTimer()
             
             let progressTimer = DispatchSource.makeTimerSource(queue: .main)
             let interval: Double = 0.02
@@ -125,7 +125,7 @@ open class WebLoadingProgressBar: UIProgressView {
                 let progress = strongSelf.progress + 0.002
                 let maxProgress: Float = 0.95
                 if progress >= maxProgress {
-                    strongSelf.cancelProgressTimer()
+                    strongSelf._cancelProgressTimer()
                     strongSelf.setProgress(maxProgress, animated: false)
                 } else {
                     strongSelf.setProgress(progress, animated: false)
@@ -136,13 +136,13 @@ open class WebLoadingProgressBar: UIProgressView {
         }
     }
     
-    private func stopSmoothProgressTimer() {
+    private func _stopSmoothProgressTimer() {
         if progressAnimationStyle == .smooth {
-            cancelProgressTimer()
+            _cancelProgressTimer()
         }
     }
     
-    private func cancelProgressTimer() {
+    private func _cancelProgressTimer() {
         if let progressTimer = _progressTimer {
             progressTimer.cancel()
             _progressTimer = nil

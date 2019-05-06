@@ -74,7 +74,7 @@ public struct WebKit {
                 })
             }
         } else {
-            removeWebsiteDataFiles()
+            _removeWebsiteDataFiles()
         }
     }
 
@@ -95,11 +95,11 @@ public struct WebKit {
                 
             }
         } else {
-            removeWebsiteDataFiles(types: types)
+            _removeWebsiteDataFiles(types: types)
         }
     }
     
-    private static func removeWebsiteDataFiles(types: [WebsiteDataType] = [.cookies, .localStorage, .webSQLDatabases, .indexedDBDatabases]) {
+    private static func _removeWebsiteDataFiles(types: [WebsiteDataType] = [.cookies, .localStorage, .webSQLDatabases, .indexedDBDatabases]) {
         let fileManager = FileManager.default
         let libraryPath = NSSearchPathForDirectoriesInDomains(.libraryDirectory, .userDomainMask, true)[0]
         if types.contains(.cookies) {

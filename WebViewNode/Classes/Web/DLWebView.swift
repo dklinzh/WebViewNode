@@ -460,7 +460,7 @@ open class DLWebView: WKWebView {
     //    private var _authenticated = false
     //    private var _failedRequest: URLRequest?
     
-    private func externalAppRequiredToOpen(url: URL) -> Bool {
+    private func _externalAppRequiredToOpen(url: URL) -> Bool {
         guard let scheme = url.scheme else {
             return false
         }
@@ -479,7 +479,7 @@ open class DLWebView: WKWebView {
     }
     
     // TODO: Strings Localization
-    private func launchExternalApp(url: URL) {
+    private func _launchExternalApp(url: URL) {
         let systemSchemes = ["tel", "sms", "mailto"]
         if let scheme = url.scheme,
             systemSchemes.contains(scheme) {
@@ -548,14 +548,14 @@ extension DLWebView: WKNavigationDelegate {
             return
         }
         
-        if !externalAppRequiredToOpen(url: url) {
+        if !_externalAppRequiredToOpen(url: url) {
             if navigationAction.targetFrame == nil {
                 load(url)
                 decisionHandler(.cancel)
                 return
             }
         } else if UIApplication.shared.canOpenURL(url) {
-            launchExternalApp(url: url)
+            _launchExternalApp(url: url)
             decisionHandler(.cancel)
             return
         }
