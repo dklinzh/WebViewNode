@@ -22,7 +22,7 @@ Pod::Spec.new do |s|
   s.source           = { :git => 'https://github.com/dklinzh/WebViewNode.git', :tag => s.version.to_s }
 
   s.requires_arc = true
-  s.swift_version = '4.2'
+  s.swift_version = '5.0'
 
   s.default_subspecs = 'Web', 'JSBridge'
   
@@ -44,7 +44,7 @@ Pod::Spec.new do |s|
 
   s.subspec 'Node' do |node|
     node.ios.deployment_target = '9.0'
-    node.dependency 'Texture', '~> 2.7'
+    node.dependency 'Texture', '~> 2.8'
     node.dependency 'WebViewNode/Web'
     node.source_files = 'WebViewNode/Classes/Node/*'
   end
