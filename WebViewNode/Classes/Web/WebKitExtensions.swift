@@ -83,7 +83,7 @@ public struct WebKit {
             return nil
         }
         
-        var result = ""
+        var result: String = ""
         let dateFormatter = DateFormatter()
         dateFormatter.timeZone = TimeZone(abbreviation: "UTC")
         dateFormatter.dateFormat = "EEE, d MMM yyyy HH:mm:ss zzz"

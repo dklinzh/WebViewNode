@@ -93,7 +93,7 @@ public protocol JavaScriptBridge: class {
     func registerJSHandlers(bridge: DLWebViewJavaScriptBridge)
 }
 
-private var _jsBridgeKey = 0
+private var _jsBridgeKey: Int = 0
 extension JavaScriptBridge {
     
     public var jsBridge: DLWebViewJavaScriptBridge? {

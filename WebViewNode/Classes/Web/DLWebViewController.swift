@@ -22,7 +22,7 @@ open class DLWebViewController: UIViewController {
     }
     
     /// Determine whether or not the page title of web view should be shown on the navigation bar. Defaults to false.
-    public var pageTitleNavigationShown = false {
+    public var pageTitleNavigationShown: Bool = false {
         didSet {
             if oldValue != pageTitleNavigationShown {
                 if pageTitleNavigationShown {
@@ -38,7 +38,7 @@ open class DLWebViewController: UIViewController {
     }
     
     /// Determine whether or not the loading progress of web view should be shown. Defaults to true.
-    public var progressBarShown = true {
+    public var progressBarShown: Bool = true {
         didSet {
             webView.progressBarShown = progressBarShown
         }
@@ -66,7 +66,7 @@ open class DLWebViewController: UIViewController {
     }
     
     /// Determine whether or not the app window should display an alert, confirm or text input view from JavaScript functions. Defaults to false.
-    public var shouldDisplayAlertPanel = false {
+    public var shouldDisplayAlertPanel: Bool = false {
         didSet {
             webView.shouldDisplayAlertPanelByJavaScript = shouldDisplayAlertPanel
         }

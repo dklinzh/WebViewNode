@@ -39,7 +39,7 @@ open class DLWebView: WKWebView {
     /// The delegate of DLWebView.
     public weak var delegate: DLWebViewDelegate?
     
-    private var _cookiesShared = false
+    private var _cookiesShared: Bool = false
     
     /// A web view initialization.
     ///
@@ -62,7 +62,7 @@ open class DLWebView: WKWebView {
         }
         
         if !userSelected {
-            let script = """
+            let script: String = """
             document.documentElement.style.webkitTouchCallout='none';
             document.documentElement.style.webkitUserSelect='none';
             """
@@ -78,7 +78,7 @@ open class DLWebView: WKWebView {
             viewportContents.append("viewport-fit=\(contentFitStyle.rawValue)")
         }
         if !viewportContents.isEmpty {
-            let script = """
+            let script: String = """
             var script = document.createElement('meta');
             script.name = 'viewport';
             script.content= 'width=device-width, initial-scale=1.0, \(viewportContents.joined(separator: ", "))';
@@ -183,7 +183,7 @@ open class DLWebView: WKWebView {
         }
     }
     private var _pageTitleDidChangeBlock: ((_ title: String?) -> Void)?
-    private var _pageTitleContext = 0
+    private var _pageTitleContext: Int = 0
     
     /// Add an observer for the height of web content.
     ///
@@ -206,9 +206,9 @@ open class DLWebView: WKWebView {
         }
     }
     private var _webContentHeightDidChangeBlock: ((_ height: CGFloat) -> Void)?
-    private var _webContentHeightContext = 0
-    private var _webContentHeightHeight: CGFloat = 0
-    private var _webContentSizeFlexible = false
+    private var _webContentHeightContext: Int = 0
+    private var _webContentHeightHeight: CGFloat = 0.0
+    private var _webContentSizeFlexible: Bool = false
     
     /// Make web view scroll to the given offset of Y position.
     ///
@@ -220,10 +220,10 @@ open class DLWebView: WKWebView {
             _scrollTo(offset: offset)
         }
     }
-    private var _scrollOffset: CGFloat = -1
+    private var _scrollOffset: CGFloat = -1.0
     private func _scrollTo(offset: CGFloat) {
-        if offset >= 0 {
-            _scrollOffset = -1
+        if offset >= 0.0 {
+            _scrollOffset = -1.0
             self.evaluateJavaScript("window.scrollTo(0, \(offset))")
         }
     }
@@ -303,7 +303,7 @@ open class DLWebView: WKWebView {
             }
         }
         
-        mutableRequest.cachePolicy = .returnCacheDataElseLoad
+        //        mutableRequest.cachePolicy = .returnCacheDataElseLoad
         return super.load(mutableRequest)
     }
     
@@ -315,12 +315,15 @@ open class DLWebView: WKWebView {
     /// - Returns: A new navigation for the given request.
     @discardableResult
     public func loadHTML(fileName: String, bundle: Bundle = Bundle.main) -> WKNavigation? {
-        if let filePath = bundle.path(forResource: fileName, ofType: "html") {
-            let html = try! String(contentsOfFile: filePath, encoding: String.Encoding.utf8)
-            return self.loadHTMLString(html, baseURL: bundle.resourceURL)
+        guard let filePath = bundle.path(forResource: fileName, ofType: "html") else {
+            return nil
         }
         
-        return nil
+        guard let html = try? String(contentsOfFile: filePath, encoding: String.Encoding.utf8) else {
+            return nil
+        }
+        
+        return self.loadHTMLString(html, baseURL: bundle.resourceURL)
     }
     
     @discardableResult
@@ -359,7 +362,7 @@ open class DLWebView: WKWebView {
     }
     
     /// Determine whether or not the app window should display an alert, confirm or text input view from JavaScript functions. Defaults to true.
-    public var shouldDisplayAlertPanelByJavaScript = true
+    public var shouldDisplayAlertPanelByJavaScript: Bool = true
     
     /// Determine whether or not the web view controller should be closed by DOM window.close(). Defaults to false.
     @available(iOS 9.0, *)
@@ -416,8 +419,8 @@ open class DLWebView: WKWebView {
 // MARK: - Observe
     
     private var _copyURL: URL?
-    private var _urlContext = 0
-    private var _provisionalNavigationFailed = false
+    private var _urlContext: Int = 0
+    private var _provisionalNavigationFailed: Bool = false
     
     open override func observeValue(forKeyPath keyPath: String?, of object: Any?, change: [NSKeyValueChangeKey : Any]?, context: UnsafeMutableRawPointer?) {
         if keyPath == #keyPath(WKWebView.title) && context == &_pageTitleContext { // Page title did change.
@@ -465,7 +468,7 @@ open class DLWebView: WKWebView {
             return false
         }
         
-        let validSchemes = ["http", "https", "file"]
+        let validSchemes: [String] = ["http", "https", "file"]
         if validSchemes.contains(scheme) {
             return false
         }
@@ -480,7 +483,7 @@ open class DLWebView: WKWebView {
     
     // TODO: Strings Localization
     private func _launchExternalApp(url: URL) {
-        let systemSchemes = ["tel", "sms", "mailto"]
+        let systemSchemes: [String] = ["tel", "sms", "mailto"]
         if let scheme = url.scheme,
             systemSchemes.contains(scheme) {
             if #available(iOS 10.0, *) {

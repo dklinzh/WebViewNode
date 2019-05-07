@@ -30,7 +30,7 @@ open class WebLoadingProgressBar: UIProgressView {
     }
     
     private weak var _webView: WKWebView?
-    private var _progressContext = 0
+    private var _progressContext: Int = 0
     private var _estimatedProgress: Float = 1.0
     
 //    private lazy var _progressQueue = DispatchQueue(label: "com.dklinzh.framework.WebViewNode.WebLoadingProgressQueue", target: DispatchQueue.main)
@@ -78,17 +78,17 @@ open class WebLoadingProgressBar: UIProgressView {
     
     open override func observeValue(forKeyPath keyPath: String?, of object: Any?, change: [NSKeyValueChangeKey : Any]?, context: UnsafeMutableRawPointer?) {
         if keyPath == #keyPath(WKWebView.estimatedProgress) && context == &_progressContext {
-            guard let _progress = _webView?.estimatedProgress, _progress > 0 else {
+            guard let _progress = _webView?.estimatedProgress, _progress > 0.0 else {
                 self.alpha = 0.0
                 self.setProgress(0.0, animated: false)
                 return
             }
             
             self.alpha = 1.0
-            let progress = Float(_progress)
+            let progress: Float = Float(_progress)
             if progressAnimationStyle == .smooth {
                 if _estimatedProgress >= progress {
-                    self.setProgress(progress, animated: self.progress == 0)
+                    self.setProgress(progress, animated: self.progress == 0.0)
                     _startSmoothProgressTimer()
                 } else if progress > self.progress {
                     self.setProgress(progress, animated: true)
@@ -122,7 +122,7 @@ open class WebLoadingProgressBar: UIProgressView {
             progressTimer.setEventHandler(handler: { [weak self] in
                 guard let strongSelf = self else { return }
                 
-                let progress = strongSelf.progress + 0.002
+                let progress: Float = strongSelf.progress + 0.002
                 let maxProgress: Float = 0.95
                 if progress >= maxProgress {
                     strongSelf._cancelProgressTimer()
