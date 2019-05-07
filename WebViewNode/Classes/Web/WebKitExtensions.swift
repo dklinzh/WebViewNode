@@ -10,12 +10,51 @@ import WebKit
 
 public struct WebKit {
     
-    @available(iOS 11.0, *)
+    /// A custom UserAgent begins with the app bundle name.
+    public static var customUserAgent: String {
+        #if os(iOS)
+        return String(format: "%@/%@ (%@; iOS %@; Scale/%.2f)",
+                      (Bundle.main.object(forInfoDictionaryKey: kCFBundleExecutableKey as String) as? String) ?? (Bundle.main.object(forInfoDictionaryKey: kCFBundleIdentifierKey as String) as? String) ?? "",
+                      (Bundle.main.object(forInfoDictionaryKey: "CFBundleShortVersionString") as? String) ?? (Bundle.main.object(forInfoDictionaryKey: kCFBundleVersionKey as String) as? String) ?? "",
+                      UIDevice.current.model,
+                      UIDevice.current.systemVersion,
+                      UIScreen.main.scale)
+        #elseif os(macOS)
+        return String(format: "%@/%@ (macOS %@)",
+                      (Bundle.main.object(forInfoDictionaryKey: kCFBundleExecutableKey as String) as? String) ?? (Bundle.main.object(forInfoDictionaryKey: kCFBundleIdentifierKey as String) as? String) ?? "",
+                      (Bundle.main.object(forInfoDictionaryKey: "CFBundleShortVersionString") as? String) ?? (Bundle.main.object(forInfoDictionaryKey: kCFBundleVersionKey as String) as? String) ?? "",
+                      ProcessInfo.processInfo.operatingSystemVersionString)
+        #endif
+    }
+    
+    private static var _tempWebView: WKWebView?
+    
+    /// Apply the custom User-Agnet to user defaults for the url request of web view.
+    ///
+    /// - Parameters:
+    ///   - customUserAgent: The custom User-Agent to be applied.
+    ///   - appendDefault: Determine whether the custom User-Agent should append with the defaults User-Agent of web view.
+    public static func applyCustomUserAgent(_ customUserAgent: String = WebKit.customUserAgent, appendDefault: Bool = true) {
+        if appendDefault {
+            _tempWebView = WKWebView()
+            _tempWebView!.evaluateJavaScript("navigator.userAgent") { (result, error) in
+                if let userAgent = result as? String {
+                    UserDefaults.standard.register(defaults: ["UserAgent": customUserAgent + " " + userAgent])
+                }
+                
+                _tempWebView = nil
+            }
+        } else {
+            UserDefaults.standard.register(defaults: ["UserAgent": customUserAgent])
+        }
+    }
+    
     /// Get website cookies from WKWebsiteDataStore
     ///
     /// - Parameters:
     ///   - domain: Specified domain of cookie
     ///   - results: The block of cookie properties dictionary
+    @available(iOS 11.0, *)
     public static func websiteCookies(for domain: String? = nil, results: @escaping ([String : Any]) -> Void)  {
         var cookieDict = [String : Any]()
         WKWebsiteDataStore.default().httpCookieStore.getAllCookies { (cookies) in
