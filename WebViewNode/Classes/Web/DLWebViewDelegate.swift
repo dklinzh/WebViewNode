@@ -8,6 +8,24 @@
 
 import WebKit
 
+/// A WKWebViewConfiguration object is a collection of properties with which to initialize a web view.
+public typealias DLWebViewConfiguration = WKWebViewConfiguration
+
+/// A WKWindowFeatures object specifies optional attributes for the containing window when a new web view is requested.
+public typealias DLWindowFeatures = WKWindowFeatures
+
+/// A WKNavigationAction object contains information about an action that may cause a navigation, used for making policy decisions.
+public typealias DLNavigationAction = WKNavigationAction
+
+/// The policy to pass back to the decision handler from the webView(_:decidePolicyFor:decisionHandler:) method.
+public typealias DLNavigationActionPolicy = WKNavigationActionPolicy
+
+/// A WKNavigationResponse object contains information about a navigation response, used for making policy decisions.
+public typealias DLNavigationResponse = WKNavigationResponse
+
+/// The policy to pass back to the decision handler from the webView(_:decidePolicyFor:decisionHandler:) method.
+public typealias DLNavigationResponsePolicy = WKNavigationResponsePolicy
+
 public protocol DLWebViewDelegate: class {
     
     /// Invoked when URL request of the main frame navigation starts loading.
@@ -52,7 +70,7 @@ public protocol DLWebViewDelegate: class {
     ///   - webView: The web view invoking the delegate method.
     ///   - navigationAction: Descriptive information about the action triggering the navigation request.
     /// - Returns: The policy to pass back to the decision handler from the webView(_:decidePolicyFor:decisionHandler:) method. Defaults to .allow
-    func webView(_ webView: DLWebView, decidePolicyFor navigationAction: WKNavigationAction) -> WKNavigationActionPolicy
+    func webView(_ webView: DLWebView, decidePolicyFor navigationAction: DLNavigationAction) -> DLNavigationActionPolicy
     
     /// Decides whether to allow or cancel a navigation after its response is known.
     ///
@@ -60,7 +78,7 @@ public protocol DLWebViewDelegate: class {
     ///   - webView: The web view invoking the delegate method.
     ///   - navigationResponse: Descriptive information about the navigation response.
     /// - Returns: The policy to pass back to the decision handler from the webView(_:decidePolicyFor:decisionHandler:) method. Defaults to .allow
-    func webView(_ webView: DLWebView, decidePolicyFor navigationResponse: WKNavigationResponse) -> WKNavigationResponsePolicy
+    func webView(_ webView: DLWebView, decidePolicyFor navigationResponse: DLNavigationResponse) -> DLNavigationResponsePolicy
     
     /// Decides whether a new web view should be created as a subframe of the website.
     ///
@@ -70,7 +88,7 @@ public protocol DLWebViewDelegate: class {
     ///   - navigationAction: The navigation action causing the new web view to be created.
     ///   - windowFeatures: Window features requested by the webpage.
     /// - Returns: Indicates whether a new web view should be created. Defaults to false.
-    func webView(_ webView: DLWebView, shouldCreateNewWebViewWith configuration: WKWebViewConfiguration, for navigationAction: WKNavigationAction, windowFeatures: WKWindowFeatures) -> Bool
+    func webView(_ webView: DLWebView, shouldCreateNewWebViewWith configuration: DLWebViewConfiguration, for navigationAction: DLNavigationAction, windowFeatures: DLWindowFeatures) -> Bool
     
     /// Notifies your app that the DOM window object's close() method completed successfully.
     ///
@@ -120,11 +138,11 @@ public extension DLWebViewDelegate {
     
     func webView(_ webView: DLWebView, didRedirectForLoading url: URL?) {}
     
-    func webView(_ webView: DLWebView, decidePolicyFor navigationAction: WKNavigationAction) -> WKNavigationActionPolicy { return .allow }
+    func webView(_ webView: DLWebView, decidePolicyFor navigationAction: DLNavigationAction) -> DLNavigationActionPolicy { return .allow }
     
-    func webView(_ webView: DLWebView, decidePolicyFor navigationResponse: WKNavigationResponse) -> WKNavigationResponsePolicy { return .allow }
+    func webView(_ webView: DLWebView, decidePolicyFor navigationResponse: DLNavigationResponse) -> DLNavigationResponsePolicy { return .allow }
     
-    func webView(_ webView: DLWebView, shouldCreateNewWebViewWith configuration: WKWebViewConfiguration, for navigationAction: WKNavigationAction, windowFeatures: WKWindowFeatures) -> Bool { return false }
+    func webView(_ webView: DLWebView, shouldCreateNewWebViewWith configuration: DLWebViewConfiguration, for navigationAction: DLNavigationAction, windowFeatures: DLWindowFeatures) -> Bool { return false }
     
     func webViewDidClose(_ webView: DLWebView, webViewController: UIViewController) {
         if let navigationController = webViewController.navigationController {

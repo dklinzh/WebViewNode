@@ -30,9 +30,6 @@ public enum WebUserScalable: String {
     case enable = "yes"
 }
 
-/// A WKWebViewConfiguration object is a collection of properties with which to initialize a web view.
-public typealias DLWebViewConfiguration = WKWebViewConfiguration
-
 /// Subclass of WKWebView
 open class DLWebView: WKWebView {
     
@@ -515,34 +512,34 @@ open class DLWebView: WKWebView {
 extension DLWebView: WKNavigationDelegate {
     
     public func webView(_ webView: WKWebView, didStartProvisionalNavigation navigation: WKNavigation!) {
-        delegate?.webView(webView as! DLWebView, didStartLoading: webView.url)
+        delegate?.webView(self, didStartLoading: webView.url)
     }
     
     // FIXME: Not be called if the web view bind with a javascript bridge.
     public func webView(_ webView: WKWebView, didCommit navigation: WKNavigation!) {
 //        _scrollTo(offset: _scrollOffset)
         
-        delegate?.webView(webView as! DLWebView, didCommitLoading: webView.url)
+        delegate?.webView(self, didCommitLoading: webView.url)
     }
     
     public func webView(_ webView: WKWebView, didFinish navigation: WKNavigation!) {
         _scrollTo(offset: _scrollOffset)
         
         _provisionalNavigationFailed = false
-        delegate?.webView(webView as! DLWebView, didFinishLoading: webView.url)
+        delegate?.webView(self, didFinishLoading: webView.url)
     }
     
     public func webView(_ webView: WKWebView, didFailProvisionalNavigation navigation: WKNavigation!, withError error: Error) {
         _provisionalNavigationFailed = true
-        delegate?.webView(webView as! DLWebView, didFailLoading: webView.url, error: error)
+        delegate?.webView(self, didFailLoading: webView.url, error: error)
     }
     
     public func webView(_ webView: WKWebView, didFail navigation: WKNavigation!, withError error: Error) {
-        delegate?.webView(webView as! DLWebView, didFailLoading: webView.url, error: error)
+        delegate?.webView(self, didFailLoading: webView.url, error: error)
     }
     
     public func webView(_ webView: WKWebView, didReceiveServerRedirectForProvisionalNavigation navigation: WKNavigation!) {
-        delegate?.webView(webView as! DLWebView, didRedirectForLoading: webView.url)
+        delegate?.webView(self, didRedirectForLoading: webView.url)
     }
     
     public func webView(_ webView: WKWebView, decidePolicyFor navigationAction: WKNavigationAction, decisionHandler: @escaping (WKNavigationActionPolicy) -> Void) {
@@ -579,11 +576,11 @@ extension DLWebView: WKNavigationDelegate {
 //            }
 //        }
         
-        decisionHandler(delegate?.webView(webView as! DLWebView, decidePolicyFor: navigationAction) ?? .allow)
+        decisionHandler(delegate?.webView(self, decidePolicyFor: navigationAction) ?? .allow)
     }
     
     public func webView(_ webView: WKWebView, decidePolicyFor navigationResponse: WKNavigationResponse, decisionHandler: @escaping (WKNavigationResponsePolicy) -> Void) {
-        decisionHandler(delegate?.webView(webView as! DLWebView, decidePolicyFor: navigationResponse) ?? .allow)
+        decisionHandler(delegate?.webView(self, decidePolicyFor: navigationResponse) ?? .allow)
     }
     
     @available(iOS 9.0, *)
@@ -599,7 +596,7 @@ extension DLWebView: WKUIDelegate {
     
     public func webView(_ webView: WKWebView, createWebViewWith configuration: WKWebViewConfiguration, for navigationAction: WKNavigationAction, windowFeatures: WKWindowFeatures) -> WKWebView? {
         guard let isMainFrame = navigationAction.targetFrame?.isMainFrame, isMainFrame else {
-            guard let openNewWindow = delegate?.webView(webView as! DLWebView, shouldCreateNewWebViewWith: configuration, for: navigationAction, windowFeatures: windowFeatures),
+            guard let openNewWindow = delegate?.webView(self, shouldCreateNewWebViewWith: configuration, for: navigationAction, windowFeatures: windowFeatures),
                 openNewWindow else {
                     self.load(navigationAction.request)
                     return nil
@@ -623,7 +620,7 @@ extension DLWebView: WKUIDelegate {
         }
         
         if let closestViewController = self.dl_closestViewController {
-            delegate?.webViewDidClose(webView as! DLWebView, webViewController: closestViewController)
+            delegate?.webViewDidClose(self, webViewController: closestViewController)
         }
     }
     
@@ -634,7 +631,7 @@ extension DLWebView: WKUIDelegate {
         }
         
         if let closestViewController = self.dl_closestViewController {
-            delegate?.webView(webView as! DLWebView, webViewController: closestViewController, showAlertPanelWithMessage: message, completionHandler: completionHandler)
+            delegate?.webView(self, webViewController: closestViewController, showAlertPanelWithMessage: message, completionHandler: completionHandler)
         } else {
             completionHandler()
         }
@@ -647,7 +644,7 @@ extension DLWebView: WKUIDelegate {
         }
         
         if let closestViewController = self.dl_closestViewController {
-            delegate?.webView(webView as! DLWebView, webViewController: closestViewController, showConfirmPanelWithMessage: message, completionHandler: completionHandler)
+            delegate?.webView(self, webViewController: closestViewController, showConfirmPanelWithMessage: message, completionHandler: completionHandler)
         } else {
             completionHandler(false)
         }
@@ -660,7 +657,7 @@ extension DLWebView: WKUIDelegate {
         }
         
         if let closestViewController = self.dl_closestViewController {
-            delegate?.webView(webView as! DLWebView, webViewController: closestViewController, showTextInputPanelWithPrompt: prompt, defaultText: defaultText, completionHandler: completionHandler)
+            delegate?.webView(self, webViewController: closestViewController, showTextInputPanelWithPrompt: prompt, defaultText: defaultText, completionHandler: completionHandler)
         } else {
             completionHandler(nil)
         }

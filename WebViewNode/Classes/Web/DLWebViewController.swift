@@ -11,7 +11,7 @@ import UIKit
 /// A view controller with web view container.
 open class DLWebViewController: UIViewController {
     
-    /// The root view of web view controller
+    /// The root view of web view controller.
     public let webView: DLWebView
     
     /// The delegate of DLWebView.
@@ -72,7 +72,7 @@ open class DLWebViewController: UIViewController {
         }
     }
     
-    private var _url: String?
+    private let _url: String?
     
     /// A web view controller initialization.
     ///
@@ -83,7 +83,7 @@ open class DLWebViewController: UIViewController {
     ///   - userSelected: Determine whether or not the content of web page can be selected by user. Defaults to true.
     ///   - userScalable: Determine whether or not the frame of web view can be scaled by user. Defaults value is `default`.
     ///   - contentFitStyle: The style of viewport fit with web content. Default value is `default`.
-    ///   - customUserAgent: The custom user agent string of web view. Defaults to nil.
+    ///   - customUserAgent: The custom `User-Agent` of web view. Defaults to nil.
     public init(url: String? = nil,
                 configuration: DLWebViewConfiguration = DLWebViewConfiguration(),
                 cookiesShared: Bool = false,
