@@ -44,7 +44,7 @@ Pod::Spec.new do |s|
 
   s.subspec 'Node' do |node|
     node.ios.deployment_target = '9.0'
-    node.dependency 'Texture', '~> 2.8'
+    node.dependency 'Texture/Core', '~> 2.8'
     node.dependency 'WebViewNode/Web'
     node.source_files = 'WebViewNode/Classes/Node/*'
   end
