@@ -117,9 +117,6 @@ open class DLWebView: WKWebView {
     }
     
     deinit {
-        self.navigationDelegate = nil
-        self.uiDelegate = nil
-        delegate = nil
         
         self.removeObserver(self, forKeyPath: #keyPath(WKWebView.url))
         if _pageTitleDidChangeBlock != nil {

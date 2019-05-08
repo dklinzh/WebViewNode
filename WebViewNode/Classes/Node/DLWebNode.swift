@@ -54,6 +54,10 @@ open class DLWebNode: DLViewNode<DLWebView> {
         }
     }
     
+    deinit {
+        
+    }
+    
 // MARK: - UI Appearance
     
     /// Determine whether or not the loading progress view should be shown. Defaults to false.
@@ -275,50 +279,50 @@ open class DLWebNode: DLViewNode<DLWebView> {
 // MARK: - DLWebViewDelegate
 extension DLWebNode: DLWebViewDelegate {
     public func webView(_ webView: DLWebView, didStartLoading url: URL?) {
-        delegate!.webNode(self, didStartLoading: url)
+        delegate?.webNode(self, didStartLoading: url)
     }
     
     public func webView(_ webView: DLWebView, didCommitLoading url: URL?) {
-        delegate!.webNode(self, didCommitLoading: url)
+        delegate?.webNode(self, didCommitLoading: url)
     }
     
     public func webView(_ webView: DLWebView, didFinishLoading url: URL?) {
-        delegate!.webNode(self, didFinishLoading: url)
+        delegate?.webNode(self, didFinishLoading: url)
     }
     
     public func webView(_ webView: DLWebView, didFailLoading url: URL?, error: Error?) {
-        delegate!.webNode(self, didFailLoading: url, error: error)
+        delegate?.webNode(self, didFailLoading: url, error: error)
     }
     
     public func webView(_ webView: DLWebView, didRedirectForLoading url: URL?) {
-        delegate!.webNode(self, didRedirectForLoading: url)
+        delegate?.webNode(self, didRedirectForLoading: url)
     }
     
     public func webView(_ webView: DLWebView, decidePolicyFor navigationAction: DLNavigationAction) -> DLNavigationActionPolicy {
-        return delegate!.webNode(self, decidePolicyFor: navigationAction)
+        return delegate?.webNode(self, decidePolicyFor: navigationAction) ?? .allow
     }
     
     public func webView(_ webView: DLWebView, decidePolicyFor navigationResponse: DLNavigationResponse) -> DLNavigationResponsePolicy {
-        return delegate!.webNode(self, decidePolicyFor: navigationResponse)
+        return delegate?.webNode(self, decidePolicyFor: navigationResponse) ?? .allow
     }
     
     public func webView(_ webView: DLWebView, shouldCreateNewWebViewWith configuration: DLWebViewConfiguration, for navigationAction: DLNavigationAction, windowFeatures: DLWindowFeatures) -> Bool {
-        return delegate!.webNode(self, shouldCreateNewWebNodeWith: configuration, for: navigationAction, windowFeatures: windowFeatures)
+        return delegate?.webNode(self, shouldCreateNewWebNodeWith: configuration, for: navigationAction, windowFeatures: windowFeatures) ?? false
     }
     
     public func webViewDidClose(_ webView: DLWebView, webViewController: UIViewController) {
-        delegate!.webNodeDidClose(self, webNodeController: webViewController)
+        delegate?.webNodeDidClose(self, webNodeController: webViewController)
     }
     
     public func webView(_ webView: DLWebView, webViewController: UIViewController, showAlertPanelWithMessage message: String, completionHandler: @escaping () -> Swift.Void) {
-        delegate!.webNode(self, webNodeController: webViewController, showAlertPanelWithMessage: message, completionHandler: completionHandler)
+        delegate?.webNode(self, webNodeController: webViewController, showAlertPanelWithMessage: message, completionHandler: completionHandler)
     }
     
     public func webView(_ webView: DLWebView, webViewController: UIViewController, showConfirmPanelWithMessage message: String, completionHandler: @escaping (Bool) -> Swift.Void) {
-        delegate!.webNode(self, webNodeController: webViewController, showConfirmPanelWithMessage: message, completionHandler: completionHandler)
+        delegate?.webNode(self, webNodeController: webViewController, showConfirmPanelWithMessage: message, completionHandler: completionHandler)
     }
     
     public func webView(_ webView: DLWebView, webViewController: UIViewController, showTextInputPanelWithPrompt prompt: String, defaultText: String?, completionHandler: @escaping (String?) -> Swift.Void) {
-        delegate!.webNode(self, webNodeController: webViewController, showTextInputPanelWithPrompt: prompt, defaultText: defaultText, completionHandler: completionHandler)
+        delegate?.webNode(self, webNodeController: webViewController, showTextInputPanelWithPrompt: prompt, defaultText: defaultText, completionHandler: completionHandler)
     }
 }
