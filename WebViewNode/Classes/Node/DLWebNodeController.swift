@@ -111,6 +111,10 @@ open class DLWebNodeController: ASViewController<DLWebNode> {
     open override func viewDidLoad() {
         super.viewDidLoad()
         
+        #if WebViewNode_JSBridge
+        self.bindJSBridge()
+        #endif
+        
         if let url = _url {
             load(url)
         }

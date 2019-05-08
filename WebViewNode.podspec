@@ -26,27 +26,30 @@ Pod::Spec.new do |s|
 
   s.default_subspecs = 'Web', 'JSBridge'
   
-  s.subspec 'Web' do |web|
-    web.ios.deployment_target = '8.0'
-    web.frameworks = 'WebKit', 'UIKit', 'Foundation'
-    web.source_files = 'WebViewNode/Classes/Web/*'
+  s.subspec 'Web' do |ss|
+    ss.ios.deployment_target = '8.0'
+    ss.frameworks = 'WebKit', 'UIKit', 'Foundation'
+    ss.source_files = 'WebViewNode/Classes/Web/*'
   end
 
-  s.subspec 'JSBridge' do |js|
-    js.ios.deployment_target = '8.0'
-    js.dependency 'WebViewJavascriptBridge', '~> 6.0'
-    js.dependency 'WebViewNode/Web'
-    js.source_files = 'WebViewNode/Classes/JSBridge/*'
-    js.pod_target_xcconfig = {
+  s.subspec 'JSBridge' do |ss|
+    ss.ios.deployment_target = '8.0'
+    ss.dependency 'WebViewJavascriptBridge', '~> 6.0'
+    ss.dependency 'WebViewNode/Web'
+    ss.source_files = 'WebViewNode/Classes/JSBridge/*'
+    ss.pod_target_xcconfig = {
       'OTHER_SWIFT_FLAGS' => '-D WebViewNode_JSBridge'
     }
   end
 
-  s.subspec 'Node' do |node|
-    node.ios.deployment_target = '9.0'
-    node.dependency 'Texture/Core', '~> 2.8'
-    node.dependency 'WebViewNode/Web'
-    node.source_files = 'WebViewNode/Classes/Node/*'
+  s.subspec 'Node' do |ss|
+    ss.ios.deployment_target = '9.0'
+    ss.dependency 'Texture/Core', '~> 2.8'
+    ss.dependency 'WebViewNode/Web'
+    ss.source_files = 'WebViewNode/Classes/Node/*'
+    ss.pod_target_xcconfig = {
+      'OTHER_SWIFT_FLAGS' => '-D WebViewNode_Node'
+    }
   end
 
 end

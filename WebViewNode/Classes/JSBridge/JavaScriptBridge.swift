@@ -149,7 +149,7 @@ extension DLWebView: JavaScriptBridge {
     /// Bind a JavaScript bridge to the web view itself.
     public func bindJSBridge() {
         self.bindJSBridge(webView: self, delegate: self)
-        self.registerJSHandlers(bridge: jsBridge!)
+        self.registerJSHandlers(bridge: self.jsBridge!)
     }
     
     @objc
@@ -162,9 +162,52 @@ extension DLWebViewController: JavaScriptBridge {
     public func bindJSBridge() {
         self.webView.bindJSBridge()
         self.jsBridge = self.webView.jsBridge
-        self.registerJSHandlers(bridge: jsBridge!)
+        self.registerJSHandlers(bridge: self.jsBridge!)
     }
     
     @objc
     open func registerJSHandlers(bridge: DLWebViewJavaScriptBridge) {}
 }
+
+#if WebViewNode_Node
+
+extension DLWebNode: JavaScriptBridge {
+    
+    /// Bind a JavaScript bridge to the web node itself.
+    ///
+    /// - Parameter completion: Invoked when the binding has completed.
+    public func bindJSBridge(completion: ((DLWebViewJavaScriptBridge) -> Void)? = nil) {
+        self.appendViewAssociation { [unowned self] (view) in
+            view.bindJSBridge()
+            if let jsBridge = view.jsBridge {
+                self.jsBridge = jsBridge
+                self.registerJSHandlers(bridge: jsBridge)
+                
+                completion?(jsBridge)
+            }
+        }
+    }
+    
+    @objc
+    open func registerJSHandlers(bridge: DLWebViewJavaScriptBridge) {}
+}
+
+extension DLWebNodeController: JavaScriptBridge {
+    
+    /// Bind a JavaScript bridge to the web node of view controller.
+    ///
+    /// - Parameter completion: Invoked when the binding has completed.
+    public func bindJSBridge(completion: ((DLWebViewJavaScriptBridge) -> Void)? = nil) {
+        self.webNode.bindJSBridge { (jsBridge) in
+            self.jsBridge = jsBridge
+            self.registerJSHandlers(bridge: jsBridge)
+            
+            completion?(jsBridge)
+        }
+    }
+
+    @objc
+    open func registerJSHandlers(bridge: DLWebViewJavaScriptBridge) {}
+}
+
+#endif
