@@ -21,6 +21,8 @@ open class DLWebNodeController: ASViewController<DLWebNode> {
         }
     }
     
+// MARK: - UI Appearance
+    
     /// Determine whether or not the page title of web view should be shown on the navigation bar. Defaults to false.
     public var pageTitleNavigationShown: Bool = false {
         didSet {

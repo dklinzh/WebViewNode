@@ -119,12 +119,27 @@ open class DLWebView: WKWebView {
     deinit {
         
         self.removeObserver(self, forKeyPath: #keyPath(WKWebView.url))
+        
         if _pageTitleDidChangeBlock != nil {
+            _pageTitleDidChangeBlock = nil
             self.removeObserver(self, forKeyPath: #keyPath(WKWebView.title))
         }
+        
+        if _navigationCanGoBackBlock != nil {
+            _navigationCanGoBackBlock = nil
+            self.removeObserver(self, forKeyPath: #keyPath(WKWebView.canGoBack))
+        }
+        
+        if _navigationCanGoForwardBlock != nil {
+            _navigationCanGoForwardBlock = nil
+            self.removeObserver(self, forKeyPath: #keyPath(WKWebView.canGoForward))
+        }
+        
         if _webContentHeightDidChangeBlock != nil {
+            _webContentHeightDidChangeBlock = nil
             self.scrollView.removeObserver(self, forKeyPath: #keyPath(UIScrollView.contentSize))
         }
+        
         if progressBarShown {
             self.removeObserver(progressBar, forKeyPath: #keyPath(WKWebView.estimatedProgress))
         }
@@ -178,6 +193,44 @@ open class DLWebView: WKWebView {
     }
     private var _pageTitleDidChangeBlock: ((_ title: String?) -> Void)?
     private var _pageTitleContext: Int = 0
+    
+    /// Add an observer to indicate whether there is a back item in the back-forward list that can be navigated to.
+    ///
+    /// - Parameter block: Invoked when the value of key `canGoBack` has been changed.
+    public func navigationCanGoBack(_ block: ((_ canGoBack: Bool) -> Void)?) {
+        if (_navigationCanGoBackBlock == nil && block == nil) || (_navigationCanGoBackBlock != nil && block != nil) {
+            _navigationCanGoBackBlock = block
+            return
+        }
+        
+        _navigationCanGoBackBlock = block
+        if block != nil {
+            self.addObserver(self, forKeyPath: #keyPath(WKWebView.canGoBack), options: [], context: &_navigationCanGoBackContext)
+        } else {
+            self.removeObserver(self, forKeyPath: #keyPath(WKWebView.canGoBack))
+        }
+    }
+    private var _navigationCanGoBackBlock: ((_ canGoBack: Bool) -> Void)?
+    private var _navigationCanGoBackContext: Int = 0
+    
+    /// Add an observer to indicate whether there is a forward item in the back-forward list that can be navigated to.
+    ///
+    /// - Parameter block: Invoked when the value of key `canGoForward` has been changed.
+    public func navigationCanGoForward(_ block: ((_ canGoForward: Bool) -> Void)?) {
+        if (_navigationCanGoForwardBlock == nil && block == nil) || (_navigationCanGoForwardBlock != nil && block != nil) {
+            _navigationCanGoForwardBlock = block
+            return
+        }
+        
+        _navigationCanGoForwardBlock = block
+        if block != nil {
+            self.addObserver(self, forKeyPath: #keyPath(WKWebView.canGoForward), options: [], context: &_navigationCanGoForwardContext)
+        } else {
+            self.removeObserver(self, forKeyPath: #keyPath(WKWebView.canGoForward))
+        }
+    }
+    private var _navigationCanGoForwardBlock: ((_ canGoForward: Bool) -> Void)?
+    private var _navigationCanGoForwardContext: Int = 0
     
     /// Add an observer for the height of web content.
     ///
@@ -419,6 +472,10 @@ open class DLWebView: WKWebView {
     open override func observeValue(forKeyPath keyPath: String?, of object: Any?, change: [NSKeyValueChangeKey : Any]?, context: UnsafeMutableRawPointer?) {
         if keyPath == #keyPath(WKWebView.title) && context == &_pageTitleContext { // Page title did change.
             _pageTitleDidChangeBlock?(self.title)
+        } else if keyPath == #keyPath(WKWebView.canGoBack) && context == &_navigationCanGoBackContext { // Navigation canGoBack did change
+            _navigationCanGoBackBlock?(self.canGoBack)
+        } else if keyPath == #keyPath(WKWebView.canGoForward) && context == &_navigationCanGoForwardContext { // Navigation canGoForward did change
+            _navigationCanGoForwardBlock?(self.canGoForward)
         } else if keyPath == #keyPath(UIScrollView.contentSize) && context == &_webContentHeightContext { // Height of content view did change.
             self.evaluateJavaScript("document.body.offsetHeight") { [weak self] (result, error) in // != self.scrollView.contentSize.height
                 guard let strongSelf = self else { return }

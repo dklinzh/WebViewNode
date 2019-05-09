@@ -93,6 +93,24 @@ open class DLWebNode: DLViewNode<DLWebView> {
         }
     }
     
+    /// Add an observer to indicate whether there is a back item in the back-forward list that can be navigated to.
+    ///
+    /// - Parameter block: Invoked when the value of key `canGoBack` has been changed.
+    public func navigationCanGoBack(_ block: ((_ canGoBack: Bool) -> Void)?) {
+        self.appendViewAssociation { (view) in
+            view.navigationCanGoBack(block)
+        }
+    }
+    
+    /// Add an observer to indicate whether there is a forward item in the back-forward list that can be navigated to.
+    ///
+    /// - Parameter block: Invoked when the value of key `canGoForward` has been changed.
+    public func navigationCanGoForward(_ block: ((_ canGoForward: Bool) -> Void)?) {
+        self.appendViewAssociation { (view) in
+            view.navigationCanGoForward(block)
+        }
+    }
+    
     /// Add an observer for the height of web content.
     ///
     /// - Parameters:
