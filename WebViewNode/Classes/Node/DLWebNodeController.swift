@@ -39,6 +39,9 @@ open class DLWebNodeController: ASViewController<DLWebNode> {
         }
     }
     
+    /// Determine whether the web view can go back by the default back button on the navigation bar. Defaults to true.
+    public var canGoBackByNavigationBackButton: Bool = true
+    
     /// Determine whether or not the loading progress of web view should be shown. Defaults to true.
     public var progressBarShown: Bool = true {
         didSet {
@@ -132,6 +135,20 @@ open class DLWebNodeController: ASViewController<DLWebNode> {
     /// - Parameter offset: The offset of Y position.
     public func scrollTo(offset: CGFloat) {
         webNode.scrollTo(offset: offset)
+    }
+}
+
+// MARK: - DLNavigationControllerDelegate
+extension DLWebNodeController: DLNavigationControllerDelegate {
+    
+    public func navigationConroller(_ navigationConroller: UINavigationController, shouldPop item: UINavigationItem) -> Bool {
+        if canGoBackByNavigationBackButton,
+            webNode.nodeView.canGoBack {
+            webNode.nodeView.goBack()
+            return false
+        } else {
+            return true
+        }
     }
 }
 

@@ -39,6 +39,9 @@ open class DLWebViewController: UIViewController {
         }
     }
     
+    /// Determine whether the web view can go back by the default back button on the navigation bar. Defaults to true.
+    public var canGoBackByNavigationBackButton: Bool = true
+    
     /// Determine whether or not the loading progress of web view should be shown. Defaults to true.
     public var progressBarShown: Bool = true {
         didSet {
@@ -138,6 +141,20 @@ open class DLWebViewController: UIViewController {
         webView.scrollTo(offset: offset)
     }
     
+}
+
+// MARK: - DLNavigationControllerDelegate
+extension DLWebViewController: DLNavigationControllerDelegate {
+    
+    public func navigationConroller(_ navigationConroller: UINavigationController, shouldPop item: UINavigationItem) -> Bool {
+        if canGoBackByNavigationBackButton,
+            webView.canGoBack {
+            webView.goBack()
+            return false
+        } else {
+            return true
+        }
+    }
 }
 
 // MARK: - Web Loading
