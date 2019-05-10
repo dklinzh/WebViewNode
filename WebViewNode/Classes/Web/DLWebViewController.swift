@@ -160,6 +160,16 @@ extension DLWebViewController: DLNavigationControllerDelegate {
 // MARK: - Web Loading
 extension DLWebViewController {
     
+    /// Navigates to the back item in the back-forward list.
+    public func goBack() {
+        webView.goBack()
+    }
+    
+    /// Navigates to the forward item in the back-forward list.
+    public func goForward() {
+        webView.goForward()
+    }
+    
     /// Navigates to a requested URL.
     ///
     /// - Parameter urlString: A string of the URL to navigate to.

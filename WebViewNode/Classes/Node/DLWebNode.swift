@@ -158,6 +158,30 @@ open class DLWebNode: DLViewNode<DLWebView> {
     
 // MARK: - Web Loading
     
+    /// A Boolean value indicating whether there is a back item in the back-forward list that can be navigated to.
+    public var canGoBack: Bool {
+        return self.nodeView.canGoBack
+    }
+    
+    /// Navigates to the back item in the back-forward list.
+    public func goBack() {
+        self.appendViewAssociation { (view) in
+            view.goBack()
+        }
+    }
+    
+    /// A Boolean value indicating whether there is a forward item in the back-forward list that can be navigated to.
+    public var canGoForward: Bool {
+        return self.nodeView.canGoForward
+    }
+    
+    /// Navigates to the forward item in the back-forward list.
+    public func goForward() {
+        self.appendViewAssociation { (view) in
+            view.goForward()
+        }
+    }
+    
     /// A Boolean value indicating whether the web is currently loading content.
     public var isLoading: Bool {
         return self.nodeView.isLoading

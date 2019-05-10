@@ -155,6 +155,16 @@ extension DLWebNodeController: DLNavigationControllerDelegate {
 // MARK: - Web Loading
 extension DLWebNodeController {
     
+    /// Navigates to the back item in the back-forward list.
+    public func goBack() {
+        webNode.goBack()
+    }
+    
+    /// Navigates to the forward item in the back-forward list.
+    public func goForward() {
+        webNode.goForward()
+    }
+    
     /// Navigates to a requested URL.
     ///
     /// - Parameter urlString: A string of the URL to navigate to.
