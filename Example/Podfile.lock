@@ -1,7 +1,7 @@
 PODS:
   - Nimble (8.0.1)
   - Quick (2.1.0)
-  - Texture/Core (2.8)
+  - Texture/Core (2.8.1)
   - WebViewJavascriptBridge (6.0.3)
   - WebViewNode/JSBridge (0.2.0):
     - WebViewJavascriptBridge (~> 6.0)
@@ -32,9 +32,9 @@ EXTERNAL SOURCES:
 SPEC CHECKSUMS:
   Nimble: 45f786ae66faa9a709624227fae502db55a8bdd0
   Quick: 4be43f6634acfa727dd106bdf3929ce125ffa79d
-  Texture: fc6e0157201f3a6e503d364c147b1872e365cef4
+  Texture: 8ecf6984065a1e54f06bf97b349ecca28582acd7
   WebViewJavascriptBridge: 7f5bc4d3581e672e8f32bd0f812d54bc69bb8e29
-  WebViewNode: d727bb1e7ee8f3e3522659bae7f8f2f4c27f926c
+  WebViewNode: 693b6c4a1ffab76eb56d3e9c7b25f897b1137d46
 
 PODFILE CHECKSUM: a981f5c1949acc957b7d8c40686da04e6c854589
 

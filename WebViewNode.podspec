@@ -30,6 +30,7 @@ Pod::Spec.new do |s|
     ss.ios.deployment_target = '8.0'
     ss.frameworks = 'WebKit', 'UIKit', 'Foundation'
     ss.source_files = 'WebViewNode/Classes/Web/*'
+    ss.resources = 'WebViewNode/Assets/Web.xcassets'
   end
 
   s.subspec 'JSBridge' do |ss|
