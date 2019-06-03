@@ -177,11 +177,13 @@ extension DLWebNode: JavaScriptBridge {
     ///
     /// - Parameter completion: Invoked when the binding has completed.
     public func bindJSBridge(completion: ((DLWebViewJavaScriptBridge) -> Void)? = nil) {
-        self.appendViewAssociation { [unowned self] (view) in
+        self.appendViewAssociation { [weak self] (view) in
             view.bindJSBridge()
             if let jsBridge = view.jsBridge {
-                self.jsBridge = jsBridge
-                self.registerJSHandlers(bridge: jsBridge)
+                guard let strongSelf = self else { return }
+                
+                strongSelf.jsBridge = jsBridge
+                strongSelf.registerJSHandlers(bridge: jsBridge)
                 
                 completion?(jsBridge)
             }

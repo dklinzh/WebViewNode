@@ -30,6 +30,7 @@ open class DLWebNodeController: ASViewController<DLWebNode> {
                 if pageTitleNavigationShown {
                     webNode.pageTitleDidChange { [weak self] (title) in
                         guard let strongSelf = self else { return }
+                        
                         strongSelf.navigationItem.title = title
                     }
                 } else {

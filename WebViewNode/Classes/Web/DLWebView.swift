@@ -403,6 +403,7 @@ open class DLWebView: WKWebView {
         } else {
             super.evaluateJavaScript(javaScriptString) { [weak self] (result, error) in
                 guard let _ = self else { return } // Retain the weak referenc of self to keep completionHandler on iOS 8.
+                
                 completionHandler?(result, error)
             }
         }
