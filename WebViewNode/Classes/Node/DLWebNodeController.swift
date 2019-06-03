@@ -109,8 +109,18 @@ open class DLWebNodeController: ASViewController<DLWebNode> {
         super.init(node: webNode)
     }
     
-    public required convenience init?(coder aDecoder: NSCoder) {
-        self.init()
+    public required init?(coder aDecoder: NSCoder) {
+        _url = nil
+        webNode = DLWebNode(configuration: DLWebNodeConfiguration(),
+                            cookiesShared: false,
+                            userSelected: true,
+                            userScalable: .default,
+                            contentFitStyle: .default,
+                            customUserAgent: nil)
+        webNode.progressBarShown = progressBarShown
+        webNode.shouldDisplayAlertPanelByJavaScript = shouldDisplayAlertPanel
+        
+        super.init(coder: aDecoder)
     }
     
     open override func viewDidLoad() {

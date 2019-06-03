@@ -109,8 +109,18 @@ open class DLWebViewController: UIViewController {
         super.init(nibName: nil, bundle: nil)
     }
     
-    public required convenience init?(coder aDecoder: NSCoder) {
-        self.init()
+    public required init?(coder aDecoder: NSCoder) {
+        _url = nil
+        webView = DLWebView(configuration: DLWebViewConfiguration(),
+                            cookiesShared: false,
+                            userSelected: true,
+                            userScalable: .default,
+                            contentFitStyle: .default,
+                            customUserAgent: nil)
+        webView.progressBarShown = progressBarShown
+        webView.shouldDisplayAlertPanelByJavaScript = shouldDisplayAlertPanel
+        
+        super.init(coder: aDecoder)
     }
     
     open override func loadView() {
