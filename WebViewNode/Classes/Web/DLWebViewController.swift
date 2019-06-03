@@ -130,6 +130,8 @@ open class DLWebViewController: UIViewController {
     open override func viewDidLoad() {
         super.viewDidLoad()
         
+        self.navigationItem.leftItemsSupplementBackButton = canGoBackByNavigationBackButton
+        
         #if WebViewNode_JSBridge
         self.bindJSBridge()
         #endif
