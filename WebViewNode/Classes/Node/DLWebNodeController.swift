@@ -9,7 +9,7 @@
 import AsyncDisplayKit
 
 /// A view controller with web node container.
-open class DLWebNodeController: ASViewController<DLWebNode> {
+open class DLWebNodeController: ASViewController<DLWebNode>, WebNavigationItemDelegate {
     
     /// The root node of web node controller.
     public let webNode: DLWebNode
@@ -42,6 +42,26 @@ open class DLWebNodeController: ASViewController<DLWebNode> {
     
     /// Determine whether the web view can go back by the default back button on the navigation bar. Defaults to true.
     public var canGoBackByNavigationBackButton: Bool = true
+    
+    private var _canGoBack = false
+    public var navigationItemCanClose: Bool = false {
+        didSet {
+            if oldValue != navigationItemCanClose {
+                if navigationItemCanClose {
+                    webNode.navigationCanGoBack { [weak self] (canGoBack) in
+                        guard let strongSelf = self else { return }
+                        
+                        if strongSelf._canGoBack != canGoBack {
+                            strongSelf._canGoBack = canGoBack
+                            strongSelf.navigationItemCloseDidChange(canClose: canGoBack)
+                        }
+                    }
+                } else {
+                    webNode.navigationCanGoBack(nil)
+                }
+            }
+        }
+    }
     
     /// Determine whether or not the loading progress of web view should be shown. Defaults to true.
     public var progressBarShown: Bool = true {

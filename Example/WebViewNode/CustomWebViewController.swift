@@ -14,6 +14,7 @@ class CustomWebViewController: DLWebViewController {
         super.viewDidLoad()
 
         self.pageTitleNavigationShown = true
+        self.navigationItemCanClose = true
         self.progressTintColor = .green
         self.delegate = self
 //        self.load("https://github.com/")

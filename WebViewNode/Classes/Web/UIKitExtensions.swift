@@ -81,3 +81,28 @@ extension UINavigationController: UINavigationBarDelegate {
         return false
     }
 }
+
+typealias ItemSelectedAction = (_ sender: UIBarButtonItem) -> Void
+
+class ItemSelectedActionTarget {
+    private var _key: Int = 0
+    private let _itemSelectedAction: ItemSelectedAction
+    
+    init(object: Any, itemSelectedAction: @escaping ItemSelectedAction) {
+        _itemSelectedAction = itemSelectedAction
+        objc_setAssociatedObject(object, &_key, self, .OBJC_ASSOCIATION_RETAIN_NONATOMIC)
+    }
+    
+    @objc func action(sender: UIBarButtonItem) {
+        _itemSelectedAction(sender)
+    }
+}
+
+extension UIBarButtonItem {
+    
+    convenience init(image: UIImage?, style: UIBarButtonItem.Style, action: @escaping ItemSelectedAction) {
+        self.init(image: image, style: style, target: nil, action: nil)
+        self.target = ItemSelectedActionTarget(object: self, itemSelectedAction: action) // TODO: silence warning
+        self.action = #selector(ItemSelectedActionTarget.action(sender:))
+    }
+}

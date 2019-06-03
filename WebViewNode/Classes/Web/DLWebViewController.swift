@@ -9,7 +9,7 @@
 import UIKit
 
 /// A view controller with web view container.
-open class DLWebViewController: UIViewController {
+open class DLWebViewController: UIViewController, WebNavigationItemDelegate {
     
     /// The root view of web view controller.
     public let webView: DLWebView
@@ -30,6 +30,7 @@ open class DLWebViewController: UIViewController {
                 if pageTitleNavigationShown {
                     webView.pageTitleDidChange { [weak self] (title) in
                         guard let strongSelf = self else { return }
+                        
                         strongSelf.navigationItem.title = title
                     }
                 } else {
@@ -41,6 +42,26 @@ open class DLWebViewController: UIViewController {
     
     /// Determine whether the web view can go back by the default back button on the navigation bar. Defaults to true.
     public var canGoBackByNavigationBackButton: Bool = true
+    
+    private var _canGoBack = false
+    public var navigationItemCanClose: Bool = false {
+        didSet {
+            if oldValue != navigationItemCanClose {
+                if navigationItemCanClose {
+                    webView.navigationCanGoBack { [weak self] (canGoBack) in
+                        guard let strongSelf = self else { return }
+                        
+                        if strongSelf._canGoBack != canGoBack {
+                            strongSelf._canGoBack = canGoBack
+                            strongSelf.navigationItemCloseDidChange(canClose: canGoBack)
+                        }
+                    }
+                } else {
+                    webView.navigationCanGoBack(nil)
+                }
+            }
+        }
+    }
     
     /// Determine whether or not the loading progress of web view should be shown. Defaults to true.
     public var progressBarShown: Bool = true {
