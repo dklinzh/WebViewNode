@@ -21,6 +21,36 @@ open class DLWebNodeController: ASViewController<DLWebNode>, WebNavigationItemDe
         }
     }
     
+// MARK: - WebNavigationItemDelegate
+    
+    private var _canGoBack = false
+    public var navigationItemCanClose: Bool = false {
+        didSet {
+            if oldValue != navigationItemCanClose {
+                if navigationItemCanClose {
+                    webNode.navigationCanGoBack { [weak self] (canGoBack) in
+                        guard let strongSelf = self else { return }
+                        
+                        if strongSelf._canGoBack != canGoBack {
+                            strongSelf._canGoBack = canGoBack
+                            strongSelf.navigationItemCloseDidChange(canClose: canGoBack)
+                        }
+                    }
+                } else {
+                    webNode.navigationCanGoBack(nil)
+                }
+            }
+        }
+    }
+    
+    public var navigationItemCanRefresh: Bool = false {
+        didSet {
+            if oldValue != navigationItemCanRefresh {
+                self.navigationItemRefreshDidChange(canRefresh: navigationItemCanRefresh)
+            }
+        }
+    }
+    
 // MARK: - UI Appearance
     
     /// Determine whether or not the page title of web view should be shown on the navigation bar. Defaults to false.
@@ -42,26 +72,6 @@ open class DLWebNodeController: ASViewController<DLWebNode>, WebNavigationItemDe
     
     /// Determine whether the web view can go back by the default back button on the navigation bar. Defaults to true.
     public var canGoBackByNavigationBackButton: Bool = true
-    
-    private var _canGoBack = false
-    public var navigationItemCanClose: Bool = false {
-        didSet {
-            if oldValue != navigationItemCanClose {
-                if navigationItemCanClose {
-                    webNode.navigationCanGoBack { [weak self] (canGoBack) in
-                        guard let strongSelf = self else { return }
-                        
-                        if strongSelf._canGoBack != canGoBack {
-                            strongSelf._canGoBack = canGoBack
-                            strongSelf.navigationItemCloseDidChange(canClose: canGoBack)
-                        }
-                    }
-                } else {
-                    webNode.navigationCanGoBack(nil)
-                }
-            }
-        }
-    }
     
     /// Determine whether or not the loading progress of web view should be shown. Defaults to true.
     public var progressBarShown: Bool = true {
@@ -185,60 +195,41 @@ extension DLWebNodeController: DLNavigationControllerDelegate {
     }
 }
 
-// MARK: - Web Loading
-extension DLWebNodeController {
+// MARK: - WebControllerAction
+extension DLWebNodeController: WebControllerAction {
     
-    /// Navigates to the back item in the back-forward list.
     public func goBack() {
         webNode.goBack()
     }
     
-    /// Navigates to the forward item in the back-forward list.
     public func goForward() {
         webNode.goForward()
     }
     
-    /// Navigates to a requested URL.
-    ///
-    /// - Parameter urlString: A string of the URL to navigate to.
     public func load(_ urlString: String) {
         webNode.load(urlString)
     }
     
-    /// Navigates to a requested URL.
-    ///
-    /// - Parameter url: The URL to navigate to.
     public func load(_ url: URL) {
         webNode.load(url)
     }
     
-    /// Navigates to a requested URL.
-    ///
-    /// - Parameter request: The request specifying the URL to navigate to.
     public func load(_ request: URLRequest) {
         webNode.load(request)
     }
     
-    /// Load local HTML file in the specifed bundle
-    ///
-    /// - Parameters:
-    ///   - fileName: The name of HTML file.
-    ///   - bundle: The specified bundle contains the HTML file. Defaults to main bundle.
     public func loadHTML(fileName: String, bundle: Bundle = Bundle.main) {
         webNode.loadHTML(fileName: fileName, bundle: bundle)
     }
     
-    /// Reloads the current page.
     public func reload() {
         webNode.reload()
     }
     
-    /// Reloads the current page, performing end-to-end revalidation using cache-validating conditionals if possible.
     public func reloadFromOrigin() {
         webNode.reloadFromOrigin()
     }
     
-    /// Stops loading all resources on the current page.
     public func stopLoading() {
         webNode.stopLoading()
     }
