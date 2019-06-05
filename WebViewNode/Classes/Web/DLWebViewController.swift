@@ -9,17 +9,7 @@
 import UIKit
 
 /// A view controller with web view container.
-open class DLWebViewController: UIViewController, WebNavigationItemDelegate {
-    
-    /// The root view of web view controller.
-    public let webView: DLWebView
-    
-    /// The delegate of DLWebView.
-    public weak var delegate: DLWebViewDelegate? {
-        didSet {
-            webView.delegate = delegate
-        }
-    }
+open class DLWebViewController: UIViewController, WebControllerAppearance, WebNavigationItemDelegate {
     
 // MARK: - WebNavigationItemDelegate
     
@@ -51,9 +41,8 @@ open class DLWebViewController: UIViewController, WebNavigationItemDelegate {
         }
     }
     
-// MARK: - UI Appearance
+// MARK: - WebControllerAppearance
     
-    /// Determine whether or not the page title of web view should be shown on the navigation bar. Defaults to false.
     public var pageTitleNavigationShown: Bool = false {
         didSet {
             if oldValue != pageTitleNavigationShown {
@@ -70,17 +59,14 @@ open class DLWebViewController: UIViewController, WebNavigationItemDelegate {
         }
     }
     
-    /// Determine whether the web view can go back by the default back button on the navigation bar. Defaults to true.
     public var canGoBackByNavigationBackButton: Bool = true
     
-    /// Determine whether or not the loading progress of web view should be shown. Defaults to true.
     public var progressBarShown: Bool = true {
         didSet {
             webView.progressBarShown = progressBarShown
         }
     }
     
-    /// The color shown for the portion of the web loading progress bar that is filled.
     public var progressTintColor: UIColor? {
         get {
             return webView.progressTintColor
@@ -90,7 +76,12 @@ open class DLWebViewController: UIViewController, WebNavigationItemDelegate {
         }
     }
     
-    /// Determine whether or not the given element of web link should show a preview by 3D Touch. Defaults to false.
+    public var shouldDisplayAlertPanel: Bool = false {
+        didSet {
+            webView.shouldDisplayAlertPanelByJavaScript = shouldDisplayAlertPanel
+        }
+    }
+    
     @available(iOS 9.0, *)
     public var shouldPreviewElementBy3DTouch: Bool {
         get {
@@ -101,10 +92,21 @@ open class DLWebViewController: UIViewController, WebNavigationItemDelegate {
         }
     }
     
-    /// Determine whether or not the app window should display an alert, confirm or text input view from JavaScript functions. Defaults to false.
-    public var shouldDisplayAlertPanel: Bool = false {
+    public func scrollTo(offset: CGFloat) {
+        webView.scrollTo(offset: offset)
+    }
+    
+    open func setupAppearance() {}
+    
+// MARK: - Init
+    
+    /// The root view of web view controller.
+    public let webView: DLWebView
+    
+    /// The delegate of DLWebView.
+    public weak var delegate: DLWebViewDelegate? {
         didSet {
-            webView.shouldDisplayAlertPanelByJavaScript = shouldDisplayAlertPanel
+            webView.delegate = delegate
         }
     }
     
@@ -160,6 +162,7 @@ open class DLWebViewController: UIViewController, WebNavigationItemDelegate {
 
     open override func viewDidLoad() {
         super.viewDidLoad()
+        self.setupAppearance()
         
         self.navigationItem.leftItemsSupplementBackButton = canGoBackByNavigationBackButton
         
@@ -175,13 +178,6 @@ open class DLWebViewController: UIViewController, WebNavigationItemDelegate {
     open override func didReceiveMemoryWarning() {
         super.didReceiveMemoryWarning()
         // Dispose of any resources that can be recreated.
-    }
-    
-    /// Make web view scroll to the given offset of Y position.
-    ///
-    /// - Parameter offset: The offset of Y position.
-    public func scrollTo(offset: CGFloat) {
-        webView.scrollTo(offset: offset)
     }
     
 }

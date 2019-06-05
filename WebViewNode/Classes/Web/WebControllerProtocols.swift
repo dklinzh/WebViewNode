@@ -6,6 +6,36 @@
 //  Copyright (c) 2019 Daniel Lin. All rights reserved.
 //
 
+public protocol WebControllerAppearance {
+    
+    /// Determine whether the page title of web view should be shown on the navigation bar. Defaults to false.
+    var pageTitleNavigationShown: Bool { get set }
+    
+    /// Determine whether the web view can go back by the default back button on the navigation bar. Defaults to true.
+    var canGoBackByNavigationBackButton: Bool { get set }
+    
+    /// Determine whether the loading progress of web view should be shown. Defaults to true.
+    var progressBarShown: Bool { get set }
+    
+    /// The color shown for the portion of the web loading progress bar that is filled.
+    var progressTintColor: UIColor? { get set }
+    
+    /// Determine whether or not the app window should display an alert, confirm or text input view from JavaScript functions. Defaults to false.
+    var shouldDisplayAlertPanel: Bool  { get set }
+    
+    /// Determine whether or not the given element of web link should show a preview by 3D Touch. Defaults to false.
+    @available(iOS 9.0, *)
+    var shouldPreviewElementBy3DTouch: Bool { get set }
+    
+    /// Make web view scroll to the given offset of Y position.
+    ///
+    /// - Parameter offset: The offset of Y position.
+    func scrollTo(offset: CGFloat)
+    
+    /// Setup the appearance of web view controller
+    func setupAppearance()
+}
+
 public protocol WebControllerAction {
     
     /// Navigates to the back item in the back-forward list.
@@ -48,7 +78,7 @@ public protocol WebControllerAction {
 
 public protocol WebNavigationItemDelegate {
     
-    /// Indicates whether the web close button should be displayed on the left (or leading) edge of the navigation bar.
+    /// Indicates whether the web close button should be displayed on the left (or leading) edge of the navigation bar. Defaults to false.
     var navigationItemCanClose: Bool { get set }
     
     /// The image of `UIBarButtonItem` for the web close button displayed on the left (or leading) edge of the navigation bar.
@@ -62,7 +92,7 @@ public protocol WebNavigationItemDelegate {
     /// - Parameter canClose: Indicates whether the web close button should be displayed.
     func navigationItemCloseDidChange(canClose: Bool)
     
-    /// Indicates whether the web refresh button should be displayed on the right (or trailing) edge of the navigation bar.
+    /// Indicates whether the web refresh button should be displayed on the right (or trailing) edge of the navigation bar. Defaults to false.
     var navigationItemCanRefresh: Bool { get set }
     
     /// The image of `UIBarButtonItem` for the web refresh button displayed on the right (or trailing) edge of the navigation bar.

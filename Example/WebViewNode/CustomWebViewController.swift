@@ -10,14 +10,19 @@ import WebViewNode
 
 class CustomWebViewController: DLWebViewController {
     
-    override func viewDidLoad() {
-        super.viewDidLoad()
-
+    override func setupAppearance() {
+        super.setupAppearance()
+        
         self.pageTitleNavigationShown = true
         self.navigationItemCanClose = true
         self.navigationItemCanRefresh = true
         self.progressTintColor = .green
+        
         self.delegate = self
+    }
+    
+    override func viewDidLoad() {
+        super.viewDidLoad()
         
         self.load("https://github.com/")
     }
@@ -29,11 +34,6 @@ class CustomWebViewController: DLWebViewController {
     
     deinit {
         print("\(#function): \(self)")
-    }
-
-    @objc
-    private func refreshAction() {
-        self.reload()
     }
     
     override func registerJSHandlers(bridge: DLWebViewJavaScriptBridge) {

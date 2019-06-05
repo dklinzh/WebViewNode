@@ -9,17 +9,7 @@
 import AsyncDisplayKit
 
 /// A view controller with web node container.
-open class DLWebNodeController: ASViewController<DLWebNode>, WebNavigationItemDelegate {
-    
-    /// The root node of web node controller.
-    public let webNode: DLWebNode
-    
-    /// The delegate of DLWebNode.
-    public weak var delegate: DLWebNodeDelegate? {
-        didSet {
-            webNode.delegate = delegate
-        }
-    }
+open class DLWebNodeController: ASViewController<DLWebNode>, WebControllerAppearance, WebNavigationItemDelegate {
     
 // MARK: - WebNavigationItemDelegate
     
@@ -51,9 +41,8 @@ open class DLWebNodeController: ASViewController<DLWebNode>, WebNavigationItemDe
         }
     }
     
-// MARK: - UI Appearance
+// MARK: - WebControllerAppearance
     
-    /// Determine whether or not the page title of web view should be shown on the navigation bar. Defaults to false.
     public var pageTitleNavigationShown: Bool = false {
         didSet {
             if oldValue != pageTitleNavigationShown {
@@ -70,17 +59,14 @@ open class DLWebNodeController: ASViewController<DLWebNode>, WebNavigationItemDe
         }
     }
     
-    /// Determine whether the web view can go back by the default back button on the navigation bar. Defaults to true.
     public var canGoBackByNavigationBackButton: Bool = true
     
-    /// Determine whether or not the loading progress of web view should be shown. Defaults to true.
     public var progressBarShown: Bool = true {
         didSet {
             webNode.progressBarShown = progressBarShown
         }
     }
     
-    /// The color shown for the portion of the web loading progress bar that is filled.
     public var progressTintColor: UIColor? {
         get {
             return webNode.progressTintColor
@@ -90,7 +76,12 @@ open class DLWebNodeController: ASViewController<DLWebNode>, WebNavigationItemDe
         }
     }
     
-    /// Determine whether or not the given element of web link should show a preview by 3D Touch. Defaults to false.
+    public var shouldDisplayAlertPanel: Bool = false {
+        didSet {
+            webNode.shouldDisplayAlertPanelByJavaScript = shouldDisplayAlertPanel
+        }
+    }
+    
     @available(iOS 9.0, *)
     public var shouldPreviewElementBy3DTouch: Bool {
         get {
@@ -101,10 +92,21 @@ open class DLWebNodeController: ASViewController<DLWebNode>, WebNavigationItemDe
         }
     }
     
-    /// Determine whether or not the app window should display an alert, confirm or text input view from JavaScript functions. Defaults to false.
-    public var shouldDisplayAlertPanel: Bool = false {
+    public func scrollTo(offset: CGFloat) {
+        webNode.scrollTo(offset: offset)
+    }
+    
+    open func setupAppearance() {}
+    
+// MARK: - Init
+    
+    /// The root node of web node controller.
+    public let webNode: DLWebNode
+    
+    /// The delegate of DLWebNode.
+    public weak var delegate: DLWebNodeDelegate? {
         didSet {
-            webNode.shouldDisplayAlertPanelByJavaScript = shouldDisplayAlertPanel
+            webNode.delegate = delegate
         }
     }
     
@@ -156,6 +158,7 @@ open class DLWebNodeController: ASViewController<DLWebNode>, WebNavigationItemDe
     
     open override func viewDidLoad() {
         super.viewDidLoad()
+        self.setupAppearance()
         
         self.navigationItem.leftItemsSupplementBackButton = canGoBackByNavigationBackButton
         
@@ -173,12 +176,6 @@ open class DLWebNodeController: ASViewController<DLWebNode>, WebNavigationItemDe
         // Dispose of any resources that can be recreated.
     }
     
-    /// Make web view scroll to the given offset of Y position.
-    ///
-    /// - Parameter offset: The offset of Y position.
-    public func scrollTo(offset: CGFloat) {
-        webNode.scrollTo(offset: offset)
-    }
 }
 
 // MARK: - DLNavigationControllerDelegate
