@@ -110,7 +110,8 @@ open class DLWebNodeController: ASViewController<DLWebNode>, WebControllerAppear
         }
     }
     
-    private let _url: String?
+    /// The initial URL of web view to load.
+    public var url: String?
     
     /// A web node controller initialization.
     ///
@@ -129,7 +130,6 @@ open class DLWebNodeController: ASViewController<DLWebNode>, WebControllerAppear
                 userScalable: WebUserScalable = .default,
                 contentFitStyle: WebContentFitStyle = .default,
                 customUserAgent: String? = nil) {
-        _url = url
         webNode = DLWebNode(configuration: configuration,
                             cookiesShared: cookiesShared,
                             userSelected: userSelected,
@@ -140,10 +140,11 @@ open class DLWebNodeController: ASViewController<DLWebNode>, WebControllerAppear
         webNode.shouldDisplayAlertPanelByJavaScript = shouldDisplayAlertPanel
         
         super.init(node: webNode)
+        
+        self.url = url
     }
     
     public required init?(coder aDecoder: NSCoder) {
-        _url = nil
         webNode = DLWebNode(configuration: DLWebNodeConfiguration(),
                             cookiesShared: false,
                             userSelected: true,
@@ -166,7 +167,7 @@ open class DLWebNodeController: ASViewController<DLWebNode>, WebControllerAppear
         self.bindJSBridge()
         #endif
         
-        if let url = _url {
+        if let url = url {
             load(url)
         }
     }

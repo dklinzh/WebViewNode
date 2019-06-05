@@ -110,7 +110,8 @@ open class DLWebViewController: UIViewController, WebControllerAppearance, WebNa
         }
     }
     
-    private let _url: String?
+    /// The initial URL of web view to load.
+    public var url: String?
     
     /// A web view controller initialization.
     ///
@@ -129,7 +130,6 @@ open class DLWebViewController: UIViewController, WebControllerAppearance, WebNa
                 userScalable: WebUserScalable = .default,
                 contentFitStyle: WebContentFitStyle = .default,
                 customUserAgent: String? = nil) {
-        _url = url
         webView = DLWebView(configuration: configuration,
                             cookiesShared: cookiesShared,
                             userSelected: userSelected,
@@ -140,10 +140,11 @@ open class DLWebViewController: UIViewController, WebControllerAppearance, WebNa
         webView.shouldDisplayAlertPanelByJavaScript = shouldDisplayAlertPanel
         
         super.init(nibName: nil, bundle: nil)
+        
+        self.url = url
     }
     
     public required init?(coder aDecoder: NSCoder) {
-        _url = nil
         webView = DLWebView(configuration: DLWebViewConfiguration(),
                             cookiesShared: false,
                             userSelected: true,
@@ -170,7 +171,7 @@ open class DLWebViewController: UIViewController, WebControllerAppearance, WebNa
         self.bindJSBridge()
         #endif
 
-        if let url = _url {
+        if let url = url {
             load(url)
         }
     }
