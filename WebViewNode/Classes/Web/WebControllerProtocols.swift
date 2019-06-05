@@ -76,7 +76,7 @@ public protocol WebControllerAction {
     func stopLoading()
 }
 
-public protocol WebNavigationItemDelegate {
+public protocol WebNavigationItemDelegate: class {
     
     /// Indicates whether the web close button should be displayed on the left (or leading) edge of the navigation bar. Defaults to false.
     var navigationItemCanClose: Bool { get set }
@@ -114,8 +114,10 @@ public extension WebNavigationItemDelegate {
     }
     
     var navigationItemCloseButton: UIBarButtonItem {
-        return UIBarButtonItem(image: self.navigationItemCloseImage, style: .plain, action: { (sender) in
-            if let viewController = self as? UIViewController {
+        return UIBarButtonItem(image: self.navigationItemCloseImage, style: .plain, action: { [weak self] (sender) in
+            guard let strongSelf = self else { return }
+            
+            if let viewController = strongSelf as? UIViewController {
                 viewController.navigationController?.popViewController(animated: true)
             }
         })
@@ -147,8 +149,10 @@ public extension WebNavigationItemDelegate {
     }
     
     var navigationItemRefreshButton: UIBarButtonItem {
-        return UIBarButtonItem(image: self.navigationItemRefreshImage, style: .plain, action: { (sender) in
-            if let viewController = self as? WebControllerAction {
+        return UIBarButtonItem(image: self.navigationItemRefreshImage, style: .plain, action: { [weak self] (sender) in
+            guard let strongSelf = self else { return }
+            
+            if let viewController = strongSelf as? WebControllerAction {
                 viewController.reload()
             }
         })
