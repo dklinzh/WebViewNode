@@ -144,6 +144,16 @@ open class DLWebNodeController: ASViewController<DLWebNode>, WebControllerAppear
         self.url = url
     }
     
+    public convenience init() {
+        self.init(url: nil,
+                  configuration: DLWebNodeConfiguration(),
+                  cookiesShared: false,
+                  userSelected: true,
+                  userScalable: .default,
+                  contentFitStyle: .default,
+                  customUserAgent: nil)
+    }
+    
     public required init?(coder aDecoder: NSCoder) {
         webNode = DLWebNode(configuration: DLWebNodeConfiguration(),
                             cookiesShared: false,
@@ -155,6 +165,8 @@ open class DLWebNodeController: ASViewController<DLWebNode>, WebControllerAppear
         webNode.shouldDisplayAlertPanelByJavaScript = shouldDisplayAlertPanel
         
         super.init(coder: aDecoder)
+        
+        self.setValue(webNode, forKey: "node")
     }
     
     open override func viewDidLoad() {

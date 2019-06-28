@@ -144,6 +144,16 @@ open class DLWebViewController: UIViewController, WebControllerAppearance, WebNa
         self.url = url
     }
     
+    public convenience init() {
+        self.init(url: nil,
+                  configuration: DLWebViewConfiguration(),
+                  cookiesShared: false,
+                  userSelected: true,
+                  userScalable: .default,
+                  contentFitStyle: .default,
+                  customUserAgent: nil)
+    }
+    
     public required init?(coder aDecoder: NSCoder) {
         webView = DLWebView(configuration: DLWebViewConfiguration(),
                             cookiesShared: false,
