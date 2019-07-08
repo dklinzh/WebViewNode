@@ -11,13 +11,24 @@ To run the example project, clone the repo, and run `pod install` from the Examp
 
 ## Requirements
 
+* Xcode 10.2+
+* Swift 5+
+* iOS Supports
+
+| Submodule | iOS Target | Dependency |
+|:---------:|:----------:|:----------:|
+| Default   | iOS 8+     | /Web & /JSBridge |
+| /Web      | iOS 8+     |  |
+| /JSBridge | iOS 8+     | [WebViewJavascriptBridge](https://github.com/marcuswestin/WebViewJavascriptBridge) & /Web |
+| /Node     | iOS 9+     | [Texture/Core](https://github.com/TextureGroup/Texture) & /Web |
+
 ## Installation
 
 WebViewNode is available through [CocoaPods](https://cocoapods.org). To install
 it, simply add the following line to your Podfile:
 
 ```ruby
-pod 'WebViewNode'
+pod 'WebViewNode', '~> 0.2'
 ```
 
 ## Author
