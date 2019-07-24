@@ -603,13 +603,8 @@ extension DLWebView: WKNavigationDelegate {
             return
         }
         
-        if !_externalAppRequiredToOpen(url: url) {
-            if navigationAction.targetFrame == nil {
-                load(url)
-                decisionHandler(.cancel)
-                return
-            }
-        } else if UIApplication.shared.canOpenURL(url) {
+        if _externalAppRequiredToOpen(url: url),
+            UIApplication.shared.canOpenURL(url) {
             _launchExternalApp(url: url)
             decisionHandler(.cancel)
             return
