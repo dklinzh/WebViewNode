@@ -9,15 +9,14 @@
 import AsyncDisplayKit
 
 open class DLViewNode<ViewType: UIView>: ASDisplayNode {
-    
     private var _viewAssociations: [(ViewType) -> Void]?
 
     public var nodeView: ViewType {
-        return self.view as! ViewType
+        return view as! ViewType
     }
-    
+
     public func appendViewAssociation(_ block: @escaping (ViewType) -> Void) {
-        if self.isNodeLoaded {
+        if isNodeLoaded {
             block(nodeView)
         } else {
             if _viewAssociations == nil {
@@ -26,14 +25,14 @@ open class DLViewNode<ViewType: UIView>: ASDisplayNode {
             _viewAssociations!.append(block)
         }
     }
-    
+
     open override func didLoad() {
         super.didLoad()
-        
+
         guard let viewAssociations = _viewAssociations else {
             return
         }
-        
+
         for block in viewAssociations {
             block(nodeView)
         }

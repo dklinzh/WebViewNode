@@ -10,16 +10,15 @@ import AsyncDisplayKit
 
 /// A web container of ASDisplayNode.
 open class DLWebNode: DLViewNode<DLWebView> {
-
     /// The delegate of DLViewNode.
     public weak var delegate: DLWebNodeDelegate? {
         didSet {
-            if delegate == nil {
-                self.appendViewAssociation { (view) in
+            if self.delegate == nil {
+                self.appendViewAssociation { view in
                     view.delegate = nil
                 }
             } else {
-                self.appendViewAssociation { [weak self] (view) in
+                self.appendViewAssociation { [weak self] view in
                     view.delegate = self
                 }
             }
@@ -54,11 +53,9 @@ open class DLWebNode: DLViewNode<DLWebView> {
         }
     }
     
-    deinit {
-        
-    }
+    deinit {}
     
-// MARK: - UI Appearance
+    // MARK: - UI Appearance
     
     /// Determine whether or not the loading progress view should be shown. Defaults to false.
     public var progressBarShown: Bool {
@@ -66,7 +63,7 @@ open class DLWebNode: DLViewNode<DLWebView> {
             return self.nodeView.progressBarShown
         }
         set {
-            self.appendViewAssociation { (view) in
+            self.appendViewAssociation { view in
                 view.progressBarShown = newValue
             }
         }
@@ -78,7 +75,7 @@ open class DLWebNode: DLViewNode<DLWebView> {
             return self.nodeView.progressTintColor
         }
         set {
-            self.appendViewAssociation { (view) in
+            self.appendViewAssociation { view in
                 view.progressTintColor = newValue
             }
         }
@@ -88,7 +85,7 @@ open class DLWebNode: DLViewNode<DLWebView> {
     ///
     /// - Parameter block: Invoked when the page title has been changed.
     public func pageTitleDidChange(_ block: ((_ title: String?) -> Void)?) {
-        self.appendViewAssociation { (view) in
+        self.appendViewAssociation { view in
             view.pageTitleDidChange(block)
         }
     }
@@ -97,7 +94,7 @@ open class DLWebNode: DLViewNode<DLWebView> {
     ///
     /// - Parameter block: Invoked when the value of key `canGoBack` has been changed.
     public func navigationCanGoBack(_ block: ((_ canGoBack: Bool) -> Void)?) {
-        self.appendViewAssociation { (view) in
+        self.appendViewAssociation { view in
             view.navigationCanGoBack(block)
         }
     }
@@ -106,7 +103,7 @@ open class DLWebNode: DLViewNode<DLWebView> {
     ///
     /// - Parameter block: Invoked when the value of key `canGoForward` has been changed.
     public func navigationCanGoForward(_ block: ((_ canGoForward: Bool) -> Void)?) {
-        self.appendViewAssociation { (view) in
+        self.appendViewAssociation { view in
             view.navigationCanGoForward(block)
         }
     }
@@ -116,8 +113,8 @@ open class DLWebNode: DLViewNode<DLWebView> {
     /// - Parameters:
     ///   - block: Invoked when the height of web content has been changed.
     ///   - sizeFlexible: Determine whether or not the size of web node should be flexible to fit its content size. Defaults to false.
-    public func webContentHeightDidChange(_ block: ((_ height: CGFloat) -> Void)? = { (height) in }, sizeFlexible: Bool = false) {
-        self.appendViewAssociation { (view) in
+    public func webContentHeightDidChange(_ block: ((_ height: CGFloat) -> Void)? = { _ in }, sizeFlexible: Bool = false) {
+        self.appendViewAssociation { view in
             view.webContentHeightDidChange(block, sizeFlexible: sizeFlexible)
         }
     }
@@ -126,7 +123,7 @@ open class DLWebNode: DLViewNode<DLWebView> {
     ///
     /// - Parameter offset: The offset of Y position.
     public func scrollTo(offset: CGFloat) {
-        self.appendViewAssociation { (view) in
+        self.appendViewAssociation { view in
             view.scrollTo(offset: offset)
         }
     }
@@ -137,7 +134,7 @@ open class DLWebNode: DLViewNode<DLWebView> {
             return self.nodeView.scrollDecelerationRate
         }
         set {
-            self.appendViewAssociation { (view) in
+            self.appendViewAssociation { view in
                 view.scrollDecelerationRate = newValue
             }
         }
@@ -150,13 +147,13 @@ open class DLWebNode: DLViewNode<DLWebView> {
             return self.nodeView.shouldPreviewElementBy3DTouch
         }
         set {
-            self.appendViewAssociation { (view) in
+            self.appendViewAssociation { view in
                 view.shouldPreviewElementBy3DTouch = newValue
             }
         }
     }
     
-// MARK: - Web Loading
+    // MARK: - Web Loading
     
     /// A Boolean value indicating whether there is a back item in the back-forward list that can be navigated to.
     public var canGoBack: Bool {
@@ -165,7 +162,7 @@ open class DLWebNode: DLViewNode<DLWebView> {
     
     /// Navigates to the back item in the back-forward list.
     public func goBack() {
-        self.appendViewAssociation { (view) in
+        self.appendViewAssociation { view in
             view.goBack()
         }
     }
@@ -177,7 +174,7 @@ open class DLWebNode: DLViewNode<DLWebView> {
     
     /// Navigates to the forward item in the back-forward list.
     public func goForward() {
-        self.appendViewAssociation { (view) in
+        self.appendViewAssociation { view in
             view.goForward()
         }
     }
@@ -191,7 +188,7 @@ open class DLWebNode: DLViewNode<DLWebView> {
     ///
     /// - Parameter urlString: A string of the URL to navigate to.
     public func load(_ urlString: String) {
-        self.appendViewAssociation { (view) in
+        self.appendViewAssociation { view in
             view.load(urlString)
         }
     }
@@ -200,7 +197,7 @@ open class DLWebNode: DLViewNode<DLWebView> {
     ///
     /// - Parameter url: The URL to navigate to.
     public func load(_ url: URL) {
-        self.appendViewAssociation { (view) in
+        self.appendViewAssociation { view in
             view.load(url)
         }
     }
@@ -209,7 +206,7 @@ open class DLWebNode: DLViewNode<DLWebView> {
     ///
     /// - Parameter request: The request specifying the URL to navigate to.
     public func load(_ request: URLRequest) {
-        self.appendViewAssociation { (view) in
+        self.appendViewAssociation { view in
             view.load(request)
         }
     }
@@ -220,33 +217,33 @@ open class DLWebNode: DLViewNode<DLWebView> {
     ///   - fileName: The name of HTML file.
     ///   - bundle: The specified bundle contains the HTML file. Defaults to main bundle.
     public func loadHTML(fileName: String, bundle: Bundle = Bundle.main) {
-        self.appendViewAssociation { (view) in
+        self.appendViewAssociation { view in
             view.loadHTML(fileName: fileName, bundle: bundle)
         }
     }
     
     /// Reloads the current page.
     public func reload() {
-        self.appendViewAssociation { (view) in
+        self.appendViewAssociation { view in
             view.reload()
         }
     }
     
     /// Reloads the current page, performing end-to-end revalidation using cache-validating conditionals if possible.
     public func reloadFromOrigin() {
-        self.appendViewAssociation { (view) in
+        self.appendViewAssociation { view in
             view.reloadFromOrigin()
         }
     }
     
     /// Stops loading all resources on the current page.
     public func stopLoading() {
-        self.appendViewAssociation { (view) in
+        self.appendViewAssociation { view in
             view.stopLoading()
         }
     }
     
-// MARK: - JavaScript
+    // MARK: - JavaScript
     
     /// Evaluates a JavaScript string.
     ///
@@ -254,7 +251,7 @@ open class DLWebNode: DLViewNode<DLWebView> {
     ///   - javaScriptString: The JavaScript string to evaluate.
     ///   - completionHandler: A block to invoke when script evaluation completes or fails.
     public func evaluateJavaScript(_ javaScriptString: String, completionHandler: ((Any?, Error?) -> Void)? = nil) {
-        self.appendViewAssociation { (view) in
+        self.appendViewAssociation { view in
             view.evaluateJavaScript(javaScriptString, completionHandler: completionHandler)
         }
     }
@@ -265,7 +262,7 @@ open class DLWebNode: DLViewNode<DLWebView> {
             return self.nodeView.shouldDisplayAlertPanelByJavaScript
         }
         set {
-            self.appendViewAssociation { (view) in
+            self.appendViewAssociation { view in
                 view.shouldDisplayAlertPanelByJavaScript = newValue
             }
         }
@@ -278,21 +275,21 @@ open class DLWebNode: DLViewNode<DLWebView> {
             return self.nodeView.shouldCloseByDOMWindow
         }
         set {
-            self.appendViewAssociation { (view) in
+            self.appendViewAssociation { view in
                 view.shouldCloseByDOMWindow = newValue
             }
         }
     }
     
-// MARK: - URL Request
+    // MARK: - URL Request
     
     /// A dictionary of the custom HTTP header fields for URL request.
-    public var customHTTPHeaderFields: [String : String]? {
+    public var customHTTPHeaderFields: [String: String]? {
         get {
             return self.nodeView.customHTTPHeaderFields
         }
         set {
-            self.appendViewAssociation { (view) in
+            self.appendViewAssociation { view in
                 view.customHTTPHeaderFields = newValue
             }
         }
@@ -302,7 +299,7 @@ open class DLWebNode: DLViewNode<DLWebView> {
     ///
     /// - Parameter schemes: An array of URL scheme.
     public func addCustomValidSchemes(_ schemes: [String]) {
-        self.appendViewAssociation { (view) in
+        self.appendViewAssociation { view in
             view.addCustomValidSchemes(schemes)
         }
     }
@@ -311,60 +308,60 @@ open class DLWebNode: DLViewNode<DLWebView> {
     ///
     /// - Parameter block: A block with user agent string
     public func userAgent(_ block: @escaping (_ result: String?) -> Void) {
-        self.appendViewAssociation { (view) in
+        self.appendViewAssociation { view in
             view.userAgent(block)
         }
     }
-    
 }
 
 // MARK: - DLWebViewDelegate
+
 extension DLWebNode: DLWebViewDelegate {
     public func webView(_ webView: DLWebView, didStartLoading url: URL?) {
-        delegate?.webNode(self, didStartLoading: url)
+        self.delegate?.webNode(self, didStartLoading: url)
     }
     
     public func webView(_ webView: DLWebView, didCommitLoading url: URL?) {
-        delegate?.webNode(self, didCommitLoading: url)
+        self.delegate?.webNode(self, didCommitLoading: url)
     }
     
     public func webView(_ webView: DLWebView, didFinishLoading url: URL?) {
-        delegate?.webNode(self, didFinishLoading: url)
+        self.delegate?.webNode(self, didFinishLoading: url)
     }
     
     public func webView(_ webView: DLWebView, didFailLoading url: URL?, error: Error?) {
-        delegate?.webNode(self, didFailLoading: url, error: error)
+        self.delegate?.webNode(self, didFailLoading: url, error: error)
     }
     
     public func webView(_ webView: DLWebView, didRedirectForLoading url: URL?) {
-        delegate?.webNode(self, didRedirectForLoading: url)
+        self.delegate?.webNode(self, didRedirectForLoading: url)
     }
     
     public func webView(_ webView: DLWebView, decidePolicyFor navigationAction: DLNavigationAction) -> DLNavigationActionPolicy {
-        return delegate?.webNode(self, decidePolicyFor: navigationAction) ?? .allow
+        return self.delegate?.webNode(self, decidePolicyFor: navigationAction) ?? .allow
     }
     
     public func webView(_ webView: DLWebView, decidePolicyFor navigationResponse: DLNavigationResponse) -> DLNavigationResponsePolicy {
-        return delegate?.webNode(self, decidePolicyFor: navigationResponse) ?? .allow
+        return self.delegate?.webNode(self, decidePolicyFor: navigationResponse) ?? .allow
     }
     
     public func webView(_ webView: DLWebView, shouldCreateNewWebViewWith configuration: DLWebViewConfiguration, for navigationAction: DLNavigationAction, windowFeatures: DLWindowFeatures) -> Bool {
-        return delegate?.webNode(self, shouldCreateNewWebNodeWith: configuration, for: navigationAction, windowFeatures: windowFeatures) ?? false
+        return self.delegate?.webNode(self, shouldCreateNewWebNodeWith: configuration, for: navigationAction, windowFeatures: windowFeatures) ?? false
     }
     
     public func webViewDidClose(_ webView: DLWebView, webViewController: UIViewController) {
-        delegate?.webNodeDidClose(self, webNodeController: webViewController)
+        self.delegate?.webNodeDidClose(self, webNodeController: webViewController)
     }
     
     public func webView(_ webView: DLWebView, webViewController: UIViewController, showAlertPanelWithMessage message: String, completionHandler: @escaping () -> Swift.Void) {
-        delegate?.webNode(self, webNodeController: webViewController, showAlertPanelWithMessage: message, completionHandler: completionHandler)
+        self.delegate?.webNode(self, webNodeController: webViewController, showAlertPanelWithMessage: message, completionHandler: completionHandler)
     }
     
     public func webView(_ webView: DLWebView, webViewController: UIViewController, showConfirmPanelWithMessage message: String, completionHandler: @escaping (Bool) -> Swift.Void) {
-        delegate?.webNode(self, webNodeController: webViewController, showConfirmPanelWithMessage: message, completionHandler: completionHandler)
+        self.delegate?.webNode(self, webNodeController: webViewController, showConfirmPanelWithMessage: message, completionHandler: completionHandler)
     }
     
     public func webView(_ webView: DLWebView, webViewController: UIViewController, showTextInputPanelWithPrompt prompt: String, defaultText: String?, completionHandler: @escaping (String?) -> Swift.Void) {
-        delegate?.webNode(self, webNodeController: webViewController, showTextInputPanelWithPrompt: prompt, defaultText: defaultText, completionHandler: completionHandler)
+        self.delegate?.webNode(self, webNodeController: webViewController, showTextInputPanelWithPrompt: prompt, defaultText: defaultText, completionHandler: completionHandler)
     }
 }

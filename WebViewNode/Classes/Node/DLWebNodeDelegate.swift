@@ -12,7 +12,6 @@ import WebKit
 public typealias DLWebNodeConfiguration = WKWebViewConfiguration
 
 public protocol DLWebNodeDelegate: DLWebViewDelegate {
-    
     /// Invoked when URL request of the main frame navigation starts loading.
     ///
     /// - Parameters:

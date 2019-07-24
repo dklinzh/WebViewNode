@@ -10,17 +10,16 @@ import UIKit
 
 /// A view controller with web view container.
 open class DLWebViewController: UIViewController, WebControllerAppearance, WebNavigationItemDelegate {
-    
-// MARK: - WebNavigationItemDelegate
-    
+    // MARK: - WebNavigationItemDelegate
+
     private var _canGoBack = false
     public var navigationItemCanClose: Bool = false {
         didSet {
             if oldValue != navigationItemCanClose {
                 if navigationItemCanClose {
-                    webView.navigationCanGoBack { [weak self] (canGoBack) in
+                    webView.navigationCanGoBack { [weak self] canGoBack in
                         guard let strongSelf = self else { return }
-                        
+
                         if strongSelf._canGoBack != canGoBack {
                             strongSelf._canGoBack = canGoBack
                             strongSelf.navigationItemCloseDidChange(canClose: canGoBack)
@@ -32,24 +31,24 @@ open class DLWebViewController: UIViewController, WebControllerAppearance, WebNa
             }
         }
     }
-    
+
     public var navigationItemCanRefresh: Bool = false {
         didSet {
             if oldValue != navigationItemCanRefresh {
-                self.navigationItemRefreshDidChange(canRefresh: navigationItemCanRefresh)
+                navigationItemRefreshDidChange(canRefresh: navigationItemCanRefresh)
             }
         }
     }
-    
-// MARK: - WebControllerAppearance
-    
+
+    // MARK: - WebControllerAppearance
+
     public var pageTitleNavigationShown: Bool = false {
         didSet {
             if oldValue != pageTitleNavigationShown {
                 if pageTitleNavigationShown {
-                    webView.pageTitleDidChange { [weak self] (title) in
+                    webView.pageTitleDidChange { [weak self] title in
                         guard let strongSelf = self else { return }
-                        
+
                         strongSelf.navigationItem.title = title
                     }
                 } else {
@@ -58,15 +57,15 @@ open class DLWebViewController: UIViewController, WebControllerAppearance, WebNa
             }
         }
     }
-    
+
     public var canGoBackByNavigationBackButton: Bool = true
-    
+
     public var progressBarShown: Bool = true {
         didSet {
             webView.progressBarShown = progressBarShown
         }
     }
-    
+
     public var progressTintColor: UIColor? {
         get {
             return webView.progressTintColor
@@ -75,13 +74,13 @@ open class DLWebViewController: UIViewController, WebControllerAppearance, WebNa
             webView.progressTintColor = newValue
         }
     }
-    
+
     public var shouldDisplayAlertPanel: Bool = false {
         didSet {
             webView.shouldDisplayAlertPanelByJavaScript = shouldDisplayAlertPanel
         }
     }
-    
+
     @available(iOS 9.0, *)
     public var shouldPreviewElementBy3DTouch: Bool {
         get {
@@ -91,28 +90,28 @@ open class DLWebViewController: UIViewController, WebControllerAppearance, WebNa
             webView.shouldPreviewElementBy3DTouch = newValue
         }
     }
-    
+
     public func scrollTo(offset: CGFloat) {
         webView.scrollTo(offset: offset)
     }
-    
+
     open func setupAppearance() {}
-    
-// MARK: - Init
-    
+
+    // MARK: - Init
+
     /// The root view of web view controller.
     public let webView: DLWebView
-    
+
     /// The delegate of DLWebView.
     public weak var delegate: DLWebViewDelegate? {
         didSet {
             webView.delegate = delegate
         }
     }
-    
+
     /// The initial URL of web view to load.
     public var url: String?
-    
+
     /// A web view controller initialization.
     ///
     /// - Parameters:
@@ -138,12 +137,12 @@ open class DLWebViewController: UIViewController, WebControllerAppearance, WebNa
                             customUserAgent: customUserAgent)
         webView.progressBarShown = progressBarShown
         webView.shouldDisplayAlertPanelByJavaScript = shouldDisplayAlertPanel
-        
+
         super.init(nibName: nil, bundle: nil)
-        
+
         self.url = url
     }
-    
+
     public convenience init() {
         self.init(url: nil,
                   configuration: DLWebViewConfiguration(),
@@ -153,7 +152,7 @@ open class DLWebViewController: UIViewController, WebControllerAppearance, WebNa
                   contentFitStyle: .default,
                   customUserAgent: nil)
     }
-    
+
     public required init?(coder aDecoder: NSCoder) {
         webView = DLWebView(configuration: DLWebViewConfiguration(),
                             cookiesShared: false,
@@ -163,22 +162,22 @@ open class DLWebViewController: UIViewController, WebControllerAppearance, WebNa
                             customUserAgent: nil)
         webView.progressBarShown = progressBarShown
         webView.shouldDisplayAlertPanelByJavaScript = shouldDisplayAlertPanel
-        
+
         super.init(coder: aDecoder)
     }
-    
+
     open override func loadView() {
-        self.view = webView
+        view = webView
     }
 
     open override func viewDidLoad() {
         super.viewDidLoad()
-        self.setupAppearance()
-        
-        self.navigationItem.leftItemsSupplementBackButton = canGoBackByNavigationBackButton
-        
+        setupAppearance()
+
+        navigationItem.leftItemsSupplementBackButton = canGoBackByNavigationBackButton
+
         #if WebViewNode_JSBridge
-        self.bindJSBridge()
+        bindJSBridge()
         #endif
 
         if let url = url {
@@ -190,12 +189,11 @@ open class DLWebViewController: UIViewController, WebControllerAppearance, WebNa
         super.didReceiveMemoryWarning()
         // Dispose of any resources that can be recreated.
     }
-    
 }
 
 // MARK: - DLNavigationControllerDelegate
+
 extension DLWebViewController: DLNavigationControllerDelegate {
-    
     public func navigationConroller(_ navigationConroller: UINavigationController, shouldPop item: UINavigationItem) -> Bool {
         if canGoBackByNavigationBackButton,
             webView.canGoBack {
@@ -208,40 +206,40 @@ extension DLWebViewController: DLNavigationControllerDelegate {
 }
 
 // MARK: - WebControllerAction
+
 extension DLWebViewController: WebControllerAction {
-    
     public func goBack() {
         webView.goBack()
     }
-    
+
     public func goForward() {
         webView.goForward()
     }
-    
+
     public func load(_ urlString: String) {
         webView.load(urlString)
     }
-    
+
     public func load(_ url: URL) {
         webView.load(url)
     }
-    
+
     public func load(_ request: URLRequest) {
         webView.load(request)
     }
-    
+
     public func loadHTML(fileName: String, bundle: Bundle = Bundle.main) {
         webView.loadHTML(fileName: fileName, bundle: bundle)
     }
-    
+
     public func reload() {
         webView.reload()
     }
-    
+
     public func reloadFromOrigin() {
         webView.reloadFromOrigin()
     }
-    
+
     public func stopLoading() {
         webView.stopLoading()
     }

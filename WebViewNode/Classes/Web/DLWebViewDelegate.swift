@@ -27,7 +27,6 @@ public typealias DLNavigationResponse = WKNavigationResponse
 public typealias DLNavigationResponsePolicy = WKNavigationResponsePolicy
 
 public protocol DLWebViewDelegate: class {
-    
     /// Invoked when URL request of the main frame navigation starts loading.
     ///
     /// - Parameters:
@@ -155,7 +154,7 @@ public extension DLWebViewDelegate {
     // TODO: Strings Localization
     func webView(_ webView: DLWebView, webViewController: UIViewController, showAlertPanelWithMessage message: String, completionHandler: @escaping () -> Swift.Void) {
         let alertController = UIAlertController(title: nil, message: message, preferredStyle: .alert)
-        let action = UIAlertAction(title: "OK", style: .default) { (action) in
+        let action = UIAlertAction(title: "OK", style: .default) { _ in
             completionHandler()
         }
         alertController.addAction(action)
@@ -165,11 +164,11 @@ public extension DLWebViewDelegate {
     // TODO: Strings Localization
     func webView(_ webView: DLWebView, webViewController: UIViewController, showConfirmPanelWithMessage message: String, completionHandler: @escaping (Bool) -> Swift.Void) {
         let alertController = UIAlertController(title: nil, message: message, preferredStyle: .alert)
-        let yesAction = UIAlertAction(title: "YES", style: .default) { (action) in
+        let yesAction = UIAlertAction(title: "YES", style: .default) { _ in
             completionHandler(true)
         }
         alertController.addAction(yesAction)
-        let noAction = UIAlertAction(title: "NO", style: .cancel) { (action) in
+        let noAction = UIAlertAction(title: "NO", style: .cancel) { _ in
             completionHandler(false)
         }
         alertController.addAction(noAction)
@@ -179,10 +178,10 @@ public extension DLWebViewDelegate {
     // TODO: Strings Localization
     func webView(_ webView: DLWebView, webViewController: UIViewController, showTextInputPanelWithPrompt prompt: String, defaultText: String?, completionHandler: @escaping (String?) -> Swift.Void) {
         let alertController = UIAlertController(title: nil, message: prompt, preferredStyle: .alert)
-        alertController.addTextField { (textField) in
+        alertController.addTextField { textField in
             textField.placeholder = defaultText
         }
-        let action = UIAlertAction(title: "Commit", style: .default) { (action) in
+        let action = UIAlertAction(title: "Commit", style: .default) { _ in
             completionHandler(alertController.textFields?.first?.text)
         }
         alertController.addAction(action)

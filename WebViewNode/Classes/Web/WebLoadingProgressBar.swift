@@ -19,7 +19,6 @@ public enum WebLoadingProgressAnimationStyle {
 
 /// A custom style progress view for web loading.
 open class WebLoadingProgressBar: UIProgressView {
-    
     /// The style of web loading progress animation. Defaults to WebLoadingProgressAnimationStyle.default.
     public var progressAnimationStyle: WebLoadingProgressAnimationStyle {
         didSet {
@@ -45,12 +44,12 @@ open class WebLoadingProgressBar: UIProgressView {
         self.progressAnimationStyle = progressAnimationStyle
         super.init(frame: .zero)
         
-        _webView = webView
+        self._webView = webView
         self.trackTintColor = UIColor(white: 1.0, alpha: 0.0)
         self.autoresizingMask = [.flexibleWidth, .flexibleBottomMargin]
     }
     
-    required public init?(coder aDecoder: NSCoder) {
+    public required init?(coder aDecoder: NSCoder) {
         fatalError("init(coder:) has not been implemented")
     }
     
@@ -76,8 +75,8 @@ open class WebLoadingProgressBar: UIProgressView {
         _webView?.removeObserver(self, forKeyPath: #keyPath(WKWebView.estimatedProgress))
     }
     
-    open override func observeValue(forKeyPath keyPath: String?, of object: Any?, change: [NSKeyValueChangeKey : Any]?, context: UnsafeMutableRawPointer?) {
-        if keyPath == #keyPath(WKWebView.estimatedProgress) && context == &_progressContext {
+    open override func observeValue(forKeyPath keyPath: String?, of object: Any?, change: [NSKeyValueChangeKey: Any]?, context: UnsafeMutableRawPointer?) {
+        if keyPath == #keyPath(WKWebView.estimatedProgress), context == &_progressContext {
             guard let _progress = _webView?.estimatedProgress, _progress > 0.0 else {
                 self.alpha = 0.0
                 self.setProgress(0.0, animated: false)
@@ -103,7 +102,7 @@ open class WebLoadingProgressBar: UIProgressView {
                 _stopSmoothProgressTimer()
                 UIView.animate(withDuration: 0.3, delay: 0.3, options: .curveEaseOut, animations: {
                     self.alpha = 0.0
-                }, completion: { (finished: Bool) in
+                }, completion: { (_: Bool) in
                     self.setProgress(0.0, animated: false)
                 })
             }

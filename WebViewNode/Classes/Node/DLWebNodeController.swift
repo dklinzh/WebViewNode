@@ -10,15 +10,14 @@ import AsyncDisplayKit
 
 /// A view controller with web node container.
 open class DLWebNodeController: ASViewController<DLWebNode>, WebControllerAppearance, WebNavigationItemDelegate {
-    
-// MARK: - WebNavigationItemDelegate
+    // MARK: - WebNavigationItemDelegate
     
     private var _canGoBack = false
     public var navigationItemCanClose: Bool = false {
         didSet {
             if oldValue != navigationItemCanClose {
                 if navigationItemCanClose {
-                    webNode.navigationCanGoBack { [weak self] (canGoBack) in
+                    webNode.navigationCanGoBack { [weak self] canGoBack in
                         guard let strongSelf = self else { return }
                         
                         if strongSelf._canGoBack != canGoBack {
@@ -36,18 +35,18 @@ open class DLWebNodeController: ASViewController<DLWebNode>, WebControllerAppear
     public var navigationItemCanRefresh: Bool = false {
         didSet {
             if oldValue != navigationItemCanRefresh {
-                self.navigationItemRefreshDidChange(canRefresh: navigationItemCanRefresh)
+                navigationItemRefreshDidChange(canRefresh: navigationItemCanRefresh)
             }
         }
     }
     
-// MARK: - WebControllerAppearance
+    // MARK: - WebControllerAppearance
     
     public var pageTitleNavigationShown: Bool = false {
         didSet {
             if oldValue != pageTitleNavigationShown {
                 if pageTitleNavigationShown {
-                    webNode.pageTitleDidChange { [weak self] (title) in
+                    webNode.pageTitleDidChange { [weak self] title in
                         guard let strongSelf = self else { return }
                         
                         strongSelf.navigationItem.title = title
@@ -98,7 +97,7 @@ open class DLWebNodeController: ASViewController<DLWebNode>, WebControllerAppear
     
     open func setupAppearance() {}
     
-// MARK: - Init
+    // MARK: - Init
     
     /// The root node of web node controller.
     public let webNode: DLWebNode
@@ -166,17 +165,17 @@ open class DLWebNodeController: ASViewController<DLWebNode>, WebControllerAppear
         
         super.init(coder: aDecoder)
         
-        self.setValue(webNode, forKey: "node")
+        setValue(webNode, forKey: "node")
     }
     
     open override func viewDidLoad() {
         super.viewDidLoad()
-        self.setupAppearance()
+        setupAppearance()
         
-        self.navigationItem.leftItemsSupplementBackButton = canGoBackByNavigationBackButton
+        navigationItem.leftItemsSupplementBackButton = canGoBackByNavigationBackButton
         
         #if WebViewNode_JSBridge
-        self.bindJSBridge()
+        bindJSBridge()
         #endif
         
         if let url = url {
@@ -188,12 +187,11 @@ open class DLWebNodeController: ASViewController<DLWebNode>, WebControllerAppear
         super.didReceiveMemoryWarning()
         // Dispose of any resources that can be recreated.
     }
-    
 }
 
 // MARK: - DLNavigationControllerDelegate
+
 extension DLWebNodeController: DLNavigationControllerDelegate {
-    
     public func navigationConroller(_ navigationConroller: UINavigationController, shouldPop item: UINavigationItem) -> Bool {
         if canGoBackByNavigationBackButton,
             webNode.nodeView.canGoBack {
@@ -206,8 +204,8 @@ extension DLWebNodeController: DLNavigationControllerDelegate {
 }
 
 // MARK: - WebControllerAction
+
 extension DLWebNodeController: WebControllerAction {
-    
     public func goBack() {
         webNode.goBack()
     }

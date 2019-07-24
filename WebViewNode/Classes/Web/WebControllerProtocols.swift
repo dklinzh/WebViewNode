@@ -7,7 +7,6 @@
 //
 
 public protocol WebControllerAppearance {
-    
     /// Determine whether the page title of web view should be shown on the navigation bar. Defaults to false.
     var pageTitleNavigationShown: Bool { get set }
     
@@ -21,7 +20,7 @@ public protocol WebControllerAppearance {
     var progressTintColor: UIColor? { get set }
     
     /// Determine whether or not the app window should display an alert, confirm or text input view from JavaScript functions. Defaults to false.
-    var shouldDisplayAlertPanel: Bool  { get set }
+    var shouldDisplayAlertPanel: Bool { get set }
     
     /// Determine whether or not the given element of web link should show a preview by 3D Touch. Defaults to false.
     @available(iOS 9.0, *)
@@ -37,7 +36,6 @@ public protocol WebControllerAppearance {
 }
 
 public protocol WebControllerAction {
-    
     /// Navigates to the back item in the back-forward list.
     func goBack()
     
@@ -77,7 +75,6 @@ public protocol WebControllerAction {
 }
 
 public protocol WebNavigationItemDelegate: class {
-    
     /// Indicates whether the web close button should be displayed on the left (or leading) edge of the navigation bar. Defaults to false.
     var navigationItemCanClose: Bool { get set }
     
@@ -108,13 +105,12 @@ public protocol WebNavigationItemDelegate: class {
 }
 
 public extension WebNavigationItemDelegate {
-    
     var navigationItemCloseImage: UIImage {
         return UIImage(named: "wvn_btn_web_close", in: Bundle(for: DLWebView.self), compatibleWith: nil)!
     }
     
     var navigationItemCloseButton: UIBarButtonItem {
-        return UIBarButtonItem(image: self.navigationItemCloseImage, style: .plain, action: { [weak self] (sender) in
+        return UIBarButtonItem(image: self.navigationItemCloseImage, style: .plain, action: { [weak self] _ in
             guard let strongSelf = self else { return }
             
             if let viewController = strongSelf as? UIViewController {
@@ -129,7 +125,7 @@ public extension WebNavigationItemDelegate {
                 if let navigationController = viewController.navigationController,
                     navigationController.viewControllers.count > 1 {
                     if let leftBarButtonItems = viewController.navigationItem.leftBarButtonItems,
-                        leftBarButtonItems.count > 0 {
+                        !leftBarButtonItems.isEmpty {
                         viewController.navigationItem.leftBarButtonItems!.append(self.navigationItemCloseButton)
                     } else {
                         viewController.navigationItem.leftBarButtonItem = self.navigationItemCloseButton
@@ -137,7 +133,7 @@ public extension WebNavigationItemDelegate {
                 }
             } else {
                 if let leftBarButtonItems = viewController.navigationItem.leftBarButtonItems,
-                    leftBarButtonItems.count > 0 {
+                    !leftBarButtonItems.isEmpty {
                     viewController.navigationItem.leftBarButtonItems!.removeLast()
                 }
             }
@@ -149,7 +145,7 @@ public extension WebNavigationItemDelegate {
     }
     
     var navigationItemRefreshButton: UIBarButtonItem {
-        return UIBarButtonItem(image: self.navigationItemRefreshImage, style: .plain, action: { [weak self] (sender) in
+        return UIBarButtonItem(image: self.navigationItemRefreshImage, style: .plain, action: { [weak self] _ in
             guard let strongSelf = self else { return }
             
             if let viewController = strongSelf as? WebControllerAction {
@@ -162,14 +158,14 @@ public extension WebNavigationItemDelegate {
         if let viewController = self as? UIViewController {
             if canRefresh {
                 if let rightBarButtonItems = viewController.navigationItem.rightBarButtonItems,
-                    rightBarButtonItems.count > 0 {
+                    !rightBarButtonItems.isEmpty {
                     viewController.navigationItem.rightBarButtonItems!.append(self.navigationItemRefreshButton)
                 } else {
                     viewController.navigationItem.rightBarButtonItem = self.navigationItemRefreshButton
                 }
             } else {
                 if let rightBarButtonItems = viewController.navigationItem.rightBarButtonItems,
-                    rightBarButtonItems.count > 0 {
+                    !rightBarButtonItems.isEmpty {
                     viewController.navigationItem.rightBarButtonItems!.removeLast()
                 }
             }

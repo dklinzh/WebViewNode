@@ -9,7 +9,6 @@
 import WebKit
 
 public struct WebKit {
-    
     /// A custom UserAgent begins with the app bundle name.
     public static var customUserAgent: String {
         #if os(iOS)
@@ -37,7 +36,7 @@ public struct WebKit {
     public static func applyCustomUserAgent(_ customUserAgent: String = WebKit.customUserAgent, appendDefault: Bool = true) {
         if appendDefault {
             _tempWebView = WKWebView()
-            _tempWebView!.evaluateJavaScript("navigator.userAgent") { (result, error) in
+            _tempWebView!.evaluateJavaScript("navigator.userAgent") { result, _ in
                 if let userAgent = result as? String {
                     UserDefaults.standard.register(defaults: ["UserAgent": customUserAgent + " " + userAgent])
                 }
@@ -55,9 +54,9 @@ public struct WebKit {
     ///   - domain: Specified domain of cookie
     ///   - results: The block of cookie properties dictionary
     @available(iOS 11.0, *)
-    public static func websiteCookies(for domain: String? = nil, results: @escaping ([String : Any]) -> Void)  {
-        var cookieDict = [String : Any]()
-        WKWebsiteDataStore.default().httpCookieStore.getAllCookies { (cookies) in
+    public static func websiteCookies(for domain: String? = nil, results: @escaping ([String: Any]) -> Void) {
+        var cookieDict = [String: Any]()
+        WKWebsiteDataStore.default().httpCookieStore.getAllCookies { cookies in
             if let domain = domain {
                 for cookie in cookies {
                     if cookie.domain.contains(domain) {
@@ -94,7 +93,7 @@ public struct WebKit {
             if let date = cookie.expiresDate {
                 result += "expires=\(dateFormatter.string(from: date)); "
             }
-            if (cookie.isSecure) {
+            if cookie.isSecure {
                 result += "secure; "
             }
             result += "'; "
@@ -107,32 +106,28 @@ public struct WebKit {
         if #available(iOS 9.0, *) {
             let dataStore = WKWebsiteDataStore.default()
             let dataTypes = WKWebsiteDataStore.allWebsiteDataTypes()
-            dataStore.fetchDataRecords(ofTypes: dataTypes) { (records) in
-                dataStore.removeData(ofTypes: dataTypes, for: records, completionHandler: {
-                    
-                })
+            dataStore.fetchDataRecords(ofTypes: dataTypes) { records in
+                dataStore.removeData(ofTypes: dataTypes, for: records, completionHandler: {})
             }
         } else {
             _removeWebsiteDataFiles()
         }
     }
-
+    
     /// Removes the specified types of website data records.
     public static func removeWebsiteDataRecords(types: [WebsiteDataType] = [.fetchCache, .serviceWorkerRegistrations,
                                                                             .diskCache, .memoryCache, .offlineWebApplicationCache, .sessionStorage,
                                                                             .cookies, .localStorage, .webSQLDatabases, .indexedDBDatabases]) {
-        if types.count == 0 {
+        if types.isEmpty {
             return
         }
         
         if #available(iOS 9.0, *) {
             let date = Date(timeIntervalSince1970: 0)
             let typeValues = types.map { (type) -> String in
-                return type.rawValue
+                type.rawValue
             }
-            WKWebsiteDataStore.default().removeData(ofTypes: Set<String>(typeValues), modifiedSince: date) {
-                
-            }
+            WKWebsiteDataStore.default().removeData(ofTypes: Set<String>(typeValues), modifiedSince: date) {}
         } else {
             _removeWebsiteDataFiles(types: types)
         }
@@ -163,15 +158,15 @@ public struct WebKit {
     ///
     /// - Parameter schemes: An array of custom schemes to be registered.
     public static func registerURLProtocol(schemes: [String]) {
-        if schemes.count == 0 {
+        if schemes.isEmpty {
             return
         }
         
-        if let cls = NSClassFromString("W"+"K"+"BrowsingContext"+"Controller") {
-            let sel = NSSelectorFromString("register"+"Scheme"+"For"+"CustomProtocol"+":")
+        if let cls = NSClassFromString("W" + "K" + "BrowsingContext" + "Controller") {
+            let sel = NSSelectorFromString("register" + "Scheme" + "For" + "CustomProtocol" + ":")
             if cls.responds(to: sel) {
                 let obj = cls as AnyObject
-                schemes.forEach { (scheme) in
+                schemes.forEach { scheme in
                     _ = obj.perform(sel, with: scheme)
                 }
             }
@@ -182,21 +177,20 @@ public struct WebKit {
     ///
     /// - Parameter schemes: An array of custom schemes to be unregistered.
     public static func unregisterURLProtocol(schemes: [String]) {
-        if schemes.count == 0 {
+        if schemes.isEmpty {
             return
         }
         
-        if let cls = NSClassFromString("W"+"K"+"BrowsingContext"+"Controller") {
-            let sel = NSSelectorFromString("unregister"+"Scheme"+"For"+"CustomProtocol"+":")
+        if let cls = NSClassFromString("W" + "K" + "BrowsingContext" + "Controller") {
+            let sel = NSSelectorFromString("unregister" + "Scheme" + "For" + "CustomProtocol" + ":")
             if cls.responds(to: sel) {
                 let obj = cls as AnyObject
-                schemes.forEach { (scheme) in
+                schemes.forEach { scheme in
                     _ = obj.perform(sel, with: scheme)
                 }
             }
         }
     }
-    
 }
 
 /// The types of website data
@@ -227,7 +221,4 @@ public enum WebsiteDataType: String {
     case localStorage = "WKWebsiteDataTypeLocalStorage"
     case webSQLDatabases = "WKWebsiteDataTypeWebSQLDatabases"
     case indexedDBDatabases = "WKWebsiteDataTypeIndexedDBDatabases"
-    
 }
-
-

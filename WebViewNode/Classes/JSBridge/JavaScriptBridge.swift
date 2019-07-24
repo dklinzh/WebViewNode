@@ -11,7 +11,6 @@ import WebViewJavascriptBridge
 public typealias DLWebViewJavaScriptBridge = WKWebViewJavascriptBridge
 
 extension DLWebViewJavaScriptBridge {
-    
     public func registerHandler<T: RawRepresentable>(_ handlerType: T, handler: @escaping WVJBHandler) where T.RawValue == String {
         self.registerHandler(handlerType.rawValue, handler: handler)
     }
@@ -32,8 +31,8 @@ extension DLWebViewJavaScriptBridge {
 }
 
 // MARK: - JavaScript Bridge
+
 public protocol JavaScriptBridge: class {
-    
     /// JavaScript bridge object for a WKWebView.
     var jsBridge: DLWebViewJavaScriptBridge? { get set }
     
@@ -95,7 +94,6 @@ public protocol JavaScriptBridge: class {
 
 private var _jsBridgeKey: Int = 0
 extension JavaScriptBridge {
-    
     public var jsBridge: DLWebViewJavaScriptBridge? {
         get {
             return objc_getAssociatedObject(self, &_jsBridgeKey) as? DLWebViewJavaScriptBridge
@@ -110,42 +108,40 @@ extension JavaScriptBridge {
             if let delegate = delegate {
                 _jsBridge.setWebViewDelegate(delegate)
             }
-            jsBridge = _jsBridge
+            self.jsBridge = _jsBridge
         }
     }
     
     public func registerJSHandler(_ handlerKey: String, handler: @escaping WVJBHandler) {
-        jsBridge?.registerHandler(handlerKey, handler: handler)
+        self.jsBridge?.registerHandler(handlerKey, handler: handler)
     }
     
     public func removeJSHandler(_ handlerKey: String) {
-        jsBridge?.removeHandler(handlerKey)
+        self.jsBridge?.removeHandler(handlerKey)
     }
     
     public func callJSHandler(_ handlerKey: String, data: Any? = nil, responseCallback: WVJBResponseCallback? = nil) {
-        jsBridge?.callHandler(handlerKey, data: data, responseCallback: responseCallback)
+        self.jsBridge?.callHandler(handlerKey, data: data, responseCallback: responseCallback)
     }
     
     public func registerJSHandler<T: RawRepresentable>(_ handlerType: T, handler: @escaping WVJBHandler) where T.RawValue == String {
-        jsBridge?.registerHandler(handlerType, handler: handler)
+        self.jsBridge?.registerHandler(handlerType, handler: handler)
     }
     
     public func removeJSHandler<T: RawRepresentable>(_ handlerType: T) where T.RawValue == String {
-        jsBridge?.removeHandler(handlerType)
+        self.jsBridge?.removeHandler(handlerType)
     }
     
     public func callJSHandler<T: RawRepresentable>(_ handlerType: T, data: Any? = nil, responseCallback: WVJBResponseCallback? = nil) where T.RawValue == String {
-        jsBridge?.callHandler(handlerType, data: data, responseCallback: responseCallback)
+        self.jsBridge?.callHandler(handlerType, data: data, responseCallback: responseCallback)
     }
     
     public func removeAllJSHandlers() {
-        jsBridge?.removeAllHandlers()
+        self.jsBridge?.removeAllHandlers()
     }
-    
 }
 
 extension DLWebView: JavaScriptBridge {
-    
     /// Bind a JavaScript bridge to the web view itself.
     public func bindJSBridge() {
         self.bindJSBridge(webView: self, delegate: self)
@@ -157,7 +153,6 @@ extension DLWebView: JavaScriptBridge {
 }
 
 extension DLWebViewController: JavaScriptBridge {
-    
     /// Bind a JavaScript bridge to the web view of view controller.
     public func bindJSBridge() {
         self.webView.bindJSBridge()
@@ -172,12 +167,11 @@ extension DLWebViewController: JavaScriptBridge {
 #if WebViewNode_Node
 
 extension DLWebNode: JavaScriptBridge {
-    
     /// Bind a JavaScript bridge to the web node itself.
     ///
     /// - Parameter completion: Invoked when the binding has completed.
     public func bindJSBridge(completion: ((DLWebViewJavaScriptBridge) -> Void)? = nil) {
-        self.appendViewAssociation { [weak self] (view) in
+        self.appendViewAssociation { [weak self] view in
             view.bindJSBridge()
             if let jsBridge = view.jsBridge {
                 guard let strongSelf = self else { return }
@@ -195,19 +189,18 @@ extension DLWebNode: JavaScriptBridge {
 }
 
 extension DLWebNodeController: JavaScriptBridge {
-    
     /// Bind a JavaScript bridge to the web node of view controller.
     ///
     /// - Parameter completion: Invoked when the binding has completed.
     public func bindJSBridge(completion: ((DLWebViewJavaScriptBridge) -> Void)? = nil) {
-        self.webNode.bindJSBridge { (jsBridge) in
+        self.webNode.bindJSBridge { jsBridge in
             self.jsBridge = jsBridge
             self.registerJSHandlers(bridge: jsBridge)
             
             completion?(jsBridge)
         }
     }
-
+    
     @objc
     open func registerJSHandlers(bridge: DLWebViewJavaScriptBridge) {}
 }
