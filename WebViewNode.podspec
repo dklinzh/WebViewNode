@@ -1,14 +1,7 @@
-#
-# Be sure to run `pod lib lint WebViewNode.podspec' to ensure this is a
-# valid spec before submitting.
-#
-# Any lines starting with a # are optional, but their use is encouraged
-# To learn more about a Podspec see https://guides.cocoapods.org/syntax/podspec.html
-#
 
 Pod::Spec.new do |s|
   s.name             = 'WebViewNode'
-  s.version          = '0.2.0'
+  s.version          = '0.2.1'
   s.summary          = 'A simple and useful WebView framework for iOS development on Swift.'
   s.description      = <<-DESC
     A simple and useful WebView framework for iOS development on Swift. 

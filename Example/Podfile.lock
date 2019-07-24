@@ -3,13 +3,13 @@ PODS:
   - Quick (2.1.0)
   - Texture/Core (2.8.1)
   - WebViewJavascriptBridge (6.0.3)
-  - WebViewNode/JSBridge (0.2.0):
+  - WebViewNode/JSBridge (0.2.1):
     - WebViewJavascriptBridge (~> 6.0)
     - WebViewNode/Web
-  - WebViewNode/Node (0.2.0):
+  - WebViewNode/Node (0.2.1):
     - Texture/Core (~> 2.8)
     - WebViewNode/Web
-  - WebViewNode/Web (0.2.0)
+  - WebViewNode/Web (0.2.1)
 
 DEPENDENCIES:
   - Nimble
@@ -34,8 +34,8 @@ SPEC CHECKSUMS:
   Quick: 4be43f6634acfa727dd106bdf3929ce125ffa79d
   Texture: 8ecf6984065a1e54f06bf97b349ecca28582acd7
   WebViewJavascriptBridge: 7f5bc4d3581e672e8f32bd0f812d54bc69bb8e29
-  WebViewNode: 68e519428f172b93d42aceb398b5e7ccae856efd
+  WebViewNode: 2612c888653b747c397f9d37fed389697555e15b
 
 PODFILE CHECKSUM: a981f5c1949acc957b7d8c40686da04e6c854589
 
-COCOAPODS: 1.7.3
+COCOAPODS: 1.7.5
