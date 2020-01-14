@@ -143,7 +143,7 @@ open class DLWebNodeController: ASViewController<DLWebNode>, WebControllerAppear
         self.url = url
     }
     
-    public convenience init() {
+    public convenience override init() {
         self.init(url: nil,
                   configuration: DLWebNodeConfiguration(),
                   cookiesShared: false,
