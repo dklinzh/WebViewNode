@@ -1,41 +1,88 @@
 PODS:
-  - Nimble (8.0.2)
-  - Quick (2.1.0)
+  - Nimble (8.0.5)
+  - PINCache (3.0.1-beta.7):
+    - PINCache/Arc-exception-safe (= 3.0.1-beta.7)
+    - PINCache/Core (= 3.0.1-beta.7)
+  - PINCache/Arc-exception-safe (3.0.1-beta.7):
+    - PINCache/Core
+  - PINCache/Core (3.0.1-beta.7):
+    - PINOperation (~> 1.1.1)
+  - PINOperation (1.1.2)
+  - PINRemoteImage/Core (3.0.0-beta.14):
+    - PINOperation
+  - PINRemoteImage/iOS (3.0.0-beta.14):
+    - PINRemoteImage/Core
+  - PINRemoteImage/PINCache (3.0.0-beta.14):
+    - PINCache (= 3.0.1-beta.7)
+    - PINRemoteImage/Core
+  - Quick (2.2.0)
+  - Texture (2.8.1):
+    - Texture/AssetsLibrary (= 2.8.1)
+    - Texture/Core (= 2.8.1)
+    - Texture/MapKit (= 2.8.1)
+    - Texture/Photos (= 2.8.1)
+    - Texture/PINRemoteImage (= 2.8.1)
+    - Texture/Video (= 2.8.1)
+  - Texture/AssetsLibrary (2.8.1):
+    - Texture/Core
   - Texture/Core (2.8.1)
+  - Texture/MapKit (2.8.1):
+    - Texture/Core
+  - Texture/Photos (2.8.1):
+    - Texture/Core
+  - Texture/PINRemoteImage (2.8.1):
+    - PINRemoteImage/iOS (= 3.0.0-beta.14)
+    - PINRemoteImage/PINCache
+    - Texture/Core
+  - Texture/Video (2.8.1):
+    - Texture/Core
   - WebViewJavascriptBridge (6.0.3)
-  - WebViewNode/JSBridge (0.2.1):
+  - WebViewNode/JSBridge (0.2.2):
     - WebViewJavascriptBridge (~> 6.0)
     - WebViewNode/Web
-  - WebViewNode/Node (0.2.1):
+  - WebViewNode/Node (0.2.2):
     - Texture/Core (~> 2.8)
     - WebViewNode/Web
-  - WebViewNode/Web (0.2.1)
+  - WebViewNode/Web (0.2.2)
 
 DEPENDENCIES:
   - Nimble
   - Quick
+  - Texture (from `https://github.com/TextureGroup/Texture.git`)
   - WebViewNode/JSBridge (from `../`)
   - WebViewNode/Node (from `../`)
   - WebViewNode/Web (from `../`)
 
 SPEC REPOS:
-  https://github.com/cocoapods/specs.git:
+  https://github.com/CocoaPods/Specs.git:
     - Nimble
+    - PINCache
+    - PINOperation
+    - PINRemoteImage
     - Quick
-    - Texture
     - WebViewJavascriptBridge
 
 EXTERNAL SOURCES:
+  Texture:
+    :git: https://github.com/TextureGroup/Texture.git
   WebViewNode:
     :path: "../"
 
+CHECKOUT OPTIONS:
+  Texture:
+    :commit: 01b613e97b46224573b62f1a892a75ff490d9766
+    :git: https://github.com/TextureGroup/Texture.git
+
 SPEC CHECKSUMS:
-  Nimble: 622629381bda1dd5678162f21f1368cec7cbba60
-  Quick: 4be43f6634acfa727dd106bdf3929ce125ffa79d
-  Texture: 8ecf6984065a1e54f06bf97b349ecca28582acd7
+  Nimble: 4ab1aeb9b45553c75b9687196b0fa0713170a332
+  PINCache: 7cb9ae068c8f655717f7c644ef1dff9fd573e979
+  PINOperation: 24b774353ca248fcf87d67b2d61eef42087c125a
+  PINRemoteImage: 81bbff853acc71c6de9e106e9e489a791b8bbb08
+  Quick: 7fb19e13be07b5dfb3b90d4f9824c855a11af40e
+  Texture: 95cfad2ed5e7f06c32e34278c39d386568481f73
   WebViewJavascriptBridge: 7f5bc4d3581e672e8f32bd0f812d54bc69bb8e29
-  WebViewNode: 2612c888653b747c397f9d37fed389697555e15b
+  WebViewNode: b4a59564b5d1166fc4155a6f74d152f0ef1e4157
 
-PODFILE CHECKSUM: a981f5c1949acc957b7d8c40686da04e6c854589
+PODFILE CHECKSUM: e2f057fb72729e91f1edc92aaab7da13b1e5053c
 
-COCOAPODS: 1.7.5
+COCOAPODS: 1.8.4
