@@ -1,7 +1,7 @@
 
 Pod::Spec.new do |s|
   s.name             = 'WebViewNode'
-  s.version          = '0.2.1'
+  s.version          = '0.3.0'
   s.summary          = 'A simple and useful WebView framework for iOS development on Swift.'
   s.description      = <<-DESC
     A simple and useful WebView framework for iOS development on Swift. 
@@ -16,7 +16,6 @@ Pod::Spec.new do |s|
 
   s.requires_arc = true
   s.swift_version = '5.0'
-  s.ios.deployment_target = '8.0'
   s.default_subspecs = 'Web', 'JSBridge'
   
   s.subspec 'Web' do |ss|
@@ -27,8 +26,8 @@ Pod::Spec.new do |s|
   end
 
   s.subspec 'JSBridge' do |ss|
-    ss.ios.deployment_target = '8.0'
-    ss.dependency 'WebViewJavascriptBridge', '~> 6.0'
+    ss.ios.deployment_target = '9.0'
+    ss.dependency 'WKWebViewJavascriptBridge', '~> 1.2'
     ss.dependency 'WebViewNode/Web'
     ss.source_files = 'WebViewNode/Classes/JSBridge/*'
     ss.pod_target_xcconfig = {
