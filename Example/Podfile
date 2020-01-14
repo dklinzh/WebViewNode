@@ -5,6 +5,7 @@ platform :ios, '9.0'
 use_frameworks!
 
 target 'WebViewNode_Example' do
+  pod 'WKWebViewJavascriptBridge', :path => '../../WKWebViewJavascriptBridge'
   pod 'WebViewNode', :subspecs => ['Web', 'JSBridge', 'Node'], :path => '../'
 
   target 'WebViewNode_Tests' do

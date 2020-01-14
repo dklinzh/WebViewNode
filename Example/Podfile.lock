@@ -1,15 +1,15 @@
 PODS:
-  - Nimble (8.0.2)
-  - Quick (2.1.0)
+  - Nimble (8.0.4)
+  - Quick (2.2.0)
   - Texture/Core (2.8.1)
-  - WebViewJavascriptBridge (6.0.3)
-  - WebViewNode/JSBridge (0.2.1):
-    - WebViewJavascriptBridge (~> 6.0)
+  - WebViewNode/JSBridge (0.3.0):
     - WebViewNode/Web
-  - WebViewNode/Node (0.2.1):
+    - WKWebViewJavascriptBridge (~> 1.2)
+  - WebViewNode/Node (0.3.0):
     - Texture/Core (~> 2.8)
     - WebViewNode/Web
-  - WebViewNode/Web (0.2.1)
+  - WebViewNode/Web (0.3.0)
+  - WKWebViewJavascriptBridge (1.2.0)
 
 DEPENDENCIES:
   - Nimble
@@ -17,25 +17,27 @@ DEPENDENCIES:
   - WebViewNode/JSBridge (from `../`)
   - WebViewNode/Node (from `../`)
   - WebViewNode/Web (from `../`)
+  - WKWebViewJavascriptBridge (from `../../WKWebViewJavascriptBridge`)
 
 SPEC REPOS:
-  https://github.com/cocoapods/specs.git:
+  https://github.com/CocoaPods/Specs.git:
     - Nimble
     - Quick
     - Texture
-    - WebViewJavascriptBridge
 
 EXTERNAL SOURCES:
   WebViewNode:
     :path: "../"
+  WKWebViewJavascriptBridge:
+    :path: "../../WKWebViewJavascriptBridge"
 
 SPEC CHECKSUMS:
-  Nimble: 622629381bda1dd5678162f21f1368cec7cbba60
-  Quick: 4be43f6634acfa727dd106bdf3929ce125ffa79d
+  Nimble: 18d5360282923225d62b09d781f63abc1a0111fc
+  Quick: 7fb19e13be07b5dfb3b90d4f9824c855a11af40e
   Texture: 8ecf6984065a1e54f06bf97b349ecca28582acd7
-  WebViewJavascriptBridge: 7f5bc4d3581e672e8f32bd0f812d54bc69bb8e29
-  WebViewNode: 2612c888653b747c397f9d37fed389697555e15b
+  WebViewNode: 5e0b39f116c03c7ab7a272333e76195fb487a623
+  WKWebViewJavascriptBridge: 43c5948c08c29b8777530d512d02eb921ca0881f
 
-PODFILE CHECKSUM: a981f5c1949acc957b7d8c40686da04e6c854589
+PODFILE CHECKSUM: 9f2c3681120c9fd2dc77b1b3621bd520a76c6010
 
-COCOAPODS: 1.7.5
+COCOAPODS: 1.8.4
