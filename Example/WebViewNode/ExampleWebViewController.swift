@@ -16,6 +16,7 @@ class ExampleWebViewController: UIViewController {
         let webView = DLWebView(cookiesShared: true, userSelected: false, userScalable: .disable, contentFitStyle: .default)
         webView.progressBarShown = true
         webView.progressTintColor = .green
+        webView.progressBar.height = 1.0
         webView.addCustomValidSchemes(["node"])
 //        webView.scrollDecelerationRate = UIScrollViewDecelerationRateNormal
 //        webView.allowsBackForwardNavigationGestures = true

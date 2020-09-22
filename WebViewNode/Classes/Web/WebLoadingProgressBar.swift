@@ -27,6 +27,8 @@ open class WebLoadingProgressBar: UIProgressView {
             }
         }
     }
+
+    public var height: CGFloat = 2.0
     
     private weak var _webView: WKWebView?
     private var _progressContext: Int = 0
@@ -65,6 +67,12 @@ open class WebLoadingProgressBar: UIProgressView {
         } else {
             _addProgressObserver()
         }
+    }
+
+    open override func sizeThatFits(_ size: CGSize) -> CGSize {
+        var size = super.sizeThatFits(size)
+        size.height = height
+        return size
     }
     
     private func _addProgressObserver() {

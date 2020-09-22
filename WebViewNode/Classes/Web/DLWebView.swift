@@ -303,10 +303,7 @@ open class DLWebView: WKWebView {
         super.layoutSubviews()
 
         if progressBarShown {
-            var frame = bounds
-            frame.size.height = progressBar.frame.size.height
-            frame.origin.y -= scrollView.bounds.origin.y
-            progressBar.frame = frame
+            progressBar.frame.origin.y -= scrollView.bounds.origin.y
         }
     }
 
