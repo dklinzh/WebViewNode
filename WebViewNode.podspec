@@ -1,7 +1,7 @@
 
 Pod::Spec.new do |s|
   s.name             = 'WebViewNode'
-  s.version          = '0.2.2'
+  s.version          = '0.3.0'
   s.summary          = 'A simple and useful WebView framework for iOS development on Swift.'
   s.description      = <<-DESC
     A simple and useful WebView framework for iOS development on Swift. 
@@ -38,7 +38,7 @@ Pod::Spec.new do |s|
 
   s.subspec 'Node' do |ss|
     ss.ios.deployment_target = '9.0'
-    ss.dependency 'Texture/Core', '~> 2.8'
+    ss.dependency 'Texture/Core', '~> 3.0'
     ss.dependency 'WebViewNode/Web'
     ss.source_files = 'WebViewNode/Classes/Node/*'
     ss.pod_target_xcconfig = {

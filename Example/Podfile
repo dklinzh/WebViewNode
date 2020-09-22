@@ -5,7 +5,7 @@ platform :ios, '9.0'
 use_frameworks!
 
 target 'WebViewNode_Example' do
-  pod 'Texture', :git => 'https://github.com/TextureGroup/Texture.git'
+#  pod 'Texture', :git => 'https://github.com/TextureGroup/Texture.git'
   pod 'WebViewNode', :subspecs => ['Web', 'JSBridge', 'Node'], :path => '../'
 
   target 'WebViewNode_Tests' do

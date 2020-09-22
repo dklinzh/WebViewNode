@@ -9,7 +9,7 @@
 import AsyncDisplayKit
 
 /// A view controller with web node container.
-open class DLWebNodeController: ASViewController<DLWebNode>, WebControllerAppearance, WebNavigationItemDelegate {
+open class DLWebNodeController: ASDKViewController<DLWebNode>, WebControllerAppearance, WebNavigationItemDelegate {
     // MARK: - WebNavigationItemDelegate
     
     private var _canGoBack = false
