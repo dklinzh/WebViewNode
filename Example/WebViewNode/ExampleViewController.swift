@@ -1,5 +1,5 @@
 //
-//  ExampleWebViewController.swift
+//  ExampleViewController.swift
 //  WebViewNode_Example
 //
 //  Created by Daniel Lin on 06/25/2018.
@@ -10,7 +10,7 @@ import UIKit
 import WebViewNode
 import WebKit
 
-class ExampleWebViewController: UIViewController {
+class ExampleViewController: UIViewController {
     
     private let _webView: DLWebView = {
         let webView = DLWebView(cookiesShared: true, userSelected: false, userScalable: .disable, contentFitStyle: .default)
@@ -76,6 +76,6 @@ class ExampleWebViewController: UIViewController {
     }
 }
 
-extension ExampleWebViewController: DLWebViewDelegate {
+extension ExampleViewController: DLWebViewDelegate {
     
 }

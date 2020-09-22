@@ -10,7 +10,7 @@
 		496D281C214A158E00A34723 /* CustomWebViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 496D281B214A158E00A34723 /* CustomWebViewController.swift */; };
 		49ACE22020E6259700C7E755 /* ExampleTableViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 49ACE21F20E6259700C7E755 /* ExampleTableViewController.swift */; };
 		607FACD61AFB9204008FA782 /* AppDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = 607FACD51AFB9204008FA782 /* AppDelegate.swift */; };
-		607FACD81AFB9204008FA782 /* ExampleWebViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 607FACD71AFB9204008FA782 /* ExampleWebViewController.swift */; };
+		607FACD81AFB9204008FA782 /* ExampleViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 607FACD71AFB9204008FA782 /* ExampleViewController.swift */; };
 		607FACDB1AFB9204008FA782 /* Main.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = 607FACD91AFB9204008FA782 /* Main.storyboard */; };
 		607FACDD1AFB9204008FA782 /* Images.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 607FACDC1AFB9204008FA782 /* Images.xcassets */; };
 		607FACE01AFB9204008FA782 /* LaunchScreen.xib in Resources */ = {isa = PBXBuildFile; fileRef = 607FACDE1AFB9204008FA782 /* LaunchScreen.xib */; };
@@ -39,7 +39,7 @@
 		607FACD01AFB9204008FA782 /* WebViewNode_Example.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = WebViewNode_Example.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		607FACD41AFB9204008FA782 /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
 		607FACD51AFB9204008FA782 /* AppDelegate.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppDelegate.swift; sourceTree = "<group>"; };
-		607FACD71AFB9204008FA782 /* ExampleWebViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ExampleWebViewController.swift; sourceTree = "<group>"; };
+		607FACD71AFB9204008FA782 /* ExampleViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ExampleViewController.swift; sourceTree = "<group>"; };
 		607FACDA1AFB9204008FA782 /* Base */ = {isa = PBXFileReference; lastKnownFileType = file.storyboard; name = Base; path = Base.lproj/Main.storyboard; sourceTree = "<group>"; };
 		607FACDC1AFB9204008FA782 /* Images.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = Images.xcassets; sourceTree = "<group>"; };
 		607FACDF1AFB9204008FA782 /* Base */ = {isa = PBXFileReference; lastKnownFileType = file.xib; name = Base; path = Base.lproj/LaunchScreen.xib; sourceTree = "<group>"; };
@@ -99,7 +99,7 @@
 			children = (
 				607FACD51AFB9204008FA782 /* AppDelegate.swift */,
 				49ACE21F20E6259700C7E755 /* ExampleTableViewController.swift */,
-				607FACD71AFB9204008FA782 /* ExampleWebViewController.swift */,
+				607FACD71AFB9204008FA782 /* ExampleViewController.swift */,
 				496D281B214A158E00A34723 /* CustomWebViewController.swift */,
 				607FACD91AFB9204008FA782 /* Main.storyboard */,
 				607FACDC1AFB9204008FA782 /* Images.xcassets */,
@@ -358,7 +358,7 @@
 			files = (
 				496D281C214A158E00A34723 /* CustomWebViewController.swift in Sources */,
 				49ACE22020E6259700C7E755 /* ExampleTableViewController.swift in Sources */,
-				607FACD81AFB9204008FA782 /* ExampleWebViewController.swift in Sources */,
+				607FACD81AFB9204008FA782 /* ExampleViewController.swift in Sources */,
 				607FACD61AFB9204008FA782 /* AppDelegate.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
