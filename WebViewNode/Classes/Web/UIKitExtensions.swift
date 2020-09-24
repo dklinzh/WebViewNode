@@ -27,7 +27,7 @@ extension UIResponder {
 }
 
 class DLResponderChainEnumerator: NSEnumerator {
-    private var _currentResponder: UIResponder?
+    // MARK: Lifecycle
 
     init(responder: UIResponder) {
         super.init()
@@ -35,11 +35,17 @@ class DLResponderChainEnumerator: NSEnumerator {
         _currentResponder = responder
     }
 
+    // MARK: Internal
+
     override func nextObject() -> Any? {
         let next = _currentResponder?.next
         _currentResponder = next
         return next
     }
+
+    // MARK: Private
+
+    private var _currentResponder: UIResponder?
 }
 
 public protocol DLNavigationControllerDelegate {
@@ -49,12 +55,13 @@ public protocol DLNavigationControllerDelegate {
 extension UINavigationController: UINavigationBarDelegate {
     public func navigationBar(_ navigationBar: UINavigationBar, shouldPop item: UINavigationItem) -> Bool {
         if let items = navigationBar.items,
-            self.viewControllers.count < items.count {
+            self.viewControllers.count < items.count
+        {
             return true
         }
 
         var shouldPop = true
-        if let delegate = self.topViewController as? DLNavigationControllerDelegate {
+        if let delegate = topViewController as? DLNavigationControllerDelegate {
             shouldPop = delegate.navigationConroller(self, shouldPop: item)
         }
         if shouldPop {
@@ -79,23 +86,29 @@ extension UINavigationController: UINavigationBarDelegate {
 typealias ItemSelectedAction = (_ sender: UIBarButtonItem) -> Void
 
 class ItemSelectedActionTarget {
-    private var _key: Int = 0
-    private let _itemSelectedAction: ItemSelectedAction
+    // MARK: Lifecycle
 
     init(object: Any, itemSelectedAction: @escaping ItemSelectedAction) {
         _itemSelectedAction = itemSelectedAction
         objc_setAssociatedObject(object, &_key, self, .OBJC_ASSOCIATION_RETAIN_NONATOMIC)
     }
 
+    // MARK: Internal
+
     @objc func action(sender: UIBarButtonItem) {
         _itemSelectedAction(sender)
     }
+
+    // MARK: Private
+
+    private var _key: Int = 0
+    private let _itemSelectedAction: ItemSelectedAction
 }
 
 extension UIBarButtonItem {
     convenience init(image: UIImage?, style: UIBarButtonItem.Style, action: @escaping ItemSelectedAction) {
         self.init(image: image, style: style, target: nil, action: nil)
-        self.target = ItemSelectedActionTarget(object: self, itemSelectedAction: action) // TODO: silence warning
+        target = ItemSelectedActionTarget(object: self, itemSelectedAction: action) // TODO: silence warning
         self.action = #selector(ItemSelectedActionTarget.action(sender:))
     }
 }

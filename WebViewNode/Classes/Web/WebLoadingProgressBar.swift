@@ -19,24 +19,8 @@ public enum WebLoadingProgressAnimationStyle {
 
 /// A custom style progress view for web loading.
 open class WebLoadingProgressBar: UIProgressView {
-    /// The style of web loading progress animation. Defaults to WebLoadingProgressAnimationStyle.default.
-    public var progressAnimationStyle: WebLoadingProgressAnimationStyle {
-        didSet {
-            if oldValue == .smooth, progressAnimationStyle == .default {
-                _cancelProgressTimer()
-            }
-        }
-    }
+    // MARK: Lifecycle
 
-    public var height: CGFloat = 2.0
-    
-    private weak var _webView: WKWebView?
-    private var _progressContext: Int = 0
-    private var _estimatedProgress: Float = 1.0
-    
-//    private lazy var _progressQueue = DispatchQueue(label: "com.dklinzh.framework.WebViewNode.WebLoadingProgressQueue", target: DispatchQueue.main)
-    private var _progressTimer: DispatchSourceTimer?
-    
     /// A web loading progress view initialization.
     ///
     /// - Parameters:
@@ -45,23 +29,26 @@ open class WebLoadingProgressBar: UIProgressView {
     public init(webView: WKWebView, progressAnimationStyle: WebLoadingProgressAnimationStyle = .default) {
         self.progressAnimationStyle = progressAnimationStyle
         super.init(frame: .zero)
-        
+
         self._webView = webView
         self.trackTintColor = UIColor(white: 1.0, alpha: 0.0)
         self.autoresizingMask = [.flexibleWidth, .flexibleBottomMargin]
     }
-    
+
+    @available(*, unavailable)
     public required init?(coder aDecoder: NSCoder) {
         fatalError("init(coder:) has not been implemented")
     }
-    
+
     deinit {
         _cancelProgressTimer()
     }
-    
-    open override func willMove(toSuperview newSuperview: UIView?) {
+
+    // MARK: Open
+
+    override open func willMove(toSuperview newSuperview: UIView?) {
         super.willMove(toSuperview: newSuperview)
-        
+
         if newSuperview == nil {
             _removeProgressObserver()
         } else {
@@ -69,30 +56,22 @@ open class WebLoadingProgressBar: UIProgressView {
         }
     }
 
-    open override func sizeThatFits(_ size: CGSize) -> CGSize {
+    override open func sizeThatFits(_ size: CGSize) -> CGSize {
         var size = super.sizeThatFits(size)
         size.height = height
         return size
     }
-    
-    private func _addProgressObserver() {
-        _webView?.addObserver(self, forKeyPath: #keyPath(WKWebView.estimatedProgress), options: [], context: &_progressContext)
-    }
-    
-    private func _removeProgressObserver() {
-        _webView?.removeObserver(self, forKeyPath: #keyPath(WKWebView.estimatedProgress))
-    }
-    
-    open override func observeValue(forKeyPath keyPath: String?, of object: Any?, change: [NSKeyValueChangeKey: Any]?, context: UnsafeMutableRawPointer?) {
+
+    override open func observeValue(forKeyPath keyPath: String?, of object: Any?, change: [NSKeyValueChangeKey: Any]?, context: UnsafeMutableRawPointer?) {
         if keyPath == #keyPath(WKWebView.estimatedProgress), context == &_progressContext {
             guard let _progress = _webView?.estimatedProgress, _progress > 0.0 else {
                 self.alpha = 0.0
                 self.setProgress(0.0, animated: false)
                 return
             }
-            
+
             self.alpha = 1.0
-            let progress: Float = Float(_progress)
+            let progress = Float(_progress)
             if progressAnimationStyle == .smooth {
                 if _estimatedProgress >= progress {
                     self.setProgress(progress, animated: self.progress == 0.0)
@@ -105,7 +84,7 @@ open class WebLoadingProgressBar: UIProgressView {
                 let animated: Bool = progress > self.progress
                 self.setProgress(progress, animated: animated)
             }
-            
+
             if progress >= 1.0 {
                 _stopSmoothProgressTimer()
                 UIView.animate(withDuration: 0.3, delay: 0.3, options: .curveEaseOut, animations: {
@@ -118,17 +97,47 @@ open class WebLoadingProgressBar: UIProgressView {
             super.observeValue(forKeyPath: keyPath, of: object, change: change, context: context)
         }
     }
-    
+
+    // MARK: Public
+
+    public var height: CGFloat = 2.0
+
+    /// The style of web loading progress animation. Defaults to WebLoadingProgressAnimationStyle.default.
+    public var progressAnimationStyle: WebLoadingProgressAnimationStyle {
+        didSet {
+            if oldValue == .smooth, progressAnimationStyle == .default {
+                _cancelProgressTimer()
+            }
+        }
+    }
+
+    // MARK: Private
+
+    private weak var _webView: WKWebView?
+    private var _progressContext: Int = 0
+    private var _estimatedProgress: Float = 1.0
+
+//    private lazy var _progressQueue = DispatchQueue(label: "com.dklinzh.framework.WebViewNode.WebLoadingProgressQueue", target: DispatchQueue.main)
+    private var _progressTimer: DispatchSourceTimer?
+
+    private func _addProgressObserver() {
+        _webView?.addObserver(self, forKeyPath: #keyPath(WKWebView.estimatedProgress), options: [], context: &_progressContext)
+    }
+
+    private func _removeProgressObserver() {
+        _webView?.removeObserver(self, forKeyPath: #keyPath(WKWebView.estimatedProgress))
+    }
+
     private func _startSmoothProgressTimer() {
         if progressAnimationStyle == .smooth {
             _cancelProgressTimer()
-            
+
             let progressTimer = DispatchSource.makeTimerSource(queue: .main)
             let interval: Double = 0.02
             progressTimer.schedule(deadline: .now() + interval, repeating: interval)
             progressTimer.setEventHandler(handler: { [weak self] in
                 guard let strongSelf = self else { return }
-                
+
                 let progress: Float = strongSelf.progress + 0.002
                 let maxProgress: Float = 0.95
                 if progress >= maxProgress {
@@ -142,13 +151,13 @@ open class WebLoadingProgressBar: UIProgressView {
             _progressTimer = progressTimer
         }
     }
-    
+
     private func _stopSmoothProgressTimer() {
         if progressAnimationStyle == .smooth {
             _cancelProgressTimer()
         }
     }
-    
+
     private func _cancelProgressTimer() {
         if let progressTimer = _progressTimer {
             progressTimer.cancel()

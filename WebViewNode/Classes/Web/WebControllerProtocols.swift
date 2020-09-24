@@ -123,9 +123,11 @@ public extension WebNavigationItemDelegate {
         if let viewController = self as? UIViewController {
             if canClose {
                 if let navigationController = viewController.navigationController,
-                    navigationController.viewControllers.count > 1 {
+                    navigationController.viewControllers.count > 1
+                {
                     if let leftBarButtonItems = viewController.navigationItem.leftBarButtonItems,
-                        !leftBarButtonItems.isEmpty {
+                        !leftBarButtonItems.isEmpty
+                    {
                         viewController.navigationItem.leftBarButtonItems!.append(self.navigationItemCloseButton)
                     } else {
                         viewController.navigationItem.leftBarButtonItem = self.navigationItemCloseButton
@@ -133,7 +135,8 @@ public extension WebNavigationItemDelegate {
                 }
             } else {
                 if let leftBarButtonItems = viewController.navigationItem.leftBarButtonItems,
-                    !leftBarButtonItems.isEmpty {
+                    !leftBarButtonItems.isEmpty
+                {
                     viewController.navigationItem.leftBarButtonItems!.removeLast()
                 }
             }
@@ -158,14 +161,16 @@ public extension WebNavigationItemDelegate {
         if let viewController = self as? UIViewController {
             if canRefresh {
                 if let rightBarButtonItems = viewController.navigationItem.rightBarButtonItems,
-                    !rightBarButtonItems.isEmpty {
+                    !rightBarButtonItems.isEmpty
+                {
                     viewController.navigationItem.rightBarButtonItems!.append(self.navigationItemRefreshButton)
                 } else {
                     viewController.navigationItem.rightBarButtonItem = self.navigationItemRefreshButton
                 }
             } else {
                 if let rightBarButtonItems = viewController.navigationItem.rightBarButtonItems,
-                    !rightBarButtonItems.isEmpty {
+                    !rightBarButtonItems.isEmpty
+                {
                     viewController.navigationItem.rightBarButtonItems!.removeLast()
                 }
             }

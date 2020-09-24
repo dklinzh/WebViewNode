@@ -9,6 +9,8 @@
 import WebKit
 
 public struct WebKit {
+    // MARK: Public
+
     /// A custom UserAgent begins with the app bundle name.
     public static var customUserAgent: String {
         #if os(iOS)
@@ -25,9 +27,7 @@ public struct WebKit {
                       ProcessInfo.processInfo.operatingSystemVersionString)
         #endif
     }
-    
-    private static var _tempWebView: WKWebView?
-    
+
     /// Apply the custom User-Agnet to user defaults for the url request of web view.
     ///
     /// - Parameters:
@@ -40,14 +40,14 @@ public struct WebKit {
                 if let userAgent = result as? String {
                     UserDefaults.standard.register(defaults: ["UserAgent": customUserAgent + " " + userAgent])
                 }
-                
+
                 _tempWebView = nil
             }
         } else {
             UserDefaults.standard.register(defaults: ["UserAgent": customUserAgent])
         }
     }
-    
+
     /// Get website cookies from WKWebsiteDataStore
     ///
     /// - Parameters:
@@ -68,11 +68,11 @@ public struct WebKit {
                     cookieDict[cookie.name] = cookie.properties
                 }
             }
-            
+
             results(cookieDict)
         }
     }
-    
+
     /// Get HTTP cookies in web JavaScript format
     ///
     /// - Parameter cookies: Array of HTTP cookies
@@ -81,13 +81,13 @@ public struct WebKit {
         guard let cookies = cookies else {
             return nil
         }
-        
+
         var result: String = ""
         let dateFormatter = DateFormatter()
         dateFormatter.timeZone = TimeZone(abbreviation: "UTC")
         dateFormatter.dateFormat = "EEE, d MMM yyyy HH:mm:ss zzz"
         dateFormatter.locale = Locale(identifier: "en_US_POSIX")
-        
+
         for cookie in cookies {
             result += "document.cookie='\(cookie.name)=\(cookie.value); domain=\(cookie.domain); path=\(cookie.path); "
             if let date = cookie.expiresDate {
@@ -100,7 +100,7 @@ public struct WebKit {
         }
         return result
     }
-    
+
     /// Removes all types of website data records.
     public static func removeAllWebsiteDataRecords() {
         if #available(iOS 9.0, *) {
@@ -113,15 +113,16 @@ public struct WebKit {
             _removeWebsiteDataFiles()
         }
     }
-    
+
     /// Removes the specified types of website data records.
     public static func removeWebsiteDataRecords(types: [WebsiteDataType] = [.fetchCache, .serviceWorkerRegistrations,
                                                                             .diskCache, .memoryCache, .offlineWebApplicationCache, .sessionStorage,
-                                                                            .cookies, .localStorage, .webSQLDatabases, .indexedDBDatabases]) {
+                                                                            .cookies, .localStorage, .webSQLDatabases, .indexedDBDatabases])
+    {
         if types.isEmpty {
             return
         }
-        
+
         if #available(iOS 9.0, *) {
             let date = Date(timeIntervalSince1970: 0)
             let typeValues = types.map { (type) -> String in
@@ -132,28 +133,7 @@ public struct WebKit {
             _removeWebsiteDataFiles(types: types)
         }
     }
-    
-    private static func _removeWebsiteDataFiles(types: [WebsiteDataType] = [.cookies, .localStorage, .webSQLDatabases, .indexedDBDatabases]) {
-        let fileManager = FileManager.default
-        let libraryPath = NSSearchPathForDirectoriesInDomains(.libraryDirectory, .userDomainMask, true)[0]
-        if types.contains(.cookies) {
-            try? fileManager.removeItem(atPath: libraryPath + "/Cookies")
-        }
-        
-        if let bundleID = Bundle.main.object(forInfoDictionaryKey: kCFBundleIdentifierKey as String) as? String {
-            let storageFilePath = libraryPath + "WebKit/\(bundleID)/WebsiteData"
-            if types.contains(.localStorage) {
-                try? fileManager.removeItem(atPath: storageFilePath + "/LocalStorage")
-            }
-            if types.contains(.webSQLDatabases) {
-                try? fileManager.removeItem(atPath: storageFilePath + "/WebSQL")
-            }
-            if types.contains(.indexedDBDatabases) {
-                try? fileManager.removeItem(atPath: storageFilePath + "/IndexedDB")
-            }
-        }
-    }
-    
+
     /// Register the specified schemes for the custom URL protocol. Not Recommended.
     ///
     /// - Parameter schemes: An array of custom schemes to be registered.
@@ -161,7 +141,7 @@ public struct WebKit {
         if schemes.isEmpty {
             return
         }
-        
+
         if let cls = NSClassFromString("W" + "K" + "BrowsingContext" + "Controller") {
             let sel = NSSelectorFromString("register" + "Scheme" + "For" + "CustomProtocol" + ":")
             if cls.responds(to: sel) {
@@ -172,7 +152,7 @@ public struct WebKit {
             }
         }
     }
-    
+
     /// Unregister the specified schemes for the custom URL protocol. Not Recommended.
     ///
     /// - Parameter schemes: An array of custom schemes to be unregistered.
@@ -180,7 +160,7 @@ public struct WebKit {
         if schemes.isEmpty {
             return
         }
-        
+
         if let cls = NSClassFromString("W" + "K" + "BrowsingContext" + "Controller") {
             let sel = NSSelectorFromString("unregister" + "Scheme" + "For" + "CustomProtocol" + ":")
             if cls.responds(to: sel) {
@@ -188,6 +168,31 @@ public struct WebKit {
                 schemes.forEach { scheme in
                     _ = obj.perform(sel, with: scheme)
                 }
+            }
+        }
+    }
+
+    // MARK: Private
+
+    private static var _tempWebView: WKWebView?
+
+    private static func _removeWebsiteDataFiles(types: [WebsiteDataType] = [.cookies, .localStorage, .webSQLDatabases, .indexedDBDatabases]) {
+        let fileManager = FileManager.default
+        let libraryPath = NSSearchPathForDirectoriesInDomains(.libraryDirectory, .userDomainMask, true)[0]
+        if types.contains(.cookies) {
+            try? fileManager.removeItem(atPath: libraryPath + "/Cookies")
+        }
+
+        if let bundleID = Bundle.main.object(forInfoDictionaryKey: kCFBundleIdentifierKey as String) as? String {
+            let storageFilePath = libraryPath + "WebKit/\(bundleID)/WebsiteData"
+            if types.contains(.localStorage) {
+                try? fileManager.removeItem(atPath: storageFilePath + "/LocalStorage")
+            }
+            if types.contains(.webSQLDatabases) {
+                try? fileManager.removeItem(atPath: storageFilePath + "/WebSQL")
+            }
+            if types.contains(.indexedDBDatabases) {
+                try? fileManager.removeItem(atPath: storageFilePath + "/IndexedDB")
             }
         }
     }
@@ -209,13 +214,13 @@ public enum WebsiteDataType: String {
     // @available(iOS 11.3, *)
     case fetchCache = "WKWebsiteDataTypeFetchCache"
     case serviceWorkerRegistrations = "WKWebsiteDataTypeServiceWorkerRegistrations"
-    
+
     // @available(iOS 9.0, *)
     case diskCache = "WKWebsiteDataTypeDiskCache"
     case memoryCache = "WKWebsiteDataTypeMemoryCache"
     case offlineWebApplicationCache = "WKWebsiteDataTypeOfflineWebApplicationCache"
     case sessionStorage = "WKWebsiteDataTypeSessionStorage"
-    
+
     // @available(iOS 8.0, *)
     case cookies = "WKWebsiteDataTypeCookies"
     case localStorage = "WKWebsiteDataTypeLocalStorage"

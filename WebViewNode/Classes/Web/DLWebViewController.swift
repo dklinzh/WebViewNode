@@ -10,9 +10,110 @@ import UIKit
 
 /// A view controller with web view container.
 open class DLWebViewController: UIViewController, WebControllerAppearance, WebNavigationItemDelegate {
+    // MARK: Lifecycle
+
+    /// A web view controller initialization.
+    ///
+    /// - Parameters:
+    ///   - url: The initial URL of web view to load.
+    ///   - configuration: A collection of properties used to initialize a web view.
+    ///   - cookiesShared: Determine whether or not the initialized web view should be shared with cookies from the HTTP cookie storage. Defaults to false.
+    ///   - userSelected: Determine whether or not the content of web page can be selected by user. Defaults to true.
+    ///   - userScalable: Determine whether or not the frame of web view can be scaled by user. Defaults value is `default`.
+    ///   - contentFitStyle: The style of viewport fit with web content. Default value is `default`.
+    ///   - customUserAgent: The custom `User-Agent` of web view. Defaults to nil.
+    public init(url: String? = nil,
+                configuration: DLWebViewConfiguration = DLWebViewConfiguration(),
+                cookiesShared: Bool = false,
+                userSelected: Bool = true,
+                userScalable: WebUserScalable = .default,
+                contentFitStyle: WebContentFitStyle = .default,
+                customUserAgent: String? = nil)
+    {
+        webView = DLWebView(configuration: configuration,
+                            cookiesShared: cookiesShared,
+                            userSelected: userSelected,
+                            userScalable: userScalable,
+                            contentFitStyle: contentFitStyle,
+                            customUserAgent: customUserAgent)
+        webView.progressBarShown = progressBarShown
+        webView.shouldDisplayAlertPanelByJavaScript = shouldDisplayAlertPanel
+
+        super.init(nibName: nil, bundle: nil)
+
+        self.url = url
+    }
+
+    public convenience init() {
+        self.init(url: nil,
+                  configuration: DLWebViewConfiguration(),
+                  cookiesShared: false,
+                  userSelected: true,
+                  userScalable: .default,
+                  contentFitStyle: .default,
+                  customUserAgent: nil)
+    }
+
+    public required init?(coder aDecoder: NSCoder) {
+        webView = DLWebView(configuration: DLWebViewConfiguration(),
+                            cookiesShared: false,
+                            userSelected: true,
+                            userScalable: .default,
+                            contentFitStyle: .default,
+                            customUserAgent: nil)
+        webView.progressBarShown = progressBarShown
+        webView.shouldDisplayAlertPanelByJavaScript = shouldDisplayAlertPanel
+
+        super.init(coder: aDecoder)
+    }
+
+    // MARK: Open
+
+    override open func loadView() {
+        view = webView
+    }
+
+    override open func viewDidLoad() {
+        super.viewDidLoad()
+        setupAppearance()
+
+        navigationItem.leftItemsSupplementBackButton = canGoBackByNavigationBackButton
+
+        #if WebViewNode_JSBridge
+        bindJSBridge()
+        #endif
+
+        if let url = url {
+            load(url)
+        }
+    }
+
+    override open func didReceiveMemoryWarning() {
+        super.didReceiveMemoryWarning()
+        // Dispose of any resources that can be recreated.
+    }
+
+    open func setupAppearance() {}
+
+    // MARK: Public
+
+    /// The root view of web view controller.
+    public let webView: DLWebView
+
+    /// The initial URL of web view to load.
+    public var url: String?
+
+    public var canGoBackByNavigationBackButton: Bool = true
+
+    /// The delegate of DLWebView.
+    public weak var delegate: DLWebViewDelegate? {
+        didSet {
+            webView.delegate = delegate
+        }
+    }
+
     // MARK: - WebNavigationItemDelegate
 
-    private var _canGoBack = false
     public var navigationItemCanClose: Bool = false {
         didSet {
             if oldValue != navigationItemCanClose {
@@ -58,8 +159,6 @@ open class DLWebViewController: UIViewController, WebControllerAppearance, WebNa
         }
     }
 
-    public var canGoBackByNavigationBackButton: Bool = true
-
     public var progressBarShown: Bool = true {
         didSet {
             webView.progressBarShown = progressBarShown
@@ -95,100 +194,9 @@ open class DLWebViewController: UIViewController, WebControllerAppearance, WebNa
         webView.scrollTo(offset: offset)
     }
 
-    open func setupAppearance() {}
+    // MARK: Private
 
-    // MARK: - Init
-
-    /// The root view of web view controller.
-    public let webView: DLWebView
-
-    /// The delegate of DLWebView.
-    public weak var delegate: DLWebViewDelegate? {
-        didSet {
-            webView.delegate = delegate
-        }
-    }
-
-    /// The initial URL of web view to load.
-    public var url: String?
-
-    /// A web view controller initialization.
-    ///
-    /// - Parameters:
-    ///   - url: The initial URL of web view to load.
-    ///   - configuration: A collection of properties used to initialize a web view.
-    ///   - cookiesShared: Determine whether or not the initialized web view should be shared with cookies from the HTTP cookie storage. Defaults to false.
-    ///   - userSelected: Determine whether or not the content of web page can be selected by user. Defaults to true.
-    ///   - userScalable: Determine whether or not the frame of web view can be scaled by user. Defaults value is `default`.
-    ///   - contentFitStyle: The style of viewport fit with web content. Default value is `default`.
-    ///   - customUserAgent: The custom `User-Agent` of web view. Defaults to nil.
-    public init(url: String? = nil,
-                configuration: DLWebViewConfiguration = DLWebViewConfiguration(),
-                cookiesShared: Bool = false,
-                userSelected: Bool = true,
-                userScalable: WebUserScalable = .default,
-                contentFitStyle: WebContentFitStyle = .default,
-                customUserAgent: String? = nil) {
-        webView = DLWebView(configuration: configuration,
-                            cookiesShared: cookiesShared,
-                            userSelected: userSelected,
-                            userScalable: userScalable,
-                            contentFitStyle: contentFitStyle,
-                            customUserAgent: customUserAgent)
-        webView.progressBarShown = progressBarShown
-        webView.shouldDisplayAlertPanelByJavaScript = shouldDisplayAlertPanel
-
-        super.init(nibName: nil, bundle: nil)
-
-        self.url = url
-    }
-
-    public convenience init() {
-        self.init(url: nil,
-                  configuration: DLWebViewConfiguration(),
-                  cookiesShared: false,
-                  userSelected: true,
-                  userScalable: .default,
-                  contentFitStyle: .default,
-                  customUserAgent: nil)
-    }
-
-    public required init?(coder aDecoder: NSCoder) {
-        webView = DLWebView(configuration: DLWebViewConfiguration(),
-                            cookiesShared: false,
-                            userSelected: true,
-                            userScalable: .default,
-                            contentFitStyle: .default,
-                            customUserAgent: nil)
-        webView.progressBarShown = progressBarShown
-        webView.shouldDisplayAlertPanelByJavaScript = shouldDisplayAlertPanel
-
-        super.init(coder: aDecoder)
-    }
-
-    open override func loadView() {
-        view = webView
-    }
-
-    open override func viewDidLoad() {
-        super.viewDidLoad()
-        setupAppearance()
-
-        navigationItem.leftItemsSupplementBackButton = canGoBackByNavigationBackButton
-
-        #if WebViewNode_JSBridge
-        bindJSBridge()
-        #endif
-
-        if let url = url {
-            load(url)
-        }
-    }
-
-    open override func didReceiveMemoryWarning() {
-        super.didReceiveMemoryWarning()
-        // Dispose of any resources that can be recreated.
-    }
+    private var _canGoBack = false
 }
 
 // MARK: - DLNavigationControllerDelegate
@@ -196,7 +204,8 @@ open class DLWebViewController: UIViewController, WebControllerAppearance, WebNa
 extension DLWebViewController: DLNavigationControllerDelegate {
     public func navigationConroller(_ navigationConroller: UINavigationController, shouldPop item: UINavigationItem) -> Bool {
         if canGoBackByNavigationBackButton,
-            webView.canGoBack {
+            webView.canGoBack
+        {
             webView.goBack()
             return false
         } else {

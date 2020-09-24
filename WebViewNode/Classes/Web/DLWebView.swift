@@ -32,10 +32,7 @@ public enum WebUserScalable: String {
 
 /// Subclass of WKWebView
 open class DLWebView: WKWebView {
-    /// The delegate of DLWebView.
-    public weak var delegate: DLWebViewDelegate?
-
-    private var _cookiesShared: Bool = false
+    // MARK: Lifecycle
 
     /// A web view initialization.
     ///
@@ -51,7 +48,8 @@ open class DLWebView: WKWebView {
                             userSelected: Bool = true,
                             userScalable: WebUserScalable = .default,
                             contentFitStyle: WebContentFitStyle = .default,
-                            customUserAgent: String? = nil) {
+                            customUserAgent: String? = nil)
+    {
         if cookiesShared, let script = WebKit.formatJavaScriptCookies() {
             let cookieScript = WKUserScript(source: script, injectionTime: .atDocumentStart, forMainFrameOnly: false)
             configuration.userContentController.addUserScript(cookieScript)
@@ -100,7 +98,7 @@ open class DLWebView: WKWebView {
         }
     }
 
-    public override init(frame: CGRect, configuration: WKWebViewConfiguration) {
+    override public init(frame: CGRect, configuration: WKWebViewConfiguration) {
         super.init(frame: frame, configuration: configuration)
 
         self.navigationDelegate = self
@@ -111,6 +109,7 @@ open class DLWebView: WKWebView {
         addObserver(self, forKeyPath: #keyPath(WKWebView.url), options: [], context: &_urlContext)
     }
 
+    @available(*, unavailable)
     public required init?(coder: NSCoder) {
         fatalError("init(coder:) has not been implemented")
     }
@@ -143,163 +142,9 @@ open class DLWebView: WKWebView {
         }
     }
 
-    // MARK: - UI Appearance
+    // MARK: Open
 
-    /// The loading progress view on the top of web view.
-    public lazy var progressBar = WebLoadingProgressBar(webView: self, progressAnimationStyle: .smooth)
-
-    /// Determine whether or not the loading progress view should be shown. Defaults to false.
-    public var progressBarShown: Bool = false {
-        didSet {
-            if oldValue == progressBarShown {
-                return
-            }
-
-            if progressBarShown {
-                addSubview(progressBar)
-            } else {
-                progressBar.removeFromSuperview()
-            }
-        }
-    }
-
-    /// The color shown for the portion of the web loading progress bar that is filled.
-    public var progressTintColor: UIColor? {
-        get {
-            return progressBar.progressTintColor
-        }
-        set {
-            progressBar.progressTintColor = newValue
-        }
-    }
-
-    /// Add an observer for the page title of web view
-    ///
-    /// - Parameter block: Invoked when the page title has been changed.
-    public func pageTitleDidChange(_ block: ((_ title: String?) -> Void)?) {
-        if (_pageTitleDidChangeBlock == nil && block == nil) || (_pageTitleDidChangeBlock != nil && block != nil) {
-            _pageTitleDidChangeBlock = block
-            return
-        }
-
-        _pageTitleDidChangeBlock = block
-        if block != nil {
-            addObserver(self, forKeyPath: #keyPath(WKWebView.title), options: [], context: &_pageTitleContext)
-        } else {
-            removeObserver(self, forKeyPath: #keyPath(WKWebView.title))
-        }
-    }
-
-    private var _pageTitleDidChangeBlock: ((_ title: String?) -> Void)?
-    private var _pageTitleContext: Int = 0
-
-    /// Add an observer to indicate whether there is a back item in the back-forward list that can be navigated to.
-    ///
-    /// - Parameter block: Invoked when the value of key `canGoBack` has been changed.
-    public func navigationCanGoBack(_ block: ((_ canGoBack: Bool) -> Void)?) {
-        if (_navigationCanGoBackBlock == nil && block == nil) || (_navigationCanGoBackBlock != nil && block != nil) {
-            _navigationCanGoBackBlock = block
-            return
-        }
-
-        _navigationCanGoBackBlock = block
-        if block != nil {
-            addObserver(self, forKeyPath: #keyPath(WKWebView.canGoBack), options: [], context: &_navigationCanGoBackContext)
-        } else {
-            removeObserver(self, forKeyPath: #keyPath(WKWebView.canGoBack))
-        }
-    }
-
-    private var _navigationCanGoBackBlock: ((_ canGoBack: Bool) -> Void)?
-    private var _navigationCanGoBackContext: Int = 0
-
-    /// Add an observer to indicate whether there is a forward item in the back-forward list that can be navigated to.
-    ///
-    /// - Parameter block: Invoked when the value of key `canGoForward` has been changed.
-    public func navigationCanGoForward(_ block: ((_ canGoForward: Bool) -> Void)?) {
-        if (_navigationCanGoForwardBlock == nil && block == nil) || (_navigationCanGoForwardBlock != nil && block != nil) {
-            _navigationCanGoForwardBlock = block
-            return
-        }
-
-        _navigationCanGoForwardBlock = block
-        if block != nil {
-            addObserver(self, forKeyPath: #keyPath(WKWebView.canGoForward), options: [], context: &_navigationCanGoForwardContext)
-        } else {
-            removeObserver(self, forKeyPath: #keyPath(WKWebView.canGoForward))
-        }
-    }
-
-    private var _navigationCanGoForwardBlock: ((_ canGoForward: Bool) -> Void)?
-    private var _navigationCanGoForwardContext: Int = 0
-
-    /// Add an observer for the height of web content.
-    ///
-    /// - Parameters:
-    ///   - block: Invoked when the height of web content has been changed.
-    ///   - sizeFlexible: Determine whether or not the size of web view should be flexible to fit its content size. Defaults to false.
-    public func webContentHeightDidChange(_ block: ((_ height: CGFloat) -> Void)? = { _ in }, sizeFlexible: Bool = false) {
-        _webContentSizeFlexible = sizeFlexible
-
-        if (_webContentHeightDidChangeBlock == nil && block == nil) || (_webContentHeightDidChangeBlock != nil && block != nil) {
-            _webContentHeightDidChangeBlock = block
-            return
-        }
-
-        _webContentHeightDidChangeBlock = block
-        if block != nil {
-            scrollView.addObserver(self, forKeyPath: #keyPath(UIScrollView.contentSize), options: [], context: &_webContentHeightContext)
-        } else {
-            scrollView.removeObserver(self, forKeyPath: #keyPath(UIScrollView.contentSize))
-        }
-    }
-
-    private var _webContentHeightDidChangeBlock: ((_ height: CGFloat) -> Void)?
-    private var _webContentHeightContext: Int = 0
-    private var _webContentHeightHeight: CGFloat = 0.0
-    private var _webContentSizeFlexible: Bool = false
-
-    /// Make web view scroll to the given offset of Y position.
-    ///
-    /// - Parameter offset: The offset of Y position.
-    public func scrollTo(offset: CGFloat) {
-        if isLoading {
-            _scrollOffset = offset
-        } else {
-            _scrollTo(offset: offset)
-        }
-    }
-
-    private var _scrollOffset: CGFloat = -1.0
-    private func _scrollTo(offset: CGFloat) {
-        if offset >= 0.0 {
-            _scrollOffset = -1.0
-            evaluateJavaScript("window.scrollTo(0, \(offset))")
-        }
-    }
-
-    /// A floating-point value that determines the rate of deceleration after the user lifts their finger. Use the normal and fast constants as reference points for reasonable deceleration rates. Defaults to normal.
-    public var scrollDecelerationRate = UIScrollView.DecelerationRate.normal {
-        didSet {
-            scrollView.decelerationRate = scrollDecelerationRate
-        }
-    }
-
-    /// Determine whether or not the given element of web link should show a preview by 3D Touch. Defaults to false.
-    @available(iOS 9.0, *)
-    public var shouldPreviewElementBy3DTouch: Bool {
-        get {
-            return _shouldPreviewElementBy3DTouch && allowsLinkPreview
-        }
-        set {
-            allowsLinkPreview = newValue
-            _shouldPreviewElementBy3DTouch = newValue
-        }
-    }
-
-    private var _shouldPreviewElementBy3DTouch = false
-
-    open override func layoutSubviews() {
+    override open func layoutSubviews() {
         super.layoutSubviews()
 
         if progressBarShown {
@@ -309,30 +154,8 @@ open class DLWebView: WKWebView {
 
     // MARK: - Web Loading
 
-    /// Navigates to a requested URL.
-    ///
-    /// - Parameter urlString: A string of the URL to navigate to.
-    /// - Returns: A new navigation for the given request.
     @discardableResult
-    public func load(_ urlString: String) -> WKNavigation? {
-        guard let url = URL(string: urlString) else {
-            return nil
-        }
-
-        return load(url)
-    }
-
-    /// Navigates to a requested URL.
-    ///
-    /// - Parameter url: The URL to navigate to.
-    /// - Returns: A new navigation for the given request.
-    @discardableResult
-    public func load(_ url: URL) -> WKNavigation? {
-        return load(URLRequest(url: url))
-    }
-
-    @discardableResult
-    open override func load(_ request: URLRequest) -> WKNavigation? {
+    override open func load(_ request: URLRequest) -> WKNavigation? {
         var mutableRequest = request
         if _cookiesShared, let cookies = HTTPCookieStorage.shared.cookies {
             if let allHTTPHeaderFields = mutableRequest.allHTTPHeaderFields {
@@ -355,27 +178,8 @@ open class DLWebView: WKWebView {
         return super.load(mutableRequest)
     }
 
-    /// Load local HTML file in the specifed bundle
-    ///
-    /// - Parameters:
-    ///   - fileName: The name of HTML file.
-    ///   - bundle: The specified bundle contains the HTML file. Defaults to main bundle.
-    /// - Returns: A new navigation for the given request.
     @discardableResult
-    public func loadHTML(fileName: String, bundle: Bundle = Bundle.main) -> WKNavigation? {
-        guard let filePath = bundle.path(forResource: fileName, ofType: "html") else {
-            return nil
-        }
-
-        guard let html = try? String(contentsOfFile: filePath, encoding: String.Encoding.utf8) else {
-            return nil
-        }
-
-        return loadHTMLString(html, baseURL: bundle.resourceURL)
-    }
-
-    @discardableResult
-    open override func reload() -> WKNavigation? {
+    override open func reload() -> WKNavigation? {
         if url != nil {
             return super.reload()
         } else if let url = _copyURL {
@@ -386,7 +190,7 @@ open class DLWebView: WKWebView {
     }
 
     @discardableResult
-    open override func reloadFromOrigin() -> WKNavigation? {
+    override open func reloadFromOrigin() -> WKNavigation? {
         if url != nil {
             return super.reloadFromOrigin()
         } else if let url = _copyURL {
@@ -398,7 +202,7 @@ open class DLWebView: WKWebView {
 
     // MARK: - JavaScript
 
-    open override func evaluateJavaScript(_ javaScriptString: String, completionHandler: ((Any?, Error?) -> Void)? = nil) {
+    override open func evaluateJavaScript(_ javaScriptString: String, completionHandler: ((Any?, Error?) -> Void)? = nil) {
         if #available(iOS 9.0, *) {
             super.evaluateJavaScript(javaScriptString, completionHandler: completionHandler)
         } else {
@@ -410,70 +214,9 @@ open class DLWebView: WKWebView {
         }
     }
 
-    /// Determine whether or not the app window should display an alert, confirm or text input view from JavaScript functions. Defaults to true.
-    public var shouldDisplayAlertPanelByJavaScript: Bool = true
-
-    /// Determine whether or not the web view controller should be closed by DOM window.close(). Defaults to false.
-    @available(iOS 9.0, *)
-    public var shouldCloseByDOMWindow: Bool {
-        get {
-            return _shouldCloseByDOMWindow
-        }
-        set {
-            _shouldCloseByDOMWindow = newValue
-        }
-    }
-
-    private var _shouldCloseByDOMWindow = false
-
-    /// Get the selected string from web page.
-    ///
-    /// - Parameter block: A block to invoke when pick up the selected string from html.
-    public func getSelectedString(_ block: @escaping (String?) -> Void) {
-        evaluateJavaScript("window.getSelection().toString();") { result, _ in
-            if let string = result as? String, !string.isEmpty {
-                block(string)
-            } else {
-                block(nil)
-            }
-        }
-    }
-
-    // MARK: - URL Request
-
-    /// A dictionary of the custom HTTP header fields for URL request.
-    public var customHTTPHeaderFields: [String: String]?
-
-    /// Add custom valid URL schemes for the web view navigation.
-    ///
-    /// - Parameter schemes: An array of URL scheme.
-    public func addCustomValidSchemes(_ schemes: [String]) {
-        if _customValidSchemes == nil {
-            _customValidSchemes = Set<String>()
-        }
-        schemes.forEach { scheme in
-            self._customValidSchemes!.insert(scheme.lowercased())
-        }
-    }
-
-    private var _customValidSchemes: Set<String>?
-
-    /// The user agent of a web view.
-    ///
-    /// - Parameter block: A block with user agent string
-    public func userAgent(_ block: @escaping (_ result: String?) -> Void) {
-        evaluateJavaScript("navigator.userAgent") { result, _ in
-            block(result as? String)
-        }
-    }
-
     // MARK: - Observe
 
-    private var _copyURL: URL?
-    private var _urlContext: Int = 0
-    private var _provisionalNavigationFailed: Bool = false
-
-    open override func observeValue(forKeyPath keyPath: String?, of object: Any?, change: [NSKeyValueChangeKey: Any]?, context: UnsafeMutableRawPointer?) {
+    override open func observeValue(forKeyPath keyPath: String?, of object: Any?, change: [NSKeyValueChangeKey: Any]?, context: UnsafeMutableRawPointer?) {
         if keyPath == #keyPath(WKWebView.title), context == &_pageTitleContext { // Page title did change.
             _pageTitleDidChangeBlock?(self.title)
         } else if keyPath == #keyPath(WKWebView.canGoBack), context == &_navigationCanGoBackContext { // Navigation canGoBack did change
@@ -485,7 +228,8 @@ open class DLWebView: WKWebView {
                 guard let strongSelf = self else { return }
 
                 if let height = result as? CGFloat,
-                    height != strongSelf._webContentHeightHeight {
+                    height != strongSelf._webContentHeightHeight
+                {
                     strongSelf._webContentHeightHeight = height
 
                     if strongSelf._webContentSizeFlexible {
@@ -513,7 +257,282 @@ open class DLWebView: WKWebView {
         }
     }
 
-    // MARK: - Private
+    // MARK: Public
+
+    /// The delegate of DLWebView.
+    public weak var delegate: DLWebViewDelegate?
+
+    // MARK: - UI Appearance
+
+    /// The loading progress view on the top of web view.
+    public lazy var progressBar = WebLoadingProgressBar(webView: self, progressAnimationStyle: .smooth)
+
+    // MARK: - JavaScript
+
+    /// Determine whether or not the app window should display an alert, confirm or text input view from JavaScript functions. Defaults to true.
+    public var shouldDisplayAlertPanelByJavaScript: Bool = true
+
+    // MARK: - URL Request
+
+    /// A dictionary of the custom HTTP header fields for URL request.
+    public var customHTTPHeaderFields: [String: String]?
+
+    /// Determine whether or not the loading progress view should be shown. Defaults to false.
+    public var progressBarShown: Bool = false {
+        didSet {
+            if oldValue == progressBarShown {
+                return
+            }
+
+            if progressBarShown {
+                addSubview(progressBar)
+            } else {
+                progressBar.removeFromSuperview()
+            }
+        }
+    }
+
+    /// The color shown for the portion of the web loading progress bar that is filled.
+    public var progressTintColor: UIColor? {
+        get {
+            return progressBar.progressTintColor
+        }
+        set {
+            progressBar.progressTintColor = newValue
+        }
+    }
+
+    /// A floating-point value that determines the rate of deceleration after the user lifts their finger. Use the normal and fast constants as reference points for reasonable deceleration rates. Defaults to normal.
+    public var scrollDecelerationRate = UIScrollView.DecelerationRate.normal {
+        didSet {
+            scrollView.decelerationRate = scrollDecelerationRate
+        }
+    }
+
+    /// Determine whether or not the given element of web link should show a preview by 3D Touch. Defaults to false.
+    @available(iOS 9.0, *)
+    public var shouldPreviewElementBy3DTouch: Bool {
+        get {
+            return _shouldPreviewElementBy3DTouch && allowsLinkPreview
+        }
+        set {
+            allowsLinkPreview = newValue
+            _shouldPreviewElementBy3DTouch = newValue
+        }
+    }
+
+    /// Determine whether or not the web view controller should be closed by DOM window.close(). Defaults to false.
+    @available(iOS 9.0, *)
+    public var shouldCloseByDOMWindow: Bool {
+        get {
+            return _shouldCloseByDOMWindow
+        }
+        set {
+            _shouldCloseByDOMWindow = newValue
+        }
+    }
+
+    // MARK: - UI Appearance
+
+    /// Add an observer for the page title of web view
+    ///
+    /// - Parameter block: Invoked when the page title has been changed.
+    public func pageTitleDidChange(_ block: ((_ title: String?) -> Void)?) {
+        if (_pageTitleDidChangeBlock == nil && block == nil) || (_pageTitleDidChangeBlock != nil && block != nil) {
+            _pageTitleDidChangeBlock = block
+            return
+        }
+
+        _pageTitleDidChangeBlock = block
+        if block != nil {
+            addObserver(self, forKeyPath: #keyPath(WKWebView.title), options: [], context: &_pageTitleContext)
+        } else {
+            removeObserver(self, forKeyPath: #keyPath(WKWebView.title))
+        }
+    }
+
+    /// Add an observer to indicate whether there is a back item in the back-forward list that can be navigated to.
+    ///
+    /// - Parameter block: Invoked when the value of key `canGoBack` has been changed.
+    public func navigationCanGoBack(_ block: ((_ canGoBack: Bool) -> Void)?) {
+        if (_navigationCanGoBackBlock == nil && block == nil) || (_navigationCanGoBackBlock != nil && block != nil) {
+            _navigationCanGoBackBlock = block
+            return
+        }
+
+        _navigationCanGoBackBlock = block
+        if block != nil {
+            addObserver(self, forKeyPath: #keyPath(WKWebView.canGoBack), options: [], context: &_navigationCanGoBackContext)
+        } else {
+            removeObserver(self, forKeyPath: #keyPath(WKWebView.canGoBack))
+        }
+    }
+
+    /// Add an observer to indicate whether there is a forward item in the back-forward list that can be navigated to.
+    ///
+    /// - Parameter block: Invoked when the value of key `canGoForward` has been changed.
+    public func navigationCanGoForward(_ block: ((_ canGoForward: Bool) -> Void)?) {
+        if (_navigationCanGoForwardBlock == nil && block == nil) || (_navigationCanGoForwardBlock != nil && block != nil) {
+            _navigationCanGoForwardBlock = block
+            return
+        }
+
+        _navigationCanGoForwardBlock = block
+        if block != nil {
+            addObserver(self, forKeyPath: #keyPath(WKWebView.canGoForward), options: [], context: &_navigationCanGoForwardContext)
+        } else {
+            removeObserver(self, forKeyPath: #keyPath(WKWebView.canGoForward))
+        }
+    }
+
+    /// Add an observer for the height of web content.
+    ///
+    /// - Parameters:
+    ///   - block: Invoked when the height of web content has been changed.
+    ///   - sizeFlexible: Determine whether or not the size of web view should be flexible to fit its content size. Defaults to false.
+    public func webContentHeightDidChange(_ block: ((_ height: CGFloat) -> Void)? = { _ in }, sizeFlexible: Bool = false) {
+        _webContentSizeFlexible = sizeFlexible
+
+        if (_webContentHeightDidChangeBlock == nil && block == nil) || (_webContentHeightDidChangeBlock != nil && block != nil) {
+            _webContentHeightDidChangeBlock = block
+            return
+        }
+
+        _webContentHeightDidChangeBlock = block
+        if block != nil {
+            scrollView.addObserver(self, forKeyPath: #keyPath(UIScrollView.contentSize), options: [], context: &_webContentHeightContext)
+        } else {
+            scrollView.removeObserver(self, forKeyPath: #keyPath(UIScrollView.contentSize))
+        }
+    }
+
+    /// Make web view scroll to the given offset of Y position.
+    ///
+    /// - Parameter offset: The offset of Y position.
+    public func scrollTo(offset: CGFloat) {
+        if isLoading {
+            _scrollOffset = offset
+        } else {
+            _scrollTo(offset: offset)
+        }
+    }
+
+    // MARK: - Web Loading
+
+    /// Navigates to a requested URL.
+    ///
+    /// - Parameter urlString: A string of the URL to navigate to.
+    /// - Returns: A new navigation for the given request.
+    @discardableResult
+    public func load(_ urlString: String) -> WKNavigation? {
+        guard let url = URL(string: urlString) else {
+            return nil
+        }
+
+        return load(url)
+    }
+
+    /// Navigates to a requested URL.
+    ///
+    /// - Parameter url: The URL to navigate to.
+    /// - Returns: A new navigation for the given request.
+    @discardableResult
+    public func load(_ url: URL) -> WKNavigation? {
+        return load(URLRequest(url: url))
+    }
+
+    /// Load local HTML file in the specifed bundle
+    ///
+    /// - Parameters:
+    ///   - fileName: The name of HTML file.
+    ///   - bundle: The specified bundle contains the HTML file. Defaults to main bundle.
+    /// - Returns: A new navigation for the given request.
+    @discardableResult
+    public func loadHTML(fileName: String, bundle: Bundle = Bundle.main) -> WKNavigation? {
+        guard let filePath = bundle.path(forResource: fileName, ofType: "html") else {
+            return nil
+        }
+
+        guard let html = try? String(contentsOfFile: filePath, encoding: String.Encoding.utf8) else {
+            return nil
+        }
+
+        return loadHTMLString(html, baseURL: bundle.resourceURL)
+    }
+
+    // MARK: - JavaScript
+
+    /// Get the selected string from web page.
+    ///
+    /// - Parameter block: A block to invoke when pick up the selected string from html.
+    public func getSelectedString(_ block: @escaping (String?) -> Void) {
+        evaluateJavaScript("window.getSelection().toString();") { result, _ in
+            if let string = result as? String, !string.isEmpty {
+                block(string)
+            } else {
+                block(nil)
+            }
+        }
+    }
+
+    // MARK: - URL Request
+
+    /// Add custom valid URL schemes for the web view navigation.
+    ///
+    /// - Parameter schemes: An array of URL scheme.
+    public func addCustomValidSchemes(_ schemes: [String]) {
+        if _customValidSchemes == nil {
+            _customValidSchemes = Set<String>()
+        }
+        schemes.forEach { scheme in
+            self._customValidSchemes!.insert(scheme.lowercased())
+        }
+    }
+
+    /// The user agent of a web view.
+    ///
+    /// - Parameter block: A block with user agent string
+    public func userAgent(_ block: @escaping (_ result: String?) -> Void) {
+        evaluateJavaScript("navigator.userAgent") { result, _ in
+            block(result as? String)
+        }
+    }
+
+    // MARK: Private
+
+    private var _copyURL: URL?
+    private var _urlContext: Int = 0
+    private var _provisionalNavigationFailed: Bool = false
+
+    private var _cookiesShared: Bool = false
+
+    private var _shouldPreviewElementBy3DTouch = false
+
+    private var _shouldCloseByDOMWindow = false
+
+    private var _pageTitleDidChangeBlock: ((_ title: String?) -> Void)?
+    private var _pageTitleContext: Int = 0
+
+    private var _navigationCanGoBackBlock: ((_ canGoBack: Bool) -> Void)?
+    private var _navigationCanGoBackContext: Int = 0
+
+    private var _navigationCanGoForwardBlock: ((_ canGoForward: Bool) -> Void)?
+    private var _navigationCanGoForwardContext: Int = 0
+
+    private var _webContentHeightDidChangeBlock: ((_ height: CGFloat) -> Void)?
+    private var _webContentHeightContext: Int = 0
+    private var _webContentHeightHeight: CGFloat = 0.0
+    private var _webContentSizeFlexible: Bool = false
+
+    private var _scrollOffset: CGFloat = -1.0
+    private var _customValidSchemes: Set<String>?
+
+    private func _scrollTo(offset: CGFloat) {
+        if offset >= 0.0 {
+            _scrollOffset = -1.0
+            evaluateJavaScript("window.scrollTo(0, \(offset))")
+        }
+    }
 
     //    private var _authenticated = false
     //    private var _failedRequest: URLRequest?
@@ -529,7 +548,8 @@ open class DLWebView: WKWebView {
         }
 
         if let customValidSchemes = _customValidSchemes,
-            customValidSchemes.contains(scheme) {
+            customValidSchemes.contains(scheme)
+        {
             return false
         }
 
@@ -540,7 +560,8 @@ open class DLWebView: WKWebView {
     private func _launchExternalApp(url: URL) {
         let systemSchemes: [String] = ["tel", "sms", "mailto"]
         if let scheme = url.scheme,
-            systemSchemes.contains(scheme) {
+            systemSchemes.contains(scheme)
+        {
             if #available(iOS 10.0, *) {
                 UIApplication.shared.open(url)
             } else {
@@ -606,7 +627,8 @@ extension DLWebView: WKNavigationDelegate {
         }
 
         if _externalAppRequiredToOpen(url: url),
-            UIApplication.shared.canOpenURL(url) {
+            UIApplication.shared.canOpenURL(url)
+        {
             _launchExternalApp(url: url)
             decisionHandler(.cancel)
             return
@@ -649,7 +671,8 @@ extension DLWebView: WKUIDelegate {
     public func webView(_ webView: WKWebView, createWebViewWith configuration: WKWebViewConfiguration, for navigationAction: WKNavigationAction, windowFeatures: WKWindowFeatures) -> WKWebView? {
         guard let isMainFrame = navigationAction.targetFrame?.isMainFrame, isMainFrame else {
             guard let openNewWindow = delegate?.webView(self, shouldCreateNewWebViewWith: configuration, for: navigationAction, windowFeatures: windowFeatures),
-                openNewWindow else {
+                openNewWindow
+            else {
                 load(navigationAction.request)
                 return nil
             }
@@ -671,7 +694,7 @@ extension DLWebView: WKUIDelegate {
             return
         }
 
-        if let closestViewController = self.dl_closestViewController {
+        if let closestViewController = dl_closestViewController {
             delegate?.webViewDidClose(self, webViewController: closestViewController)
         }
     }
@@ -682,7 +705,7 @@ extension DLWebView: WKUIDelegate {
             return
         }
 
-        if let closestViewController = self.dl_closestViewController {
+        if let closestViewController = dl_closestViewController {
             delegate?.webView(self, webViewController: closestViewController, showAlertPanelWithMessage: message, completionHandler: completionHandler)
         } else {
             completionHandler()
@@ -695,7 +718,7 @@ extension DLWebView: WKUIDelegate {
             return
         }
 
-        if let closestViewController = self.dl_closestViewController {
+        if let closestViewController = dl_closestViewController {
             delegate?.webView(self, webViewController: closestViewController, showConfirmPanelWithMessage: message, completionHandler: completionHandler)
         } else {
             completionHandler(false)
@@ -708,7 +731,7 @@ extension DLWebView: WKUIDelegate {
             return
         }
 
-        if let closestViewController = self.dl_closestViewController {
+        if let closestViewController = dl_closestViewController {
             delegate?.webView(self, webViewController: closestViewController, showTextInputPanelWithPrompt: prompt, defaultText: defaultText, completionHandler: completionHandler)
         } else {
             completionHandler(nil)

@@ -10,108 +10,8 @@ import AsyncDisplayKit
 
 /// A view controller with web node container.
 open class DLWebNodeController: ASDKViewController<DLWebNode>, WebControllerAppearance, WebNavigationItemDelegate {
-    // MARK: - WebNavigationItemDelegate
-    
-    private var _canGoBack = false
-    public var navigationItemCanClose: Bool = false {
-        didSet {
-            if oldValue != navigationItemCanClose {
-                if navigationItemCanClose {
-                    webNode.navigationCanGoBack { [weak self] canGoBack in
-                        guard let strongSelf = self else { return }
-                        
-                        if strongSelf._canGoBack != canGoBack {
-                            strongSelf._canGoBack = canGoBack
-                            strongSelf.navigationItemCloseDidChange(canClose: canGoBack)
-                        }
-                    }
-                } else {
-                    webNode.navigationCanGoBack(nil)
-                }
-            }
-        }
-    }
-    
-    public var navigationItemCanRefresh: Bool = false {
-        didSet {
-            if oldValue != navigationItemCanRefresh {
-                navigationItemRefreshDidChange(canRefresh: navigationItemCanRefresh)
-            }
-        }
-    }
-    
-    // MARK: - WebControllerAppearance
-    
-    public var pageTitleNavigationShown: Bool = false {
-        didSet {
-            if oldValue != pageTitleNavigationShown {
-                if pageTitleNavigationShown {
-                    webNode.pageTitleDidChange { [weak self] title in
-                        guard let strongSelf = self else { return }
-                        
-                        strongSelf.navigationItem.title = title
-                    }
-                } else {
-                    webNode.pageTitleDidChange(nil)
-                }
-            }
-        }
-    }
-    
-    public var canGoBackByNavigationBackButton: Bool = true
-    
-    public var progressBarShown: Bool = true {
-        didSet {
-            webNode.progressBarShown = progressBarShown
-        }
-    }
-    
-    public var progressTintColor: UIColor? {
-        get {
-            return webNode.progressTintColor
-        }
-        set {
-            webNode.progressTintColor = newValue
-        }
-    }
-    
-    public var shouldDisplayAlertPanel: Bool = false {
-        didSet {
-            webNode.shouldDisplayAlertPanelByJavaScript = shouldDisplayAlertPanel
-        }
-    }
-    
-    @available(iOS 9.0, *)
-    public var shouldPreviewElementBy3DTouch: Bool {
-        get {
-            return webNode.shouldPreviewElementBy3DTouch
-        }
-        set {
-            webNode.shouldPreviewElementBy3DTouch = newValue
-        }
-    }
-    
-    public func scrollTo(offset: CGFloat) {
-        webNode.scrollTo(offset: offset)
-    }
-    
-    open func setupAppearance() {}
-    
-    // MARK: - Init
-    
-    /// The root node of web node controller.
-    public let webNode: DLWebNode
-    
-    /// The delegate of DLWebNode.
-    public weak var delegate: DLWebNodeDelegate? {
-        didSet {
-            webNode.delegate = delegate
-        }
-    }
-    
-    /// The initial URL of web view to load.
-    public var url: String?
-    
+    // MARK: Lifecycle
+
     /// A web node controller initialization.
     ///
     /// - Parameters:
@@ -128,7 +28,8 @@ open class DLWebNodeController: ASDKViewController<DLWebNode>, WebControllerAppe
                 userSelected: Bool = true,
                 userScalable: WebUserScalable = .default,
                 contentFitStyle: WebContentFitStyle = .default,
-                customUserAgent: String? = nil) {
+                customUserAgent: String? = nil)
+    {
         webNode = DLWebNode(configuration: configuration,
                             cookiesShared: cookiesShared,
                             userSelected: userSelected,
@@ -137,13 +38,13 @@ open class DLWebNodeController: ASDKViewController<DLWebNode>, WebControllerAppe
                             customUserAgent: customUserAgent)
         webNode.progressBarShown = progressBarShown
         webNode.shouldDisplayAlertPanelByJavaScript = shouldDisplayAlertPanel
-        
+
         super.init(node: webNode)
-        
+
         self.url = url
     }
-    
-    public convenience override init() {
+
+    override public convenience init() {
         self.init(url: nil,
                   configuration: DLWebNodeConfiguration(),
                   cookiesShared: false,
@@ -152,7 +53,7 @@ open class DLWebNodeController: ASDKViewController<DLWebNode>, WebControllerAppe
                   contentFitStyle: .default,
                   customUserAgent: nil)
     }
-    
+
     public required init?(coder aDecoder: NSCoder) {
         webNode = DLWebNode(configuration: DLWebNodeConfiguration(),
                             cookiesShared: false,
@@ -162,31 +63,138 @@ open class DLWebNodeController: ASDKViewController<DLWebNode>, WebControllerAppe
                             customUserAgent: nil)
         webNode.progressBarShown = progressBarShown
         webNode.shouldDisplayAlertPanelByJavaScript = shouldDisplayAlertPanel
-        
+
         super.init(coder: aDecoder)
-        
+
         setValue(webNode, forKey: "node")
     }
-    
-    open override func viewDidLoad() {
+
+    // MARK: Open
+
+    override open func viewDidLoad() {
         super.viewDidLoad()
         setupAppearance()
-        
+
         navigationItem.leftItemsSupplementBackButton = canGoBackByNavigationBackButton
-        
+
         #if WebViewNode_JSBridge
         bindJSBridge()
         #endif
-        
+
         if let url = url {
             load(url)
         }
     }
-    
-    open override func didReceiveMemoryWarning() {
+
+    override open func didReceiveMemoryWarning() {
         super.didReceiveMemoryWarning()
         // Dispose of any resources that can be recreated.
     }
+
+    open func setupAppearance() {}
+
+    // MARK: Public
+
+    /// The root node of web node controller.
+    public let webNode: DLWebNode
+
+    /// The initial URL of web view to load.
+    public var url: String?
+
+    public var canGoBackByNavigationBackButton: Bool = true
+
+    /// The delegate of DLWebNode.
+    public weak var delegate: DLWebNodeDelegate? {
+        didSet {
+            webNode.delegate = delegate
+        }
+    }
+
+    // MARK: - WebNavigationItemDelegate
+
+    public var navigationItemCanClose: Bool = false {
+        didSet {
+            if oldValue != navigationItemCanClose {
+                if navigationItemCanClose {
+                    webNode.navigationCanGoBack { [weak self] canGoBack in
+                        guard let strongSelf = self else { return }
+
+                        if strongSelf._canGoBack != canGoBack {
+                            strongSelf._canGoBack = canGoBack
+                            strongSelf.navigationItemCloseDidChange(canClose: canGoBack)
+                        }
+                    }
+                } else {
+                    webNode.navigationCanGoBack(nil)
+                }
+            }
+        }
+    }
+
+    public var navigationItemCanRefresh: Bool = false {
+        didSet {
+            if oldValue != navigationItemCanRefresh {
+                navigationItemRefreshDidChange(canRefresh: navigationItemCanRefresh)
+            }
+        }
+    }
+
+    // MARK: - WebControllerAppearance
+
+    public var pageTitleNavigationShown: Bool = false {
+        didSet {
+            if oldValue != pageTitleNavigationShown {
+                if pageTitleNavigationShown {
+                    webNode.pageTitleDidChange { [weak self] title in
+                        guard let strongSelf = self else { return }
+
+                        strongSelf.navigationItem.title = title
+                    }
+                } else {
+                    webNode.pageTitleDidChange(nil)
+                }
+            }
+        }
+    }
+
+    public var progressBarShown: Bool = true {
+        didSet {
+            webNode.progressBarShown = progressBarShown
+        }
+    }
+
+    public var progressTintColor: UIColor? {
+        get {
+            return webNode.progressTintColor
+        }
+        set {
+            webNode.progressTintColor = newValue
+        }
+    }
+
+    public var shouldDisplayAlertPanel: Bool = false {
+        didSet {
+            webNode.shouldDisplayAlertPanelByJavaScript = shouldDisplayAlertPanel
+        }
+    }
+
+    @available(iOS 9.0, *)
+    public var shouldPreviewElementBy3DTouch: Bool {
+        get {
+            return webNode.shouldPreviewElementBy3DTouch
+        }
+        set {
+            webNode.shouldPreviewElementBy3DTouch = newValue
+        }
+    }
+
+    public func scrollTo(offset: CGFloat) {
+        webNode.scrollTo(offset: offset)
+    }
+
+    // MARK: Private
+
+    private var _canGoBack = false
 }
 
 // MARK: - DLNavigationControllerDelegate
@@ -194,7 +202,8 @@ open class DLWebNodeController: ASDKViewController<DLWebNode>, WebControllerAppe
 extension DLWebNodeController: DLNavigationControllerDelegate {
     public func navigationConroller(_ navigationConroller: UINavigationController, shouldPop item: UINavigationItem) -> Bool {
         if canGoBackByNavigationBackButton,
-            webNode.nodeView.canGoBack {
+            webNode.nodeView.canGoBack
+        {
             webNode.nodeView.goBack()
             return false
         } else {
@@ -209,35 +218,35 @@ extension DLWebNodeController: WebControllerAction {
     public func goBack() {
         webNode.goBack()
     }
-    
+
     public func goForward() {
         webNode.goForward()
     }
-    
+
     public func load(_ urlString: String) {
         webNode.load(urlString)
     }
-    
+
     public func load(_ url: URL) {
         webNode.load(url)
     }
-    
+
     public func load(_ request: URLRequest) {
         webNode.load(request)
     }
-    
+
     public func loadHTML(fileName: String, bundle: Bundle = Bundle.main) {
         webNode.loadHTML(fileName: fileName, bundle: bundle)
     }
-    
+
     public func reload() {
         webNode.reload()
     }
-    
+
     public func reloadFromOrigin() {
         webNode.reloadFromOrigin()
     }
-    
+
     public func stopLoading() {
         webNode.stopLoading()
     }

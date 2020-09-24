@@ -7,11 +7,49 @@
 //
 
 import UIKit
-import WebViewNode
 import WebKit
+import WebViewNode
 
 class ExampleViewController: UIViewController {
-    
+    // MARK: Lifecycle
+
+    deinit {
+        print("\(#function): \(self)")
+    }
+
+    // MARK: Internal
+
+    override func viewDidLoad() {
+        super.viewDidLoad()
+
+        _webView.bindJSBridge()
+
+        view.addSubview(_webView)
+        _webView.frame = view.bounds
+        _webView.pageTitleDidChange { [weak self] title in
+            guard let strongSelf = self else { return }
+
+            strongSelf.title = title
+        }
+        _webView.webContentHeightDidChange({ height in
+            print("Web content height: \(height)")
+        }, sizeFlexible: false)
+        _webView.delegate = self
+//        _webView.load("https://github.com/")
+//        _webView.load("https://www.google.com/")
+        _webView.load("https://www.baidu.com/")
+
+        //
+        navigationItem.rightBarButtonItem = UIBarButtonItem(barButtonSystemItem: .action, target: self, action: #selector(moreAction))
+    }
+
+    override func didReceiveMemoryWarning() {
+        super.didReceiveMemoryWarning()
+        // Dispose of any resources that can be recreated.
+    }
+
+    // MARK: Private
+
     private let _webView: DLWebView = {
         let webView = DLWebView(cookiesShared: true, userSelected: false, userScalable: .disable, contentFitStyle: .default)
         webView.progressBarShown = true
@@ -27,55 +65,20 @@ class ExampleViewController: UIViewController {
         if #available(iOS 9.0, *) {
             webView.shouldCloseByDOMWindow = true
         }
-        
+
         return webView
     }()
-
-    override func viewDidLoad() {
-        super.viewDidLoad()
-        
-        _webView.bindJSBridge()
-        
-        self.view.addSubview(_webView)
-        _webView.frame = self.view.bounds
-        _webView.pageTitleDidChange { [weak self] (title) in
-            guard let strongSelf = self else { return }
-            
-            strongSelf.title = title
-        }
-        _webView.webContentHeightDidChange({ (height) in
-            print("Web content height: \(height)")
-        }, sizeFlexible: false)
-        _webView.delegate = self
-//        _webView.load("https://github.com/")
-//        _webView.load("https://www.google.com/")
-        _webView.load("https://www.baidu.com/")
-        
-        //
-        self.navigationItem.rightBarButtonItem = UIBarButtonItem(barButtonSystemItem: .action, target: self, action: #selector(moreAction))
-    }
-
-    override func didReceiveMemoryWarning() {
-        super.didReceiveMemoryWarning()
-        // Dispose of any resources that can be recreated.
-    }
-    
-    deinit {
-        print("\(#function): \(self)")
-    }
 
     @objc
     private func moreAction() {
 //        _webView.scrollTo(offset: 1000)
-        
+
 //        _webView.getSelectedString { (string) in
 //            print("selected: \(string)")
 //        }
-        
+
         WebKit.removeAllWebsiteDataRecords()
     }
 }
 
-extension ExampleViewController: DLWebViewDelegate {
-    
-}
+extension ExampleViewController: DLWebViewDelegate {}

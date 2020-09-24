@@ -9,7 +9,22 @@
 import AsyncDisplayKit
 
 open class DLViewNode<ViewType: UIView>: ASDisplayNode {
-    private var _viewAssociations: [(ViewType) -> Void]?
+    // MARK: Open
+
+    override open func didLoad() {
+        super.didLoad()
+
+        guard let viewAssociations = _viewAssociations else {
+            return
+        }
+
+        for block in viewAssociations {
+            block(nodeView)
+        }
+        _viewAssociations = nil
+    }
+
+    // MARK: Public
 
     public var nodeView: ViewType {
         return view as! ViewType
@@ -26,16 +41,7 @@ open class DLViewNode<ViewType: UIView>: ASDisplayNode {
         }
     }
 
-    open override func didLoad() {
-        super.didLoad()
+    // MARK: Private
 
-        guard let viewAssociations = _viewAssociations else {
-            return
-        }
-
-        for block in viewAssociations {
-            block(nodeView)
-        }
-        _viewAssociations = nil
-    }
+    private var _viewAssociations: [(ViewType) -> Void]?
 }
