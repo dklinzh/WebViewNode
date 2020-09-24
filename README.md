@@ -7,11 +7,11 @@
 
 ## Example
 
-To run the example project, clone the repo, and run `pod install` from the Example directory first.
+To run the [example](/Example) project, clone the repo, and run `pod install` from the Example directory first.
 
 ## Requirements
 
-* Xcode 10.2+
+* Xcode 12+
 * Swift 5+
 * iOS Supports
 
@@ -28,7 +28,7 @@ WebViewNode is available through [CocoaPods](https://cocoapods.org). To install
 it, simply add the following line to your Podfile:
 
 ```ruby
-pod 'WebViewNode', '~> 0.2'
+pod 'WebViewNode', '~> 0.3'
 ```
 
 ## Author
